@@ -6,6 +6,6 @@
 | R2 | Máy tính thuế một căn (T5) | merged (#8, 2026-10-26) |
 | R3 | Sổ doanh thu nhiều căn (T6) | merged (#11, 2026-10-26) |
 | R4 | Hạn khai, .ics, số liệu 01/TTS (T7) | merged (#15, 2026-10-26) |
-| R5 | Trang công khai, deploy Pages (T8, T9) | chưa |
+| R5 | Trang công khai, deploy Pages (T8, T9) | merged (#18, 2026-10-26); T8 đạt, T9 chưa (Pages chưa bật, H-08) |
 
 Chi tiết: `docs/goals/thue-cho-thue-v1/roadmap.md`.
