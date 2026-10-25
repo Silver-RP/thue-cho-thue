@@ -125,6 +125,59 @@ button.primary {
   color: #444;
 }
 
+/* Sổ doanh thu */
+.ledger {
+  margin: 2rem auto 0;
+  max-width: 100%;
+  border-top: 2px solid #dde1e6;
+  padding: 1rem;
+}
+
+.lg-property,
+.lg-contract,
+.lg-choice,
+.lg-summary,
+.lg-backup {
+  background: #fff;
+  border: 1px solid #dde1e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.lg-contract {
+  background: #f9fafb;
+}
+
+.lg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lg-actions button,
+.lg-backup button {
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+}
+
+.lg-actions button.primary {
+  width: auto;
+}
+
+.threshold-warning {
+  background: #fff4e0;
+  border-left: 4px solid #c77700;
+  padding: 0.5rem 0.75rem;
+}
+
+.lg-receipt {
+  border-bottom: 1px dashed #dde1e6;
+  margin-bottom: 0.5rem;
+}
+
 @media (min-width: 600px) {
   #app {
     padding: 2rem 1rem;
