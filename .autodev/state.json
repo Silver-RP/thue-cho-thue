@@ -1,0 +1,31 @@
+{
+  "milestone": "R1",
+  "current_task": null,
+  "tasks": {
+    "dev-01": {
+      "status": "DONE",
+      "round": 1
+    },
+    "dev-02": {
+      "status": "DONE",
+      "round": 1
+    },
+    "dev-03": {
+      "status": "DONE",
+      "round": 1
+    },
+    "dev-04": {
+      "status": "DONE",
+      "round": 1
+    }
+  },
+  "verify": {
+    "last_status": "PASS",
+    "hook_runs": 4,
+    "last_hook_at": "2026-10-25T15:53:06Z",
+    "last_hook_agent": "autodev:developer",
+    "consecutive_blocks": 0
+  },
+  "consecutive_blocks": 0,
+  "history": {}
+}
