@@ -123,3 +123,45 @@ Thêm: `grep -rnE '1000000000\|1_000_000_000\|0\.05\|rateBps\|/ 10000\|07-31\|01
 - H-07 (thấp): khoá dự phòng chỉ ghi khi trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi).
 
 Quyết định: đạt (đã merge #11; main không có check bắt buộc). Không quyết định (c). Thí nghiệm superpowers: config không bật, bỏ qua.
+
+## R4: Hạn khai, nhắc lịch .ics, số liệu 01/TTS, hướng dẫn eTax (duyệt 2026-10-26)
+PR #15, supervisor duyệt trên đầu nhánh 36af6c3 rồi merge (88a31c2). 4/4 task PASS vòng 1 (dev-01 7793c20, dev-02 7d69429, dev-03 ca9c1ab, dev-04 37fc1f5). Lần này supervisor merge sau khi duyệt (khác R3).
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên 36af6c3)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify sạch (smoke rỗng) | `verify.py` | "sạch (không có lỗi mới so với baseline)" |
+| 2 | T7 | `yarn -s test tests/export` | 4 file, 28 passed, 0 failed (≥ 6) |
+| 3 | T4 | `yarn -s test` | 18 file, 165 passed, 0 failed; tax 25, rules 7, ui 60, ledger 44 |
+
+Thêm: `git diff origin/main -- src/tax src/rules tests/ledger/fixtures` rỗng (không sửa ngoài phạm vi cấm).
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 15 | 12 | 0,83× |
+| USD | 3,0 | 2,09 + ~1,31 (supervisor tạm tính) | ~1,13× |
+| Vòng review | 4–6 | 4 | trong khoảng |
+
+### Pre-mortem
+1. CSV dùng không được / lệch màn hình → chặn: `tests/export/declaration.test.ts` (BOM, CRLF, RFC 4180 đọc ngược, tiền tố `'`, đối chiếu `summarizeYear`), `tests/export/e2e.test.ts` mục 2–3.
+2. `.ics` lệch múi giờ → chặn: `tests/export/ics.test.ts` (`DTSTART;VALUE=DATE`, không `T`/`Z`, quét `new Date`/`Date.now`).
+3. Hạn 31/01 sai năm → chặn: ics.test (2026 → `20270131`, không `20260131`), e2e mục 1.
+4. `.ics` không nhập được → chặn: CRLF, ≤ 75 octet, thoát `,;`, `DTEND` qua tháng/năm/nhuận. Supervisor thử thêm căn cứ dài có chữ Việt + emoji + `\`: gấp đúng, gỡ ra đúng chuỗi gốc.
+5. Khai 2 lần không tới engine / mất khi tải lại → chặn: `tests/ledger/filing-mode.test.ts`, e2e mục 1 (gắn lại cùng `Storage`).
+6. `filingMode` làm sổ cũ hỏng → chặn: fixture v1 không đổi vẫn nạp; xuất/nhập giữ trường. Supervisor thử `{"2026.5"}`, `{"abcd"}`, mảng, `"TWICE"`, `null` → đều bị từ chối bằng lỗi tiếng Việt.
+7. Mẫu chưa xác nhận như chính thức → chặn: `confirmed: false`, mọi `code: null`, ghi chú "chưa xác nhận mẫu" trong bảng và CSV.
+8. GTGT không nhãn → chặn ở dòng GTGT; **chưa chặn** ở dòng "Tổng số thuế phải nộp" (gồm GTGT ước tính, không nhãn): ghi vào H-14.
+9. Chép lỗi im lặng → chặn: `tests/export/ui-export.test.ts` (Promise từ chối → lỗi tiếng Việt, số vẫn thấy).
+10. Sổ trống / `notify_only` → chặn: ui-export.test mục 5.
+
+### Kiểm độc lập (vitest, file tạm trong `tests/`, đã xoá sau khi chạy)
+- `.ics` căn cứ ~400 octet có dấu, emoji, `,` `;` `\`: mọi dòng ≤ 75 octet, gỡ gấp + bỏ thoát ra đúng chuỗi gốc: đúng.
+- `filingMode` giá trị/khoá lạ: từ chối đúng; `"twice"` → hạn 2026-07-31 và 2027-01-31: đúng.
+- Hợp đồng chỉ có kỳ thu 2025 (kết thúc 2025-12-31) vẫn thành một dòng toàn số 0 trong phụ lục 2026; e2e mục 2 chỉ dùng dữ liệu mà mọi hợp đồng đều có doanh thu 2026 nên không bắt được. Tổng vẫn đúng. Thành H-17 (thấp).
+
+### Ghi chú reviewer (không chặn)
+`deadlinesToIcs([])` vẫn sinh lịch rỗng; radio không vẽ lại khi `setFilingMode` lỗi; `DISCLAIMER` hiện hai lần trên trang; `toCsv` ném `RangeError` với số âm/lẻ. Gộp vào H-16 (cụm UX nhỏ).
+
+Quyết định: đạt, merge #15 (main không có check bắt buộc). Không quyết định (c). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R4 `done`, T7 đạt (7/9).
