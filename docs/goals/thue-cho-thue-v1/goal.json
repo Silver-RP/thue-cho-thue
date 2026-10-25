@@ -19,7 +19,7 @@
     {"id": "R2", "title": "Máy tính thuế một căn: form VNĐ, kết quả có giải thích và căn cứ, GTGT ghi ước tính, câu miễn trừ", "depends_on": ["R1"], "metrics": ["T5", "T3", "T4"],
      "est_usd": 3.0, "est_hours": 0.8, "status": "done", "plan_file": "plan/R2.md"},
     {"id": "R3", "title": "Sổ doanh thu nhiều căn, nhiều hợp đồng: localStorage có schema, xuất/nhập JSON, chọn hợp đồng trừ ngưỡng", "depends_on": ["R2"], "metrics": ["T6", "T4"],
-     "est_usd": 3.5, "est_hours": 1.0, "status": "planned"},
+     "est_usd": 3.5, "est_hours": 1.0, "status": "done", "plan_file": "plan/R3.md"},
     {"id": "R4", "title": "Hạn khai, nhắc lịch .ics, xuất số liệu tờ khai 01/TTS (CSV + chép), hướng dẫn eTax Mobile", "depends_on": ["R3"], "metrics": ["T7", "T4"],
      "est_usd": 2.5, "est_hours": 0.7, "status": "planned"},
     {"id": "R5", "title": "Trang công khai, SEO, deploy GitHub Pages sau test xanh, test build", "depends_on": ["R4"], "metrics": ["T8", "T9", "T4"],
