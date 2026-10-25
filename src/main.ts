@@ -1,4 +1,5 @@
-import { APP_NAME } from "./app";
+import "./ui/style.css";
+import { mountCalculator } from "./ui/form";
 
 const root = document.querySelector<HTMLElement>("#app");
-if (root) root.textContent = APP_NAME;
+if (root) mountCalculator(root, { year: 2026 });
