@@ -16,5 +16,6 @@
 - dev-01 DONE (1 vòng, commit 5718f61). Phép sửa sổ nằm ở `src/ledger/ops.ts`. `summarizeYear` ném lỗi khi `rules.year` khác `year` (UI dev-03 phải bắt). Ghi chú reviewer: `findCrossing` O(n²) không đáng kể.
 - dev-02 DONE (1 vòng, commit b86f603). API: `parseLedger`, `loadLedger`, `saveLedger`, `exportLedger`, `importLedger`. Ghi chú reviewer: nếu `loadLedger` trả `error`, UI không tự ghi sổ rỗng khi mở trang; khoá dự phòng đã có thì lần hỏng sau không sao lưu thêm, UI nên báo rõ.
 - dev-03 DONE (1 vòng, commit 01f1dd2). Sổ gắn vào `#ledger` trong `index.html`; `mountLedger` thêm tham số `confirm`. Ghi chú reviewer: `render()` vẽ lại toàn bộ sau mỗi thay đổi hợp lệ (mất dữ liệu gõ dở ở form khác); chưa có test UI cho trả trước.
+- dev-04 DONE (1 vòng, commit 577b750). 6 ca đầu-cuối trong `tests/ledger/ui-e2e.test.ts`, không lộ lệch UI ↔ engine, không sửa `src/`. tests/ledger 41 passed, toàn bộ 134 passed. Ghi chú reviewer: regex thông báo lỗi ở ca nhập file sai quá rộng.
 
 ## Đề xuất chờ duyệt
