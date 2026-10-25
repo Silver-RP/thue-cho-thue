@@ -1,0 +1,31 @@
+{
+  "verify": [
+    {
+      "name": "lint",
+      "cmd": "yarn -s lint"
+    },
+    {
+      "name": "test",
+      "cmd": "yarn -s test"
+    }
+  ],
+  "smoke": [],
+  "max_rounds": 3,
+  "max_verify_blocks": 3,
+  "blocked_policy": "continue_independent",
+  "paths": {
+    "plan_dir": "plan",
+    "progress_file": "plan/PROGRESS.md",
+    "autodev_docs": "docs/autodev",
+    "audits_dir": "docs/audits",
+    "goals_dir": "docs/goals",
+    "tasks_file": "",
+    "criteria_file": ""
+  },
+  "supervisor_allowed": [],
+  "app": {
+    "run": null,
+    "url": null,
+    "note": ""
+  }
+}
