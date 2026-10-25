@@ -23,7 +23,7 @@
     {"id": "R4", "title": "Hạn khai, nhắc lịch .ics, xuất số liệu tờ khai 01/TTS (CSV + chép), hướng dẫn eTax Mobile", "depends_on": ["R3"], "metrics": ["T7", "T4"],
      "est_usd": 2.5, "est_hours": 0.7, "status": "done", "plan_file": "plan/R4.md"},
     {"id": "R5", "title": "Trang công khai, SEO, deploy GitHub Pages sau test xanh, test build", "depends_on": ["R4"], "metrics": ["T8", "T9", "T4"],
-     "est_usd": 3.0, "est_hours": 0.8, "status": "planned"}
+     "est_usd": 3.0, "est_hours": 0.8, "status": "done", "plan_file": "plan/R5.md"}
   ],
   "cut_order": ["R4", "R3"],
   "human_only": ["Xác nhận cơ sở tính GTGT (L5) và mẫu tờ khai hiện hành", "Chọn dịch vụ analytics/form", "Duyệt nội dung trang trước khi quảng bá"]

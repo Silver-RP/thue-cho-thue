@@ -5,6 +5,8 @@
 | R1 | 8 phút worker (ước tính 60) | 1,31 USD (ước tính 4,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,14, USD 0,33 |
 | R2 | 11 phút worker (ước tính 20) | 1,49 + ~0,92 USD (ước tính 4,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,53, USD ~0,60 |
 | R3 | 15 phút worker (ước tính 20) | 3,03 USD theo metrics.py (ước tính 3,7) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,76, USD 0,82 |
+| R4 | 12 phút worker (ước tính 15) | 3,50 USD theo metrics.py (ước tính 3,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,83, USD 1,17 |
+| R5 | 12 phút worker (ước tính 14) | 1,73 + ~1,33 USD (ước tính 3,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,87, USD ~1,02 |
 
 ## R1: duyệt của supervisor (2026-10-26, PR #5)
 
@@ -165,3 +167,44 @@ Thêm: `git diff origin/main -- src/tax src/rules tests/ledger/fixtures` rỗng 
 `deadlinesToIcs([])` vẫn sinh lịch rỗng; radio không vẽ lại khi `setFilingMode` lỗi; `DISCLAIMER` hiện hai lần trên trang; `toCsv` ném `RangeError` với số âm/lẻ. Gộp vào H-16 (cụm UX nhỏ).
 
 Quyết định: đạt, merge #15 (main không có check bắt buộc). Không quyết định (c). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R4 `done`, T7 đạt (7/9).
+
+## R5: duyệt của supervisor (2026-10-26, PR #18, merge 0541381)
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên `origin/milestone/R5` 15747f4)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify sạch | `verify.py`; `verify.py --smoke` | "sạch (không có lỗi mới so với baseline)"; smoke "sạch" (danh sách rỗng) |
+| 2 | T8 | `yarn -s build && yarn -s test tests/build`; `gzip -c dist/assets/* \| wc -c`; `grep -oE "fetch\\(\|XMLHttpRequest\|sendBeacon\|WebSocket\|EventSource\|https?://" dist/assets/*.js`; `grep -rnE ... src` | build exit 0; 4 file, 45 passed; JS 14.923 + CSS 1.004 byte gzip (~16 KB ≤ 100 KB); bundle không có API mạng hay URL; trong `src/` chỉ `analytics.ts` |
+| 3 | T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` (sau merge) | **chưa đạt**: 404. Run deploy 40230417942: install/lint/test/build xanh, đỏ ở `configure-pages` ("Resource not accessible by integration", Pages chưa bật); `deploy` không chạy. Đúng rủi ro đã ghi trong plan (Đề xuất chờ duyệt, pre-mortem 3); plan ghi "đỏ thì ghi H, không mở lại mốc" → H-08 thu hẹp |
+| 4 | T4 | `yarn -s test`; `yarn -s lint` | 22 file, 210 passed, 0 failed; lint exit 0 |
+
+Thêm: `grep -oE "(src\|href)=..." dist/index.html` → tài nguyên `/thue-cho-thue/assets/...`, canonical `https://silver-rp.github.io/thue-cho-thue/`; `dist/robots.txt` `Allow: /` + Sitemap đúng URL. Workflow đọc tay: `deploy.needs: test`, upload artifact sau lint/test/build, không `continue-on-error`/`|| true`, `on.push.branches: [main]`.
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 14 | 12 | 0,87× |
+| USD | 3,0 | 1,73 + ~1,33 (metrics.py; supervisor tạm tính) | ~1,02× |
+| Vòng review | 4–6 | 4 | trong khoảng |
+
+### Pre-mortem
+1. Trang trắng do đường dẫn tài nguyên sai → chặn: `tests/build/build.test.ts` (HTML đã build, tiền tố `/thue-cho-thue/`, file tồn tại, chạy bundle trong happy-dom); supervisor xem `dist/index.html`.
+2. Deploy dù test đỏ → chặn: `tests/build/workflow.test.ts` (kể cả YAML giả bỏ `needs`/thêm `continue-on-error` → đỏ); CI thật: `configure-pages` đỏ thì `deploy` không chạy.
+3. Pages chưa bật → **chưa chặn được bằng code** (quyền repo): đã xảy ra, run đầu đỏ. Chờ leader (H-08).
+4. `tests/build` xanh mà không build → chặn: build vào thư mục tạm trong test; T4 210 có 45 ca build.
+5. Gọi mạng lạ / analytics lộ dữ liệu → chặn: `tests/build/analytics.test.ts`, quét bundle; supervisor build có `VITE_ANALYTICS_URL` → bundle có `sendBeacon` và URL, không đặt → không có (loại nhánh thật).
+6. Vượt 100 KB → chặn: đo gzip trong test; thực tế ~16 KB.
+7. FAQ lệch luật → chặn phần lớn: `data-rule` so `getRules(2026)`; mục Nguồn vẫn viết cứng "01 tỷ đồng" (H-18).
+8. SEO sai đường dẫn con → chặn: `tests/build/content.test.ts` (OG/canonical/sitemap, XML hợp lệ, robots).
+9. Test build chập chờn → chặn: `tests/build` chạy ~2 giây, không mạng.
+
+### Kiểm độc lập
+- Build với `VITE_ANALYTICS_URL=https://a.example/e` (outDir `/tmp/r5an`) → bundle có `sendBeacon` ×2 và `a.example`; build mặc định không có: analytics thật sự bị loại khi tắt.
+- Bỏ thẻ HTML của `dist/index.html` → vẫn thấy "Ngưỡng doanh thu là bao nhiêu?" (chuỗi smoke) và "Thuế cho thuê": đọc được không cần JS.
+- T9 thật sau merge: 404 (xem trên).
+
+### Ghi chú reviewer (không chặn)
+Nguồn viết cứng "01 tỷ đồng"; `data-rule=deadline` chỉ so 31/01/2027; test happy-dom `eval` bundle chỉ đúng khi một chunk; chưa quét bundle không chứa `yaml`. Supervisor thêm: dự phòng `fetch` analytics không `.catch` (chỉ khi bật); action Node 20 bị cảnh báo deprecated. Gộp vào H-18.
+
+Quyết định: đạt tiêu chí 1, 2, 4; tiêu chí 3 theo plan đo sau merge và chưa đạt vì Pages chưa bật (ngoài quyền supervisor: bật Pages là công khai trang, chờ leader). Merge #18 (main không có check bắt buộc). Không quyết định (c). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R5 `done`, T8 đạt (8/9), T9 chờ.
