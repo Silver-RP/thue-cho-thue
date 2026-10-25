@@ -22,5 +22,6 @@
 - dev-01 DONE (1 vòng, commit 7793c20). `src/export/ics.ts` (`deadlinesToIcs`, `icsFilename`, `nextDay`); `filingMode` trong sổ (model/ops/schema/summary/backup; `backup.ts` ngoài danh sách phạm vi nhưng cần để xuất giữ `filingMode`). Ghi chú reviewer: `deadlinesToIcs` danh sách rỗng vẫn sinh VCALENDAR không VEVENT, dev-03 không hiện nút tải khi không có hạn.
 - dev-02 DONE (1 vòng, commit 7d69429). `src/export/forms.ts`, `declaration.ts`, `csv.ts`. Điều chỉnh (a): `Declaration.annex` là `Row[]` kèm `annexHeader`/`annexTitle` (không phải `Row[][]`), mỗi dòng `main` là `[mã hoặc "", tên trường, giá trị]`; mọi `code` của 01/TTS là `null`. Ghi chú reviewer: `toCsv` ném `RangeError` với số âm/lẻ, dev-03 bắt lỗi nếu có đường dẫn đưa số âm vào.
 - dev-03 DONE (1 vòng, commit ca9c1ab). `src/ui/export.ts` (`mountExport`, thêm tham số `rules` cho test), gắn vào `src/ui/ledger.ts`. Ghi chú reviewer: `setFilingMode` lỗi thì radio không vẽ lại về lựa chọn cũ; `DISCLAIMER` hiện hai lần trên trang sổ; `DTSTAMP` mặc định là 00:00:00Z của `today`; `mountExport` độc lập chưa có test cho `setFilingMode` trả lỗi.
+- dev-04 DONE (1 vòng, commit 37fc1f5). `tests/export/e2e.test.ts` 5 ca đầu-cuối qua DOM, không lộ lệch UI ↔ engine; `LedgerMountOptions` thêm `download?`/`copy?` chuyển tiếp xuống `mountExport`. tests/export 28 passed, toàn bộ 165 passed.
 
 ## Đề xuất chờ duyệt
