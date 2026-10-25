@@ -1,4 +1,5 @@
 import type { CitationMap, TaxRules } from "../rules/types";
+import { getDeadlines, getRevenueNoticeDeadline, type DeadlineItem, type FilingMode } from "./deadlines";
 import { applyRateBps } from "./money";
 import { annualRevenueByContract, type Payment } from "./revenue";
 
@@ -21,6 +22,7 @@ export interface AnnualResult {
   totalVat: number;
   totalTax: number;
   vatEstimated: boolean;
+  deadlines: DeadlineItem[];
   citations: Pick<CitationMap, "threshold" | "pit" | "vat" | "deduction" | "revenueNotice">;
 }
 
@@ -28,10 +30,12 @@ export interface AnnualInput {
   year: number;
   payments: Payment[];
   deductionOrder?: string[];
+  /** Mặc định "once" */
+  filingMode?: FilingMode;
   rules: TaxRules;
 }
 
-export function computeAnnual({ year, payments, deductionOrder, rules }: AnnualInput): AnnualResult {
+export function computeAnnual({ year, payments, deductionOrder, filingMode, rules }: AnnualInput): AnnualResult {
   const revenue = annualRevenueByContract(payments ?? [], year);
   const ids = [...revenue.keys()];
   const order: string[] = [];
@@ -77,6 +81,9 @@ export function computeAnnual({ year, payments, deductionOrder, rules }: AnnualI
     totalVat,
     totalTax: totalPit + totalVat,
     vatEstimated: rules.vat.unconfirmed,
+    deadlines: taxable
+      ? getDeadlines(year, filingMode ?? "once", rules)
+      : [getRevenueNoticeDeadline(year, rules)],
     citations: {
       threshold: c.threshold,
       pit: c.pit,
