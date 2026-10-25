@@ -4,7 +4,7 @@
     {
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
-      "percent": 40,
+      "percent": 55,
       "metrics": ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
     }
   ],
@@ -12,21 +12,23 @@
     {"id": "H-01", "severity": "low", "summary": "computeAnnual không đối chiếu year với rules.year", "text": "computeAnnual không đối chiếu year với rules.year (year 2027 + rules 2026 vẫn tính, không lỗi)", "milestone": null},
     {"id": "H-02", "severity": "low", "summary": "Tổng doanh thu không kiểm Number.isSafeInteger", "text": "Tổng doanh thu không kiểm Number.isSafeInteger (2 khoản MAX_SAFE_INTEGER → tổng mất chính xác)", "milestone": null},
     {"id": "H-03", "severity": "low", "summary": "Thiếu test prepaid.mode không hợp lệ và years lẻ", "text": "Thiếu test prepaid.mode không hợp lệ và years lẻ (ghi chú reviewer dev-02)", "milestone": null},
-    {"id": "H-04", "severity": "medium", "summary": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7 chờ xác nhận", "text": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận", "milestone": null}
+    {"id": "H-04", "severity": "medium", "summary": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7 chờ xác nhận", "text": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận", "milestone": null},
+    {"id": "H-05", "severity": "low", "summary": "Lỗi engine hiện tên trường kỹ thuật trên UI", "text": "Lỗi engine (ngày trả trước không có thật, mode sai) hiện nguyên thông điệp kỹ thuật (receivedOn ...) trên UI; chưa có test UI cho hai ca này", "milestone": null}
   ],
   "milestones": {
     "runs": [
-      {"id": "R1", "status": "merged", "pr": 5, "merge_commit": "ae827b3"}
+      {"id": "R1", "status": "merged", "pr": 5, "merge_commit": "ae827b3"},
+      {"id": "R2", "status": "merged", "pr": 8, "merge_commit": "f80853f"}
     ],
     "plugin": []
   },
   "outlook": [
-    {"id": "R2", "goal": "Máy tính thuế một căn", "needs_team": false, "status": "chưa chạy"},
     {"id": "R3", "goal": "Sổ doanh thu nhiều căn", "needs_team": false, "status": "chưa chạy"},
     {"id": "R4", "goal": "Hạn khai, .ics, số liệu 01/TTS", "needs_team": false, "status": "chưa chạy"},
     {"id": "R5", "goal": "Trang công khai, deploy Pages", "needs_team": false, "status": "chưa chạy"}
   ],
   "decisions": [
-    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R1 (#5): verify sạch, T1 25, T2 7, T3 exit 0, T4 33 passed; 4/4 task PASS vòng 1; không quyết định (c); H-01..H-04 mở."}
+    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R1 (#5): verify sạch, T1 25, T2 7, T3 exit 0, T4 33 passed; 4/4 task PASS vòng 1; không quyết định (c); H-01..H-04 mở."},
+    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R2 (#8): verify/smoke sạch, T5 47, T3 exit 0, T4 80 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-05 (thấp)."}
   ]
 }
