@@ -1,0 +1,67 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn -s lint
+      - run: yarn -s test
+      - run: yarn -s build
+        env:
+          VITE_ANALYTICS_URL: ${{ vars.VITE_ANALYTICS_URL }}
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Smoke sau deploy
+        run: |
+          set -eu
+          URL="https://silver-rp.github.io/thue-cho-thue/"
+          ok=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS "$URL" -o page.html && grep -qF -- 'Ngưỡng doanh thu là bao nhiêu?' page.html; then
+              ok=1
+              break
+            fi
+            echo "Chưa thấy nội dung mới (lần $i), chờ CDN"
+            sleep 15
+          done
+          [ "$ok" = 1 ] || { echo "Trang thiếu nội dung tĩnh"; exit 1; }
+          assets=$(grep -oE '/thue-cho-thue/assets/[^"]+\.(js|css)' page.html | sort -u)
+          [ -n "$assets" ] || { echo "Không có tài nguyên /thue-cho-thue/assets/ trong HTML"; exit 1; }
+          for a in $assets; do
+            curl -fsI "https://silver-rp.github.io$a" > /dev/null
+            echo "OK $a"
+          done
