@@ -24,4 +24,7 @@
 - dev-03 DONE (1 vòng, commit ca9c1ab). `src/ui/export.ts` (`mountExport`, thêm tham số `rules` cho test), gắn vào `src/ui/ledger.ts`. Ghi chú reviewer: `setFilingMode` lỗi thì radio không vẽ lại về lựa chọn cũ; `DISCLAIMER` hiện hai lần trên trang sổ; `DTSTAMP` mặc định là 00:00:00Z của `today`; `mountExport` độc lập chưa có test cho `setFilingMode` trả lỗi.
 - dev-04 DONE (1 vòng, commit 37fc1f5). `tests/export/e2e.test.ts` 5 ca đầu-cuối qua DOM, không lộ lệch UI ↔ engine; `LedgerMountOptions` thêm `download?`/`copy?` chuyển tiếp xuống `mountExport`. tests/export 28 passed, toàn bộ 165 passed.
 
+## R5
+- dev-01 DONE (1 vòng, commit 494c018). `base: "/thue-cho-thue/"`, `tests/build/build.test.ts` (6 test, build vào thư mục tạm). Điều chỉnh (a): tắt `build.modulePreload.polyfill` vì polyfill chứa `fetch(`. Ghi chú reviewer: test happy-dom `eval` bundle nên chỉ đúng khi bundle một chunk không import/export.
+
 ## Đề xuất chờ duyệt
