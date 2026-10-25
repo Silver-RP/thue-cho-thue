@@ -1,0 +1,30 @@
+{
+  "slug": "thue-cho-thue-v1",
+  "goal": "Web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026: máy tính thuế, sổ doanh thu, nhắc hạn, xuất số liệu tờ khai; dữ liệu ở trình duyệt; chạy thật trên GitHub Pages",
+  "status": "approved",
+  "done_when": [
+    {"id": "T1", "cmd": "yarn -s test tests/tax", "threshold": "== 0 failed, >= 15 passed"},
+    {"id": "T2", "cmd": "yarn -s test tests/rules", "threshold": "== 0 failed, >= 4 passed"},
+    {"id": "T3", "cmd": "yarn -s lint", "threshold": "exit 0"},
+    {"id": "T4", "cmd": "yarn -s test", "threshold": "== 0 failed"},
+    {"id": "T5", "cmd": "yarn -s test tests/ui", "threshold": "== 0 failed, >= 6 passed"},
+    {"id": "T6", "cmd": "yarn -s test tests/ledger", "threshold": "== 0 failed, >= 8 passed"},
+    {"id": "T7", "cmd": "yarn -s test tests/export", "threshold": "== 0 failed, >= 6 passed"},
+    {"id": "T8", "cmd": "yarn -s build && yarn -s test tests/build", "threshold": "exit 0; JS+CSS gzip <= 100 KB; không gọi mạng ngoài module analytics"},
+    {"id": "T9", "cmd": "curl -fsS https://silver-rp.github.io/thue-cho-thue/ | grep -q 'Thuế cho thuê'", "threshold": "exit 0"}
+  ],
+  "milestones": [
+    {"id": "R1", "title": "Engine thuế và cấu hình luật 2026 (L1–L7, ca biên, không số luật trong engine)", "depends_on": [], "metrics": ["T1", "T2", "T3", "T4"],
+     "est_usd": 3.0, "est_hours": 0.8, "status": "planned"},
+    {"id": "R2", "title": "Máy tính thuế một căn: form VNĐ, kết quả có giải thích và căn cứ, GTGT ghi ước tính, câu miễn trừ", "depends_on": ["R1"], "metrics": ["T5", "T3", "T4"],
+     "est_usd": 3.0, "est_hours": 0.8, "status": "planned"},
+    {"id": "R3", "title": "Sổ doanh thu nhiều căn, nhiều hợp đồng: localStorage có schema, xuất/nhập JSON, chọn hợp đồng trừ ngưỡng", "depends_on": ["R2"], "metrics": ["T6", "T4"],
+     "est_usd": 3.5, "est_hours": 1.0, "status": "planned"},
+    {"id": "R4", "title": "Hạn khai, nhắc lịch .ics, xuất số liệu tờ khai 01/TTS (CSV + chép), hướng dẫn eTax Mobile", "depends_on": ["R3"], "metrics": ["T7", "T4"],
+     "est_usd": 2.5, "est_hours": 0.7, "status": "planned"},
+    {"id": "R5", "title": "Trang công khai, SEO, deploy GitHub Pages sau test xanh, test build", "depends_on": ["R4"], "metrics": ["T8", "T9", "T4"],
+     "est_usd": 3.0, "est_hours": 0.8, "status": "planned"}
+  ],
+  "cut_order": ["R4", "R3"],
+  "human_only": ["Xác nhận cơ sở tính GTGT (L5) và mẫu tờ khai hiện hành", "Chọn dịch vụ analytics/form", "Duyệt nội dung trang trước khi quảng bá"]
+}
