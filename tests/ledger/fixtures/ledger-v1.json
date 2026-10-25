@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "app": "thue-cho-thue",
+  "properties": [
+    { "id": "P1", "name": "Căn 1", "address": "Quận 1" },
+    { "id": "P2", "name": "Căn 2" }
+  ],
+  "contracts": [
+    { "id": "C1", "propertyId": "P1", "tenant": "An", "signedOn": "2025-12-20", "startOn": "2026-01-01" },
+    { "id": "C2", "propertyId": "P1", "tenant": "Bình", "signedOn": "2026-01-15", "startOn": "2026-02-01", "endOn": "2027-01-31" },
+    { "id": "C3", "propertyId": "P2", "tenant": "Chi", "signedOn": "2026-02-20", "startOn": "2026-03-01" }
+  ],
+  "receipts": [
+    { "id": "R1", "contractId": "C1", "receivedOn": "2026-01-10", "amount": 300000000 },
+    { "id": "R2", "contractId": "C2", "receivedOn": "2026-02-05", "amount": 400000000 },
+    { "id": "R3", "contractId": "C3", "receivedOn": "2026-03-01", "amount": 800000000, "prepaid": { "years": 2, "mode": "allocate" } }
+  ],
+  "deductionChoice": { "2026": "C2" }
+}
