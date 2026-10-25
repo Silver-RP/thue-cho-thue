@@ -125,6 +125,33 @@ button.primary {
   color: #444;
 }
 
+/* Hạn khai và tờ khai */
+.lg-export .export-mode {
+  border: 0;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+
+.lg-export .export-mode-option {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.lg-export .export-deadlines {
+  padding-left: 1.25rem;
+}
+
+.lg-export .export-citation,
+.lg-export .export-disclaimer {
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.lg-export button.copy {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+}
+
 /* Sổ doanh thu */
 .ledger {
   margin: 2rem auto 0;
