@@ -26,5 +26,6 @@
 
 ## R5
 - dev-01 DONE (1 vòng, commit 494c018). `base: "/thue-cho-thue/"`, `tests/build/build.test.ts` (6 test, build vào thư mục tạm). Điều chỉnh (a): tắt `build.modulePreload.polyfill` vì polyfill chứa `fetch(`. Ghi chú reviewer: test happy-dom `eval` bundle nên chỉ đúng khi bundle một chunk không import/export.
+- dev-02 DONE (1 vòng, commit 8c7afd8). `index.html` (h1, 8 FAQ `<details>`, Nguồn, meta/OG), `public/robots.txt`, `public/sitemap.xml`, `tests/build/content.test.ts` (nguồn + bản build). Ghi chú reviewer: mục Nguồn viết cứng "01 tỷ đồng" ngoài span `data-rule`; `data-rule=deadline` chỉ so hạn 31/01/2027, chưa so hạn 31/07/2026; câu "ước tính, chưa xác nhận" viết cứng nên test không đổi khi `vat.unconfirmed` thành false.
 
 ## Đề xuất chờ duyệt
