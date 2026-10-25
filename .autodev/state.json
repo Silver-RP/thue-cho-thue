@@ -1,5 +1,5 @@
 {
-  "milestone": "R3",
+  "milestone": "R4",
   "current_task": null,
   "tasks": {
     "dev-01": {
@@ -21,8 +21,8 @@
   },
   "verify": {
     "last_status": "PASS",
-    "hook_runs": 12,
-    "last_hook_at": "2026-10-25T16:35:41Z",
+    "hook_runs": 16,
+    "last_hook_at": "2026-10-25T19:54:44Z",
     "last_hook_agent": "autodev:developer",
     "consecutive_blocks": 0
   },
@@ -49,6 +49,26 @@
       }
     },
     "R2": {
+      "tasks": {
+        "dev-01": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-02": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-03": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-04": {
+          "status": "DONE",
+          "round": 1
+        }
+      }
+    },
+    "R3": {
       "tasks": {
         "dev-01": {
           "status": "DONE",

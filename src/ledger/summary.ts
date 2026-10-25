@@ -42,7 +42,8 @@ export function summarizeYear(ledger: Ledger, year: number, rules: TaxRules = ge
   const payments = ledgerToPayments(ledger);
   const choice = ledger.deductionChoice[String(year)];
   const order = choice ? [choice] : undefined;
-  const result = computeAnnual({ year, payments, deductionOrder: order, rules });
+  const filingMode = ledger.filingMode?.[String(year)] ?? "once";
+  const result = computeAnnual({ year, payments, deductionOrder: order, filingMode, rules });
 
   const propertyOf = new Map(ledger.contracts.map((c) => [c.id, c.propertyId]));
   const byProp = new Map<string, number>();

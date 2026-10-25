@@ -4,6 +4,7 @@ import { isLedgerError, type Contract, type Ledger, type LedgerResult, type Rece
 import * as ops from "../ledger/ops";
 import { loadLedger, saveLedger, type StorageLike } from "../ledger/storage";
 import { summarizeYear, type YearSummary } from "../ledger/summary";
+import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
 import { formatVnd, parseVnd } from "./money";
 
@@ -16,6 +17,10 @@ export interface LedgerMountOptions {
   /** Ngày hôm nay (YYYY-MM-DD) để đặt tên file xuất. */
   today?: string;
   confirm?: (message: string) => boolean;
+  /** Tải file xuống (mặc định Blob + thẻ a); truyền xuống phần xuất. */
+  download?: (filename: string, mime: string, content: string) => void;
+  /** Chép vào clipboard (mặc định navigator.clipboard); truyền xuống phần xuất. */
+  copy?: (text: string) => Promise<void> | void;
 }
 
 type Props = Partial<Record<string, string>>;
@@ -557,7 +562,17 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
     for (const p of ledger.properties) root.append(propertyBlock(p));
     root.append(addPropertyForm());
     if (ledger.contracts.length > 0) root.append(choiceBlock());
-    root.append(summaryBlock(), backupBlock(), el("p", { class: "disclaimer" }, DISCLAIMER));
+    const exportRoot = el("div", { class: "lg-export-root" });
+    root.append(summaryBlock(), exportRoot, backupBlock(), el("p", { class: "disclaimer" }, DISCLAIMER));
+    mountExport(exportRoot, {
+      year,
+      today,
+      ...(options.download ? { download: options.download } : {}),
+      ...(options.copy ? { copy: options.copy } : {}),
+      getLedger: () => ledger,
+      setFilingMode: (mode) => apply(ops.setFilingMode(ledger, year, mode)),
+      ...(rules ? { rules } : {}),
+    });
   }
 
   // Không ghi gì khi mở trang: chỉ ghi sau thao tác của người dùng.

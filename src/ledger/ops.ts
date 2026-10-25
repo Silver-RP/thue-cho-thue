@@ -28,6 +28,7 @@ function copy(ledger: Ledger): Ledger {
     contracts: ledger.contracts.map((c) => ({ ...c })),
     receipts: ledger.receipts.map((r) => ({ ...r, ...(r.prepaid ? { prepaid: { ...r.prepaid } } : {}) })),
     deductionChoice: { ...ledger.deductionChoice },
+    ...(ledger.filingMode ? { filingMode: { ...ledger.filingMode } } : {}),
   };
 }
 
@@ -177,5 +178,15 @@ export function setDeductionChoice(ledger: Ledger, year: number, contractId: str
   const next = copy(ledger);
   if (contractId === null) delete next.deductionChoice[String(year)];
   else next.deductionChoice[String(year)] = contractId;
+  return next;
+}
+
+// ---- Chọn khai 1 lần hoặc 2 lần ----
+
+export function setFilingMode(ledger: Ledger, year: number, mode: "once" | "twice"): LedgerResult {
+  if (!Number.isSafeInteger(year) || year < 1000 || year > 9999) return fail("Năm không hợp lệ.");
+  if (mode !== "once" && mode !== "twice") return fail("Cách khai phải là khai 1 lần hoặc khai 2 lần.");
+  const next = copy(ledger);
+  next.filingMode = { ...(next.filingMode ?? {}), [String(year)]: mode };
   return next;
 }

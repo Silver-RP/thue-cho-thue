@@ -158,8 +158,28 @@ function parseUnsafe(data: unknown, opts: ParseOptions): ParseResult {
     deductionChoice[year] = id;
   }
 
+  let filingMode: Record<string, "once" | "twice"> | undefined;
+  if (d.filingMode !== undefined) {
+    if (!isObject(d.filingMode)) return bad("Phần chọn khai 1 lần hoặc 2 lần không đúng dạng.");
+    filingMode = {};
+    for (const [year, mode] of Object.entries(d.filingMode)) {
+      if (!/^\d{4}$/.test(year)) return bad(`Năm "${year}" trong phần chọn khai 1 lần hoặc 2 lần không hợp lệ.`);
+      if (mode !== "once" && mode !== "twice") {
+        return bad(`Cách khai năm ${year} phải là khai 1 lần hoặc khai 2 lần.`);
+      }
+      filingMode[year] = mode;
+    }
+  }
+
   return {
     ok: true,
-    ledger: { schemaVersion: d.schemaVersion as 1, properties, contracts, receipts, deductionChoice },
+    ledger: {
+      schemaVersion: d.schemaVersion as 1,
+      properties,
+      contracts,
+      receipts,
+      deductionChoice,
+      ...(filingMode ? { filingMode } : {}),
+    },
   };
 }
