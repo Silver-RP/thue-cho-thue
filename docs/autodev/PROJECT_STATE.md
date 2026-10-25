@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-26 · Nguồn: audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18)
+Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -12,7 +12,7 @@ Cập nhật: 2026-10-26 · Nguồn: audit R1–R3 (`docs/audits/2026-10-26.md`)
 | R5 | merged (#18) | Trang công khai, SEO, workflow deploy Pages, `tests/build`; 4/4 task PASS vòng 1; T8 đạt; T9 chưa (Pages chưa bật, H-08) |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt ~89% theo chỉ số (8/9: T1–T8); theo khối lượng việc thật ~78% (ước của supervisor sau R5). Ba điều: máy tính ~75%, sổ ~80% code / ~55% chứng minh, nhắc hạn + xuất ~80% (mẫu tờ khai chưa xác nhận, H-04), Pages ~70% (code + workflow xong, site chưa bật nên chưa lên mạng).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt ~89% theo chỉ số (8/9: T1–T8); theo khối lượng việc thật ~60% (audit R4–R5; supervisor ước 78%). Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -60,7 +60,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-01 | low | `computeAnnual` không đối chiếu `year` với `rules.year` (UI R2 và sổ R3 đã chặn phía mình; engine chưa sửa) |
 | H-02 | medium | Tổng doanh thu không kiểm `Number.isSafeInteger`: 3 hợp đồng × 4e15 ra tổng sai im lặng (đã chạy); một hợp đồng thì ném lỗi |
 | H-03 | low | Thiếu test `prepaid.mode` không hợp lệ và `years` lẻ ở engine (sổ R3 đã kiểm phía dữ liệu) |
-| H-04 | medium | Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ (31/01/2027 là Chủ Nhật), số liệu khai 31/7, mẫu tờ khai R4: chờ leader/kế toán xác nhận |
+| H-04 | medium | Cơ sở GTGT (L5), làm tròn (đã chạy: 2 hợp đồng 1.000.000.010 + 10 đ → PIT 0, làm tròn tổng ra 1), dời hạn ngày nghỉ (31/01/2027 là Chủ Nhật), số liệu khai 31/7, mẫu tờ khai R4: chờ leader/kế toán xác nhận |
 | H-05 | low | Lỗi engine (ngày trả trước không có thật) hiện chuỗi kỹ thuật `receivedOn ...` trên máy tính R2 (sổ R3 đã chặn) |
 | H-06 | low | Sổ R3: `render()` vẽ lại toàn bộ sau mỗi thay đổi, dữ liệu gõ dở ở form khác mất |
 | H-07 | low | Sổ R3: khoá dự phòng chỉ ghi khi trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) |
@@ -75,8 +75,17 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-16 | low | Cụm UX nhỏ (nhập lại cùng file, xoá không hỏi, revokeObjectURL, kết quả cũ…; R4: radio không hoàn lại khi `setFilingMode` lỗi, `DISCLAIMER` hai lần): xem audit |
 | H-17 | low | Phụ lục 01-1/BK-TTS năm 2026 liệt kê cả hợp đồng không có doanh thu 2026 (dòng toàn 0); e2e R4 không có ca này |
 | H-18 | low | Ghi chú R5: nguồn viết cứng "01 tỷ" ngoài `data-rule`; test bundle giả định một chunk; dự phòng `fetch` analytics không bắt lỗi (chỉ khi bật); action Node 20 deprecated |
+| H-19 | medium | Phần xuất kiểm `receipts.length` mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút `.ics` (`ui/export.ts:86`) |
+| H-20 | medium | Hạn đã qua (31/07/2026) vẫn hiện, vẫn vào `.ics` kèm báo thức; trang công khai viết cứng; không cảnh báo |
+| H-21 | medium | Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, URL cứng, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn |
+| H-22 | medium | CSV phân tách `,` có thể vỡ cột trên Excel vi-VN (chưa xác nhận); tiền tố `'`, ô bắt đầu khoảng trắng/`\n` |
+| H-23 | low | UX xuất: đổi cách khai mất focus, "Chép" không phản hồi gần nút, `aria-label` trùng |
+| H-24 | low | `filingMode: null` làm từ chối cả file nhập |
+| H-25 | low | robots/sitemap dưới thư mục con, thiếu favicon/og:image, không có `preview`, workflow không chạy trên PR |
+| H-26 | low | `.ics`: tiêu đề 2 lần khai trùng, UID không `SEQUENCE` |
 
 ## Quyết định gần đây
+- 2026-10-26: Audit R4–R5 (`docs/audits/2026-10-26-2.md`): thêm H-19..H-26, không đóng H-xx nào; H-08 vẫn mở (Pages 404). Đề xuất R6: mất dữ liệu (H-10/12/11), báo sai thuế (H-14/02/01/09), hạn và xuất (H-19/20/22), kiểm thật (H-21). Ghi nhận: agent góc (c) đã gọi `gh api` một lần (chỉ đọc, ngoài ràng buộc).
 - 2026-10-26: Supervisor duyệt và merge R5 (#18): verify sạch, build 0, `tests/build` 45, T4 210 passed, gzip ~16 KB; 4/4 task PASS vòng 1; không quyết định (c). Run deploy đầu đỏ ở `configure-pages` (Pages chưa bật), T9 404 → H-08 thu hẹp, chờ leader bật Pages. Thêm H-18.
 - 2026-10-26: Supervisor duyệt và merge R4 (#15): verify sạch, T7 28, T4 165 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-17 (thấp), mở rộng H-14 sang bảng tờ khai. Mẫu tờ khai vẫn `confirmed: false` (H-04).
 - 2026-10-26: Audit R1–R3 (`docs/audits/2026-10-26.md`): thêm H-08..H-16, nâng H-02 lên medium, không đóng H-xx nào. Đề xuất mốc sửa R3.1 trước R4; H-08 là task đầu R5; R4 chờ xác nhận mẫu tờ khai (H-04).
