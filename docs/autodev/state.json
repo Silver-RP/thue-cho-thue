@@ -5,7 +5,7 @@
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
       "percent": 89,
-      "percent_by_work": 78,
+      "percent_by_work": 60,
       "metrics": [
         "T1",
         "T2",
@@ -45,7 +45,7 @@
       "id": "H-04",
       "severity": "medium",
       "summary": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7 chờ xác nhận",
-      "text": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận",
+      "text": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận; đã chạy: 2 hợp đồng 1.000.000.010 + 10 đ → PIT 0, làm tròn trên tổng ra 1",
       "milestone": null
     },
     {
@@ -145,6 +145,62 @@
       "summary": "Ghi chú R5: nguồn viết cứng 01 tỷ, test bundle giả định một chunk",
       "text": "index.html mục Nguồn viết \"01 tỷ đồng\" ngoài data-rule; data-rule deadline chỉ so 31/01/2027; tests/build eval bundle nên chỉ đúng khi một chunk; analytics dự phòng fetch không bắt Promise bị từ chối (chỉ khi bật); workflow dùng action Node 20 (cảnh báo deprecated) (supervisor duyệt R5)",
       "milestone": null
+    },
+    {
+      "id": "H-19",
+      "severity": "medium",
+      "summary": "Phần xuất kiểm receipts mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút .ics",
+      "text": "Phần xuất kiểm receipts mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút .ics (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-20",
+      "severity": "medium",
+      "summary": "Hạn đã qua vẫn hiện và vào .ics kèm báo thức; trang công khai viết cứng 31/07/2026",
+      "text": "Hạn đã qua vẫn hiện và vào .ics kèm báo thức; trang công khai viết cứng 31/07/2026 (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-21",
+      "severity": "medium",
+      "summary": "Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn",
+      "text": "Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-22",
+      "severity": "medium",
+      "summary": "CSV phân tách dấu phẩy có thể vỡ cột trên Excel vi-VN (chưa xác nhận); tiền tố ' và ô bắt đầu khoảng trắng",
+      "text": "CSV phân tách dấu phẩy có thể vỡ cột trên Excel vi-VN (chưa xác nhận); tiền tố ' và ô bắt đầu khoảng trắng (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-23",
+      "severity": "low",
+      "summary": "UX xuất: đổi cách khai mất focus, Chép không phản hồi gần nút, aria-label trùng",
+      "text": "UX xuất: đổi cách khai mất focus, Chép không phản hồi gần nút, aria-label trùng (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-24",
+      "severity": "low",
+      "summary": "filingMode null làm từ chối cả file nhập",
+      "text": "filingMode null làm từ chối cả file nhập (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-25",
+      "severity": "low",
+      "summary": "robots/sitemap dưới thư mục con, thiếu favicon/og:image, không có preview, workflow không chạy trên PR",
+      "text": "robots/sitemap dưới thư mục con, thiếu favicon/og:image, không có preview, workflow không chạy trên PR (audit R4-R5 2026-10-26-2)",
+      "milestone": null
+    },
+    {
+      "id": "H-26",
+      "severity": "low",
+      "summary": "ics: tiêu đề 2 lần khai trùng, UID không SEQUENCE",
+      "text": "ics: tiêu đề 2 lần khai trùng, UID không SEQUENCE (audit R4-R5 2026-10-26-2)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -214,6 +270,10 @@
     {
       "date": "2026-10-26",
       "text": "Supervisor duyệt và merge R5 (#18): verify/smoke sạch, build exit 0, tests/build 45, T4 210 passed, gzip JS+CSS ~16 KB; 4/4 task PASS vòng 1; không quyết định (c). Deploy run đầu đỏ ở configure-pages (Pages chưa bật), T9 404: H-08 thu hẹp, chờ leader bật Pages. Thêm H-18 (thấp)."
+    },
+    {
+      "date": "2026-10-26",
+      "text": "Audit R4-R5: thêm H-19..H-26, không đóng H-xx nào, H-08 vẫn mở (Pages 404); máy tính ~70%, sổ ~75% code/50% chứng minh, nhắc hạn+xuất+Pages ~40%; theo khối lượng ~60%. Đề xuất R6: mất dữ liệu, báo sai thuế, hạn/xuất, kiểm thật. Agent góc (c) đã gọi gh api một lần (chỉ đọc)."
     }
   ]
 }
