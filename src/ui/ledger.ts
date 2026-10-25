@@ -17,6 +17,10 @@ export interface LedgerMountOptions {
   /** Ngày hôm nay (YYYY-MM-DD) để đặt tên file xuất. */
   today?: string;
   confirm?: (message: string) => boolean;
+  /** Tải file xuống (mặc định Blob + thẻ a); truyền xuống phần xuất. */
+  download?: (filename: string, mime: string, content: string) => void;
+  /** Chép vào clipboard (mặc định navigator.clipboard); truyền xuống phần xuất. */
+  copy?: (text: string) => Promise<void> | void;
 }
 
 type Props = Partial<Record<string, string>>;
@@ -563,6 +567,8 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
     mountExport(exportRoot, {
       year,
       today,
+      ...(options.download ? { download: options.download } : {}),
+      ...(options.copy ? { copy: options.copy } : {}),
       getLedger: () => ledger,
       setFilingMode: (mode) => apply(ops.setFilingMode(ledger, year, mode)),
       ...(rules ? { rules } : {}),
