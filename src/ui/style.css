@@ -210,3 +210,34 @@ button.primary {
     padding: 2rem 1rem;
   }
 }
+
+.site-intro,
+.site-info {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+  line-height: 1.55;
+}
+
+.site-intro h1 {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
+}
+
+.site-info details {
+  border-bottom: 1px solid #dde1e6;
+  padding: 0.5rem 0;
+}
+
+.site-info summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.site-info .disclaimer {
+  font-size: 0.9rem;
+  color: #4a5560;
+}
