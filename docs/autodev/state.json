@@ -4,8 +4,8 @@
     {
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
-      "percent": 67,
-      "percent_by_work": 52,
+      "percent": 78,
+      "percent_by_work": 65,
       "metrics": ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
     }
   ],
@@ -23,26 +23,28 @@
     {"id": "H-11", "severity": "medium", "summary": "Hai tab ghi đè nhau", "text": "ledger giữ trong closure, không có listener storage (audit 2026-10-26)", "milestone": null},
     {"id": "H-12", "severity": "medium", "summary": "localStorage ném lỗi làm sổ trắng, main.ts không test", "text": "src/main.ts:9 truy cập window.localStorage ngoài try/catch (audit 2026-10-26)", "milestone": null},
     {"id": "H-13", "severity": "medium", "summary": "Ô ngày inputmode numeric", "text": "src/ui/ledger.ts:260-262,318 (audit 2026-10-26)", "milestone": null},
-    {"id": "H-14", "severity": "medium", "summary": "Tổng thuế gồm GTGT chưa xác nhận không có nhãn", "text": "src/ui/form.ts:164-165, src/ui/ledger.ts:415-416 (audit 2026-10-26)", "milestone": null},
+    {"id": "H-14", "severity": "medium", "summary": "Tổng thuế gồm GTGT chưa xác nhận không có nhãn", "text": "src/ui/form.ts:164-165, src/ui/ledger.ts:415-416 (audit 2026-10-26); R4: dòng Tổng số thuế phải nộp trong bảng/CSV 01/TTS cũng không có nhãn ước tính", "milestone": null},
     {"id": "H-15", "severity": "low", "summary": "Test quét số luật yếu", "text": "không đệ quy, không quét main.ts, chuỗi nguyên văn (audit 2026-10-26)", "milestone": null},
-    {"id": "H-16", "severity": "low", "summary": "Cụm UX nhỏ", "text": "xem docs/audits/2026-10-26.md (audit 2026-10-26)", "milestone": null}
+    {"id": "H-16", "severity": "low", "summary": "Cụm UX nhỏ", "text": "xem docs/audits/2026-10-26.md (audit 2026-10-26); R4: radio không hoàn lại khi setFilingMode lỗi, DISCLAIMER hiện hai lần, deadlinesToIcs([]) sinh lịch rỗng", "milestone": null},
+    {"id": "H-17", "severity": "low", "summary": "Phụ lục 2026 liệt kê hợp đồng không có doanh thu 2026", "text": "buildDeclaration lấy mọi summary.contracts; hợp đồng chỉ có kỳ thu 2025 thành dòng toàn 0 trong 01-1/BK-TTS 2026; e2e R4 không có ca này (supervisor thử 2026-10-26)", "milestone": null}
   ],
   "milestones": {
     "runs": [
       {"id": "R1", "status": "merged", "pr": 5, "merge_commit": "ae827b3"},
       {"id": "R2", "status": "merged", "pr": 8, "merge_commit": "f80853f"},
-      {"id": "R3", "status": "merged", "pr": 11, "merge_commit": "490a7cb"}
+      {"id": "R3", "status": "merged", "pr": 11, "merge_commit": "490a7cb"},
+      {"id": "R4", "status": "merged", "pr": 15, "merge_commit": "88a31c2"}
     ],
     "plugin": []
   },
   "outlook": [
-    {"id": "R4", "goal": "Hạn khai, .ics, số liệu 01/TTS", "needs_team": false, "status": "chưa chạy"},
     {"id": "R5", "goal": "Trang công khai, deploy Pages", "needs_team": false, "status": "chưa chạy"}
   ],
   "decisions": [
     {"date": "2026-10-26", "text": "Supervisor duyệt và merge R1 (#5): verify sạch, T1 25, T2 7, T3 exit 0, T4 33 passed; 4/4 task PASS vòng 1; không quyết định (c); H-01..H-04 mở."},
     {"date": "2026-10-26", "text": "Supervisor duyệt và merge R2 (#8): verify/smoke sạch, T5 47, T3 exit 0, T4 80 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-05 (thấp)."},
     {"date": "2026-10-26", "text": "Supervisor duyệt R3 (#11, đã merge trước bước duyệt; duyệt lại trên 490a7cb): verify sạch, T6 41, T4 134 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-06, H-07 (thấp)."},
-    {"date": "2026-10-26", "text": "Audit R1-R3: thêm H-08..H-16, nâng H-02 lên medium, không đóng H-xx nào; máy tính ~75%, sổ ~80% code/55% chứng minh, nhắc hạn+xuất+Pages ~10%."}
+    {"date": "2026-10-26", "text": "Audit R1-R3: thêm H-08..H-16, nâng H-02 lên medium, không đóng H-xx nào; máy tính ~75%, sổ ~80% code/55% chứng minh, nhắc hạn+xuất+Pages ~10%."},
+    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R4 (#15): verify sạch, T7 28, T4 165 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-17 (thấp), mở rộng H-14, H-16."}
   ]
 }
