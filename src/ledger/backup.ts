@@ -11,6 +11,7 @@ export function exportLedger(ledger: Ledger, today: string): { filename: string;
     contracts: ledger.contracts,
     receipts: ledger.receipts,
     deductionChoice: ledger.deductionChoice,
+    ...(ledger.filingMode ? { filingMode: ledger.filingMode } : {}),
   };
   return { filename: `${APP_ID}-${today}.json`, text: JSON.stringify(body, null, 2) };
 }

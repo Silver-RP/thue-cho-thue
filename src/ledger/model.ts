@@ -32,6 +32,8 @@ export interface Ledger {
   receipts: Receipt[];
   /** Khoá là năm (chuỗi), giá trị là id hợp đồng được trừ ngưỡng trước */
   deductionChoice: Record<string, string>;
+  /** Khoá là năm (chuỗi), lựa chọn khai 1 lần hoặc 2 lần; vắng là "once" */
+  filingMode?: Record<string, "once" | "twice">;
 }
 
 export interface LedgerError {
