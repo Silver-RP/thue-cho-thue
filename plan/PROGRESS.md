@@ -8,5 +8,6 @@
 
 ## R2
 - dev-01 DONE (1 vòng, commit b0d0e5c). Ghi chú reviewer: `parseVnd("0.000")` ra 0 và `"007"` ra 7 (đúng đặc tả); dev-03 nên cân nhắc cảnh báo khi doanh thu 0. `formatVnd` không xử lý NaN/số lẻ (ngoài tiêu chí).
+- dev-02 DONE (1 vòng, commit 51d1676). Ghi chú reviewer: `periodsInYear` > 12 vẫn tính (dồn vào tháng 12), dev-03 nên giới hạn ở form; lỗi từ engine lẫn tên trường kỹ thuật.
 
 ## Đề xuất chờ duyệt
