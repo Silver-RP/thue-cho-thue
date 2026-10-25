@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-26 · Nguồn: duyệt mốc R3 (PR #11, merge 490a7cb)
+Cập nhật: 2026-10-26 · Nguồn: audit R1–R3 (`docs/audits/2026-10-26.md`)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -11,7 +11,7 @@ Cập nhật: 2026-10-26 · Nguồn: duyệt mốc R3 (PR #11, merge 490a7cb)
 | R4–R5 | chưa có plan | Theo `docs/goals/thue-cho-thue-v1/roadmap.md` |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt ~67% (6/9 chỉ số: T1–T6).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt ~67% theo chỉ số (6/9: T1–T6); theo khối lượng việc thật ~50–55% (audit). Ba điều: máy tính ~75%, sổ ~80% code / ~55% chứng minh, nhắc hạn + xuất + Pages ~10%.
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -50,14 +50,24 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | Mã | Mức | Tóm tắt |
 |---|---|---|
 | H-01 | low | `computeAnnual` không đối chiếu `year` với `rules.year` (UI R2 và sổ R3 đã chặn phía mình; engine chưa sửa) |
-| H-02 | low | Tổng doanh thu không kiểm `Number.isSafeInteger` (UI R2 chặn một phần; sổ R3 nhiều kỳ thu rất lớn vẫn ra tổng không an toàn) |
+| H-02 | medium | Tổng doanh thu không kiểm `Number.isSafeInteger`: 3 hợp đồng × 4e15 ra tổng sai im lặng (đã chạy); một hợp đồng thì ném lỗi |
 | H-03 | low | Thiếu test `prepaid.mode` không hợp lệ và `years` lẻ ở engine (sổ R3 đã kiểm phía dữ liệu) |
-| H-04 | medium | Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận |
+| H-04 | medium | Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ (31/01/2027 là Chủ Nhật), số liệu khai 31/7, mẫu tờ khai R4: chờ leader/kế toán xác nhận |
 | H-05 | low | Lỗi engine (ngày trả trước không có thật) hiện chuỗi kỹ thuật `receivedOn ...` trên máy tính R2 (sổ R3 đã chặn) |
 | H-06 | low | Sổ R3: `render()` vẽ lại toàn bộ sau mỗi thay đổi, dữ liệu gõ dở ở form khác mất |
 | H-07 | low | Sổ R3: khoá dự phòng chỉ ghi khi trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) |
+| H-08 | high | Chưa build/deploy thật: thiếu `base` Vite cho Pages, T9 xanh được khi trang trắng, `smoke` rỗng, verify không chạy `yarn build` |
+| H-09 | medium | Sổ báo sai: mọi lỗi tính hiện "Chưa có quy định thuế" (`ui/ledger.ts:198`) |
+| H-10 | medium | Kho hỏng/phiên bản mới → thao tác đầu ghi đè khoá chính; UI không có đường lấy bản dự phòng |
+| H-11 | medium | Hai tab ghi đè nhau, mất dữ liệu im lặng |
+| H-12 | medium | `window.localStorage` ném lỗi → sổ trắng không báo; `main.ts` không có test |
+| H-13 | medium | Ô ngày dùng `inputmode=numeric` (thiếu dấu "-" trên điện thoại) |
+| H-14 | medium | "Tổng thuế" gồm GTGT chưa xác nhận mà không có nhãn ước tính |
+| H-15 | low | Test quét số luật yếu (không đệ quy, không `main.ts`) |
+| H-16 | low | Cụm UX nhỏ (nhập lại cùng file, xoá không hỏi, revokeObjectURL, kết quả cũ…): xem audit |
 
 ## Quyết định gần đây
+- 2026-10-26: Audit R1–R3 (`docs/audits/2026-10-26.md`): thêm H-08..H-16, nâng H-02 lên medium, không đóng H-xx nào. Đề xuất mốc sửa R3.1 trước R4; H-08 là task đầu R5; R4 chờ xác nhận mẫu tờ khai (H-04).
 - 2026-10-26: Supervisor duyệt R3 (#11; PR đã merge trước bước duyệt, duyệt lại trên 490a7cb): đạt. Không có quyết định (c). Thêm H-06, H-07 (thấp). H-01..H-03 để một mốc sửa nhỏ hoặc phạm vi R4 (theo "Đề xuất chờ duyệt" của `plan/R3.md`).
 - 2026-10-26: Supervisor duyệt và merge R2 (#8). Không có quyết định (c). Thêm H-05.
 - 2026-10-26: Supervisor duyệt và merge R1 (#5). Không có quyết định (c).
