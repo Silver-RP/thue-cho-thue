@@ -18,4 +18,7 @@
 - dev-03 DONE (1 vòng, commit 01f1dd2). Sổ gắn vào `#ledger` trong `index.html`; `mountLedger` thêm tham số `confirm`. Ghi chú reviewer: `render()` vẽ lại toàn bộ sau mỗi thay đổi hợp lệ (mất dữ liệu gõ dở ở form khác); chưa có test UI cho trả trước.
 - dev-04 DONE (1 vòng, commit 577b750). 6 ca đầu-cuối trong `tests/ledger/ui-e2e.test.ts`, không lộ lệch UI ↔ engine, không sửa `src/`. tests/ledger 41 passed, toàn bộ 134 passed. Ghi chú reviewer: regex thông báo lỗi ở ca nhập file sai quá rộng.
 
+## R4
+- dev-01 DONE (1 vòng, commit 7793c20). `src/export/ics.ts` (`deadlinesToIcs`, `icsFilename`, `nextDay`); `filingMode` trong sổ (model/ops/schema/summary/backup; `backup.ts` ngoài danh sách phạm vi nhưng cần để xuất giữ `filingMode`). Ghi chú reviewer: `deadlinesToIcs` danh sách rỗng vẫn sinh VCALENDAR không VEVENT, dev-03 không hiện nút tải khi không có hạn.
+
 ## Đề xuất chờ duyệt
