@@ -12,4 +12,7 @@
 - dev-03 DONE (1 vòng, commit e3c1d94). `calculate` nhận thêm tham số `rulesOverride` (cho test luật giả). Ghi chú reviewer: số kỳ 0 vẫn được chấp nhận.
 - dev-04 DONE (1 vòng, commit 16cbe03). 7 test đầu-cuối, không lộ lệch UI ↔ engine; tests/ui 47 passed, toàn bộ 80 passed.
 
+## R3
+- dev-01 DONE (1 vòng, commit 5718f61). Phép sửa sổ nằm ở `src/ledger/ops.ts`. `summarizeYear` ném lỗi khi `rules.year` khác `year` (UI dev-03 phải bắt). Ghi chú reviewer: `findCrossing` O(n²) không đáng kể.
+
 ## Đề xuất chờ duyệt
