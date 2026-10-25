@@ -1,6 +1,10 @@
 {
   "verify": [
     {
+      "name": "deps",
+      "cmd": "yarn install --frozen-lockfile --silent"
+    },
+    {
       "name": "lint",
       "cmd": "yarn -s lint"
     },
