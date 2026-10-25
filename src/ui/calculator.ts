@@ -1,4 +1,4 @@
-import { getRules } from "../rules";
+import { getRules, type TaxRules } from "../rules";
 import { computeAnnual, type AnnualResult } from "../tax/annual";
 import type { FilingMode } from "../tax/deadlines";
 import type { Payment } from "../tax/revenue";
@@ -106,9 +106,9 @@ function buildSteps(result: AnnualResult, threshold: number, revenueCitation: st
 }
 
 /** Dựng đầu vào cho engine, gọi computeAnnual và giải thích từng bước. Không ném lỗi. */
-export function calculate(form: CalcForm): CalcOutput {
+export function calculate(form: CalcForm, rulesOverride?: TaxRules): CalcOutput {
   try {
-    const rules = getRules(form.year);
+    const rules = rulesOverride ?? getRules(form.year);
     const payments = buildPayments(form);
     if (typeof payments === "string") return fail(payments);
     const result = computeAnnual({ year: form.year, payments, filingMode: form.filingMode, rules });
