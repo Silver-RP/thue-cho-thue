@@ -4,31 +4,34 @@
     {
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
-      "percent": 55,
+      "percent": 67,
       "metrics": ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
     }
   ],
   "open_gaps": [
-    {"id": "H-01", "severity": "low", "summary": "computeAnnual không đối chiếu year với rules.year", "text": "computeAnnual không đối chiếu year với rules.year (year 2027 + rules 2026 vẫn tính, không lỗi)", "milestone": null},
-    {"id": "H-02", "severity": "low", "summary": "Tổng doanh thu không kiểm Number.isSafeInteger", "text": "Tổng doanh thu không kiểm Number.isSafeInteger (2 khoản MAX_SAFE_INTEGER → tổng mất chính xác)", "milestone": null},
-    {"id": "H-03", "severity": "low", "summary": "Thiếu test prepaid.mode không hợp lệ và years lẻ", "text": "Thiếu test prepaid.mode không hợp lệ và years lẻ (ghi chú reviewer dev-02)", "milestone": null},
+    {"id": "H-01", "severity": "low", "summary": "computeAnnual không đối chiếu year với rules.year", "text": "computeAnnual không đối chiếu year với rules.year (year 2027 + rules 2026 vẫn tính, không lỗi); UI R2 và sổ R3 đã chặn phía mình", "milestone": null},
+    {"id": "H-02", "severity": "low", "summary": "Tổng doanh thu không kiểm Number.isSafeInteger", "text": "Tổng doanh thu không kiểm Number.isSafeInteger (2 khoản MAX_SAFE_INTEGER → tổng mất chính xác); sổ R3 với 3 kỳ thu MAX_SAFE_INTEGER ra totalRevenue không an toàn", "milestone": null},
+    {"id": "H-03", "severity": "low", "summary": "Thiếu test prepaid.mode không hợp lệ và years lẻ", "text": "Thiếu test prepaid.mode không hợp lệ và years lẻ ở engine (ghi chú reviewer dev-02 R1); sổ R3 đã kiểm phía dữ liệu", "milestone": null},
     {"id": "H-04", "severity": "medium", "summary": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7 chờ xác nhận", "text": "Cơ sở GTGT (L5), làm tròn, dời hạn ngày nghỉ, số liệu khai 31/7: chờ leader/kế toán xác nhận", "milestone": null},
-    {"id": "H-05", "severity": "low", "summary": "Lỗi engine hiện tên trường kỹ thuật trên UI", "text": "Lỗi engine (ngày trả trước không có thật, mode sai) hiện nguyên thông điệp kỹ thuật (receivedOn ...) trên UI; chưa có test UI cho hai ca này", "milestone": null}
+    {"id": "H-05", "severity": "low", "summary": "Lỗi engine hiện tên trường kỹ thuật trên UI", "text": "Lỗi engine (ngày trả trước không có thật, mode sai) hiện nguyên thông điệp kỹ thuật (receivedOn ...) trên máy tính R2; sổ R3 đã chặn", "milestone": null},
+    {"id": "H-06", "severity": "low", "summary": "Sổ vẽ lại toàn bộ làm mất dữ liệu gõ dở", "text": "src/ui/ledger.ts: render() vẽ lại toàn sổ sau mỗi thay đổi hợp lệ, dữ liệu gõ dở ở form khác mất (ghi chú reviewer R3)", "milestone": null},
+    {"id": "H-07", "severity": "low", "summary": "Khoá dự phòng chỉ ghi lần đầu", "text": "loadLedger chỉ chép sang khoá dự phòng khi khoá này trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) (ghi chú reviewer R3)", "milestone": null}
   ],
   "milestones": {
     "runs": [
       {"id": "R1", "status": "merged", "pr": 5, "merge_commit": "ae827b3"},
-      {"id": "R2", "status": "merged", "pr": 8, "merge_commit": "f80853f"}
+      {"id": "R2", "status": "merged", "pr": 8, "merge_commit": "f80853f"},
+      {"id": "R3", "status": "merged", "pr": 11, "merge_commit": "490a7cb"}
     ],
     "plugin": []
   },
   "outlook": [
-    {"id": "R3", "goal": "Sổ doanh thu nhiều căn", "needs_team": false, "status": "chưa chạy"},
     {"id": "R4", "goal": "Hạn khai, .ics, số liệu 01/TTS", "needs_team": false, "status": "chưa chạy"},
     {"id": "R5", "goal": "Trang công khai, deploy Pages", "needs_team": false, "status": "chưa chạy"}
   ],
   "decisions": [
     {"date": "2026-10-26", "text": "Supervisor duyệt và merge R1 (#5): verify sạch, T1 25, T2 7, T3 exit 0, T4 33 passed; 4/4 task PASS vòng 1; không quyết định (c); H-01..H-04 mở."},
-    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R2 (#8): verify/smoke sạch, T5 47, T3 exit 0, T4 80 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-05 (thấp)."}
+    {"date": "2026-10-26", "text": "Supervisor duyệt và merge R2 (#8): verify/smoke sạch, T5 47, T3 exit 0, T4 80 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-05 (thấp)."},
+    {"date": "2026-10-26", "text": "Supervisor duyệt R3 (#11, đã merge trước bước duyệt; duyệt lại trên 490a7cb): verify sạch, T6 41, T4 134 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-06, H-07 (thấp)."}
   ]
 }
