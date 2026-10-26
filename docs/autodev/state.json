@@ -4,8 +4,8 @@
     {
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
-      "percent": 89,
-      "percent_by_work": 60,
+      "percent": 100,
+      "percent_by_work": 68,
       "metrics": [
         "T1",
         "T2",
@@ -66,42 +66,7 @@
       "id": "H-07",
       "severity": "low",
       "summary": "Khoá dự phòng chỉ ghi lần đầu",
-      "text": "loadLedger chỉ chép sang khoá dự phòng khi khoá này trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) (ghi chú reviewer R3)",
-      "milestone": null
-    },
-    {
-      "id": "H-08",
-      "severity": "high",
-      "summary": "Pages chưa bật nên deploy đỏ, T9 chưa đạt; verify chưa chạy build, smoke rỗng",
-      "text": "R5 (#18) đã sửa base Vite, tests/build tự build + chạy bundle, workflow test→deploy + smoke sau deploy. Còn: repo chưa bật Pages (run 40230417942 đỏ ở configure-pages: Resource not accessible by integration; trang 404); .autodev/config.json chưa có yarn -s build trong verify, smoke rỗng (việc của leader)",
-      "milestone": "R5"
-    },
-    {
-      "id": "H-09",
-      "severity": "medium",
-      "summary": "Sổ báo sai nguyên nhân mọi lỗi tính",
-      "text": "src/ui/ledger.ts:198-204 catch {} luôn báo Chưa có quy định thuế (audit 2026-10-26)",
-      "milestone": null
-    },
-    {
-      "id": "H-10",
-      "severity": "medium",
-      "summary": "Kho hỏng/phiên bản mới bị ghi đè khoá chính",
-      "text": "loadLedger trả sổ rỗng, apply ghi đè khoá chính ở thao tác đầu; không có đường lấy bản dự phòng (audit 2026-10-26)",
-      "milestone": null
-    },
-    {
-      "id": "H-11",
-      "severity": "medium",
-      "summary": "Hai tab ghi đè nhau",
-      "text": "ledger giữ trong closure, không có listener storage (audit 2026-10-26)",
-      "milestone": null
-    },
-    {
-      "id": "H-12",
-      "severity": "medium",
-      "summary": "localStorage ném lỗi làm sổ trắng, main.ts không test",
-      "text": "src/main.ts:9 truy cập window.localStorage ngoài try/catch (audit 2026-10-26); R5: trang công khai chạy main.ts nên lỗi này lộ trên bản thật",
+      "text": "R6 thêm khoá dự phòng thứ hai (preserveRaw, thue-cho-thue:ledger:backup:2); còn: khi cả hai khoá dự phòng đã giữ chuỗi khác, preserveRaw ghi đè backup:2 (ghi chú reviewer R6 dev-01)",
       "milestone": null
     },
     {
@@ -109,13 +74,6 @@
       "severity": "medium",
       "summary": "Ô ngày inputmode numeric",
       "text": "src/ui/ledger.ts:260-262,318 (audit 2026-10-26)",
-      "milestone": null
-    },
-    {
-      "id": "H-14",
-      "severity": "medium",
-      "summary": "Tổng thuế gồm GTGT chưa xác nhận không có nhãn",
-      "text": "src/ui/form.ts:164-165, src/ui/ledger.ts:415-416 (audit 2026-10-26); R4: dòng Tổng số thuế phải nộp trong bảng/CSV 01/TTS cũng không có nhãn ước tính",
       "milestone": null
     },
     {
@@ -147,18 +105,11 @@
       "milestone": null
     },
     {
-      "id": "H-19",
-      "severity": "medium",
-      "summary": "Phần xuất kiểm receipts mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút .ics",
-      "text": "Phần xuất kiểm receipts mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút .ics (audit R4-R5 2026-10-26-2)",
-      "milestone": null
-    },
-    {
       "id": "H-20",
-      "severity": "medium",
-      "summary": "Hạn đã qua vẫn hiện và vào .ics kèm báo thức; trang công khai viết cứng 31/07/2026",
-      "text": "Hạn đã qua vẫn hiện và vào .ics kèm báo thức; trang công khai viết cứng 31/07/2026 (audit R4-R5 2026-10-26-2)",
-      "milestone": null
+      "severity": "low",
+      "summary": "Trang tĩnh viết cứng \"lần đầu 31/07/2026\"; máy tính một căn chưa gắn \"đã qua\"",
+      "text": "R6 (#24) đã vá phần app (nhãn \"đã qua\", .ics bỏ báo thức hạn đã qua). Còn: FAQ trong index.html viết cứng 31/07/2026 (cần leader duyệt nội dung, human_only); mountCalculator không có today",
+      "milestone": "R6"
     },
     {
       "id": "H-21",
@@ -234,16 +185,22 @@
         "status": "merged",
         "pr": 18,
         "merge_commit": "0541381"
+      },
+      {
+        "id": "R6",
+        "status": "merged",
+        "pr": 24,
+        "merge_commit": "b57d0df"
       }
     ],
     "plugin": []
   },
   "outlook": [
     {
-      "id": "bật Pages",
-      "goal": "Leader bật GitHub Pages (nguồn Actions), chạy lại workflow deploy, đo T9",
+      "id": "mốc engine",
+      "goal": "H-02 (tổng tràn số im lặng), H-01, H-03: mốc engine nhỏ theo Đề xuất chờ duyệt của plan/R6.md",
       "needs_team": false,
-      "status": "chờ leader"
+      "status": "chờ /autodev:propose-next"
     }
   ],
   "decisions": [
@@ -274,6 +231,14 @@
     {
       "date": "2026-10-26",
       "text": "Audit R4-R5: thêm H-19..H-26, không đóng H-xx nào, H-08 vẫn mở (Pages 404); máy tính ~70%, sổ ~75% code/50% chứng minh, nhắc hạn+xuất+Pages ~40%; theo khối lượng ~60%. Đề xuất R6: mất dữ liệu, báo sai thuế, hạn/xuất, kiểm thật. Agent góc (c) đã gọi gh api một lần (chỉ đọc)."
+    },
+    {
+      "date": "2026-10-26",
+      "text": "Đóng H-08 (audit 2026-10-26-3): Pages bật, T9 exit 0, verify có build, smoke scripts/smoke-pages.sh."
+    },
+    {
+      "date": "2026-10-26",
+      "text": "Supervisor duyệt và merge R6 (#24): verify/smoke sạch, build 0, T4 245, T5 70, T6 61, T7 34; 26 ca mới đỏ trên src cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-09, H-10, H-11, H-12, H-14, H-19; H-20 thu hẹp (FAQ tĩnh, máy tính); H-07 cập nhật."
     }
   ]
 }
