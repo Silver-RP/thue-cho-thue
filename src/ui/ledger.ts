@@ -30,6 +30,10 @@ export interface LedgerMountOptions {
   events?: EventTarget;
   /** Gọi sau mỗi lần vẽ với đúng kết quả khối tổng năm dùng (null khi sổ khoá). */
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
+  /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
+  stale?: boolean;
+  /** Báo khi cờ stale đổi (true khi tab khác ghi, false khi người dùng tải lại sổ). */
+  onStale?: (stale: boolean) => void;
 }
 
 type Props = Partial<Record<string, string>>;
@@ -222,7 +226,9 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   };
   let lastSeen = readRaw();
   /** Tab khác đã đổi khoá chính. */
-  let stale = false;
+  let stale = options.stale === true;
+  /** Đã gỡ: các việc đến muộn (đọc file) không được ghi hay vẽ nữa. */
+  let disposed = false;
 
   const reload = (): void => {
     const again = loadLedger(storage);
@@ -232,6 +238,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
     lastSeen = readRaw();
     stale = false;
+    options.onStale?.(false);
     render();
   };
 
@@ -242,6 +249,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (stale || readRaw() !== lastSeen) {
       if (!stale) {
         stale = true;
+        options.onStale?.(true);
         render();
       }
       return STALE_MESSAGE;
@@ -611,6 +619,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       if (!f) return;
       void f.text().then(
         (text) => {
+          if (disposed) return;
           const parsed = importLedger(text);
           if (!parsed.ok) {
             slot.textContent = parsed.error;
@@ -634,6 +643,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
           }
         },
         () => {
+          if (disposed) return;
           slot.textContent = "Không đọc được file đã chọn.";
           slot.hidden = false;
         },
@@ -727,6 +737,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (ev.key !== LEDGER_KEY || stale) return;
     if (ev.newValue !== null && ev.newValue === lastSeen) return;
     stale = true;
+    options.onStale?.(true);
     render();
   };
   events?.addEventListener("storage", onStorage);
@@ -735,6 +746,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   render();
 
   return () => {
+    disposed = true;
     events?.removeEventListener("storage", onStorage);
     root.replaceChildren();
   };

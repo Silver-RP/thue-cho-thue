@@ -40,12 +40,61 @@ const BLOCKED_MESSAGE =
 
 const PAST_SUFFIX = / \(đã qua\)$/;
 
+type Snapshot = Map<string, string | boolean>;
+
+/** Duyệt các ô nhập trong form của một vùng, khoá = vùng + form (class, thứ tự cùng class) + name + type. */
+function eachField(root: HTMLElement | null, region: string, fn: (key: string, f: HTMLInputElement) => void): void {
+  if (!root) return;
+  const seen = new Map<string, number>();
+  for (const form of Array.from(root.querySelectorAll("form"))) {
+    const cls = form.className || form.getAttribute("name") || "form";
+    const idx = seen.get(cls) ?? 0;
+    seen.set(cls, idx + 1);
+    for (const f of Array.from(form.querySelectorAll<HTMLInputElement>("input, select, textarea"))) {
+      if (!f.name || f.type === "file" || f.closest("[data-year-picker]")) continue;
+      fn(`${region}|${cls}#${idx}|${f.name}|${f.type}`, f);
+    }
+  }
+}
+
+function capture(root: HTMLElement | null, region: string, into: Snapshot): void {
+  eachField(root, region, (key, f) => into.set(key, f.type === "checkbox" || f.type === "radio" ? f.checked : f.value));
+}
+
+function restore(root: HTMLElement | null, region: string, from: Snapshot): void {
+  if (from.size === 0) return;
+  eachField(root, region, (key, f) => {
+    if (!from.has(key)) return;
+    const v = from.get(key)!;
+    if (typeof v === "boolean") f.checked = v;
+    else if (f.tagName === "SELECT") {
+      if (Array.from((f as unknown as HTMLSelectElement).options).some((o) => o.value === v)) f.value = v;
+    } else f.value = v;
+  });
+}
+
+interface Previous {
+  teardown: () => void;
+  capture: (into: Snapshot) => void;
+  roots: [HTMLElement | null, HTMLElement | null];
+}
+
 /** Gỡ lần gắn trước (listener `storage`) khi `startApp` được gọi lại. */
-let previous: (() => void) | null = null;
+let previous: Previous | null = null;
 
 /** Gắn ô chọn năm, máy tính (#app) và sổ (#ledger). Gọi lại thì gắn lại từ đầu. */
 export function startApp(doc: Document, options: StartOptions): void {
-  previous?.();
+  const carried: Snapshot = new Map();
+  /** Sổ đã đổi ở tab khác: sống qua các lần gắn lại. */
+  let stale = false;
+  if (
+    previous &&
+    previous.roots[0] === doc.querySelector<HTMLElement>("#app") &&
+    previous.roots[1] === doc.querySelector<HTMLElement>("#ledger")
+  ) {
+    previous.capture(carried);
+  }
+  previous?.teardown();
   const { today, storage } = options;
   const extra = new Map<number, TaxRules>((options.rules ?? []).map((r) => [r.year, r]));
   const withRules = [...new Set([...availableYears(), ...extra.keys()])].sort((a, b) => a - b);
@@ -83,7 +132,13 @@ export function startApp(doc: Document, options: StartOptions): void {
   let unmountCalc: (() => void) | null = null;
   let unmountLedger: (() => void) | null = null;
 
+  const snapshot = (into: Snapshot): void => {
+    if (unmountCalc) capture(appRoot, "app", into);
+    if (unmountLedger) capture(ledgerRoot, "ledger", into);
+  };
+
   const show = (year: number): void => {
+    snapshot(carried);
     unmountCalc?.();
     unmountLedger?.();
     unmountCalc = null;
@@ -119,6 +174,10 @@ export function startApp(doc: Document, options: StartOptions): void {
           storage,
           ...(rules ? { rules } : {}),
           ...common,
+          stale,
+          onStale: (v: boolean) => {
+            stale = v;
+          },
           ...(onSummary ? { onSummary } : {}),
           ...(options.events ? { events: options.events } : {}),
           ...(options.newId ? { newId: options.newId } : {}),
@@ -135,6 +194,8 @@ export function startApp(doc: Document, options: StartOptions): void {
         unmountLedger = () => ledgerRoot.replaceChildren();
       }
     }
+    restore(appRoot, "app", carried);
+    restore(ledgerRoot, "ledger", carried);
   };
   select.addEventListener("change", () => show(Number(select.value)));
   show(current);
@@ -153,7 +214,7 @@ export function startApp(doc: Document, options: StartOptions): void {
       s.setAttribute("data-past", "");
     }
   }
-  previous = () => {
+  const teardown = (): void => {
     for (const [s, t] of original) {
       s.textContent = t;
       s.removeAttribute("data-past");
@@ -164,6 +225,7 @@ export function startApp(doc: Document, options: StartOptions): void {
     dueRoot?.replaceChildren();
     picker.remove();
   };
+  previous = { teardown, capture: snapshot, roots: [appRoot, ledgerRoot] };
 
   try {
     analyticsFromEnv().track("pageview", doc.location?.pathname ?? "/");
