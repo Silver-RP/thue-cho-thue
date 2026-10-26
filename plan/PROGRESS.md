@@ -32,5 +32,6 @@
 
 ## R6
 - dev-01 DONE (1 vòng, commit ccc7d2e). `loadLedger` trả `locked`/`raw`; chế độ khoá trong `mountLedger` (nút "Tải bản sổ cũ", "Bắt đầu sổ mới", nhập JSON có hỏi); `BACKUP_KEY_2`; `main.ts` bọc `window.localStorage` trong `try`. Đỏ trước khi sửa: `yarn -s test tests/ledger/safe-storage.test.ts tests/main.test.ts` → 14 failed, 5 passed (13 ca safe-storage + ca main "getter localStorage ném SecurityError"). Sau sửa: 229 passed, 0 failed. Sửa test cũ `tests/ui/ledger.test.ts` ("sổ đã lưu bị hỏng") vì nó khẳng định đúng hành vi lỗi H-10: nay bấm "Bắt đầu sổ mới" trước khi thêm căn. Ghi chú reviewer: ca khoá cho hợp đồng trừ ngưỡng/cách khai chỉ chạy trên sổ rỗng nên yếu (an toàn nhờ mọi ghi đi qua `apply()`); `preserveRaw` ghi đè `backup:2` khi cả hai khoá dự phòng đã đầy (gắn H-07); thiếu dấu cách `plainMoney =(n`.
+- dev-02 DONE (1 vòng, commit ca36aed). `mountLedger` thêm `events?: EventTarget`; `lastSeen` so với khoá chính trước mỗi lần ghi; thông báo "Sổ đã được đổi ở tab khác" + nút "Tải lại sổ"; nghe `storage` chỉ khoá chính. Test mới `tests/ui/two-tabs.test.ts` (4 ca). Đỏ trước khi sửa: `yarn -s test tests/ui/two-tabs` → 3 failed, 1 passed (ca 3 căn liên tiếp xanh vì là ca không hồi quy). Sau sửa: 233 passed, 0 failed. Ghi chú reviewer: chưa có ca `newValue` null (xoá khoá).
 
 ## Đề xuất chờ duyệt
