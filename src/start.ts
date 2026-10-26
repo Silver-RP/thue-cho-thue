@@ -1,8 +1,10 @@
 import { analyticsFromEnv } from "./analytics";
 import type { StorageLike } from "./ledger/storage";
-import { availableYears, type TaxRules } from "./rules";
+import { availableYears, getRules, type TaxRules } from "./rules";
 import { mountCalculator } from "./ui/form";
 import { mountLedger } from "./ui/ledger";
+import { renderDue } from "./ui/due";
+import { renderOverview } from "./ui/overview";
 
 /** Năm đang khai: trước 01/02 vẫn là năm trước (hạn khai 31/01). */
 export function filingYear(today: string): number {
@@ -53,6 +55,8 @@ export function startApp(doc: Document, options: StartOptions): void {
 
   const appRoot = doc.querySelector<HTMLElement>("#app");
   const ledgerRoot = doc.querySelector<HTMLElement>("#ledger");
+  const overviewRoot = doc.querySelector<HTMLElement>("#overview");
+  const dueRoot = doc.querySelector<HTMLElement>("#deadlines");
 
   doc.querySelectorAll('[data-year-picker]').forEach((n) => n.remove());
   const picker = doc.createElement("div");
@@ -71,7 +75,9 @@ export function startApp(doc: Document, options: StartOptions): void {
     select.append(o);
   }
   picker.append(label, select);
-  if (appRoot) appRoot.before(picker);
+  const slot = doc.querySelector<HTMLElement>("[data-year-slot]");
+  if (slot) slot.replaceChildren(picker);
+  else if (appRoot) appRoot.before(picker);
   else (ledgerRoot ?? doc.body).before(picker);
 
   let unmountCalc: (() => void) | null = null;
@@ -85,6 +91,25 @@ export function startApp(doc: Document, options: StartOptions): void {
     select.value = String(year);
     const rules = extra.get(year);
     const common = { fallbackYear, onSwitchYear: show };
+    const rulesOf = (): TaxRules | undefined => {
+      try {
+        return rules ?? getRules(year);
+      } catch {
+        return undefined;
+      }
+    };
+    if (dueRoot && !storage) renderDue(dueRoot, null, { year, today });
+    if (overviewRoot) {
+      // Kho bị chặn: không có sổ nên không có onSummary; vẫn phải có câu thay vì để trống.
+      if (!storage) renderOverview(overviewRoot, null, { year });
+    }
+    const onSummary =
+      overviewRoot || dueRoot
+        ? (outcome: Parameters<typeof renderOverview>[1]): void => {
+            if (overviewRoot) renderOverview(overviewRoot, outcome, { year, rules: rulesOf(), ...common });
+            if (dueRoot) renderDue(dueRoot, outcome, { year, today, ...(options.download ? { download: options.download } : {}) });
+          }
+        : undefined;
     if (appRoot) unmountCalc = mountCalculator(appRoot, { year, today, ...(rules ? { rules } : {}), ...common });
     if (ledgerRoot) {
       if (storage) {
@@ -94,6 +119,7 @@ export function startApp(doc: Document, options: StartOptions): void {
           storage,
           ...(rules ? { rules } : {}),
           ...common,
+          ...(onSummary ? { onSummary } : {}),
           ...(options.events ? { events: options.events } : {}),
           ...(options.newId ? { newId: options.newId } : {}),
           ...(options.confirm ? { confirm: options.confirm } : {}),
@@ -134,6 +160,8 @@ export function startApp(doc: Document, options: StartOptions): void {
     }
     unmountCalc?.();
     unmountLedger?.();
+    overviewRoot?.replaceChildren();
+    dueRoot?.replaceChildren();
     picker.remove();
   };
 

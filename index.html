@@ -19,18 +19,49 @@
     <meta property="og:locale" content="vi_VN" />
   </head>
   <body>
-    <header class="site-intro">
-      <h1>Thuế cho thuê nhà: máy tính và sổ doanh thu 2026</h1>
-      <p>
-        Công cụ miễn phí cho người cho thuê từ một đến năm căn nhà: nhập tiền thuê để ước tính thuế,
-        ghi sổ doanh thu từng hợp đồng và nhận nhắc hạn khai. Mọi số liệu nằm trong trình duyệt của bạn.
-      </p>
-      <noscript>
-        <p>Trang này cần bật JavaScript để chạy máy tính và sổ doanh thu. Phần giải đáp bên dưới vẫn đọc được.</p>
-      </noscript>
+    <header class="topbar">
+      <a class="brand" href="#overview">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7" /><path d="M5 10v10h14V10" /><path d="M10 20v-5h4v5" /></svg>
+        <span>Thuế cho thuê nhà</span>
+      </a>
+      <span class="year-slot" data-year-slot></span>
     </header>
-    <main id="app"></main>
-    <section id="ledger" class="ledger"></section>
+    <div class="shell">
+      <nav class="nav" aria-label="Mục chính">
+        <a href="#overview"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7" /><path d="M5 10v10h14V10" /></svg>Tổng quan</a>
+        <a href="#ledger"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z" /><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z" /></svg>Sổ doanh thu</a>
+        <a href="#deadlines"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 13h6M10 17h6" /></svg>Hạn và tờ khai</a>
+        <a href="#app"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 19h8" /></svg>Tính nhanh</a>
+        <div class="privacy">
+          <strong><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4 3 7.5 7 9 4-1.5 7-5 7-9V6z" /><path d="m9 12 2 2 4-4" /></svg>Dữ liệu chỉ nằm trên máy bạn</strong>
+          Không cần tài khoản, không gửi số liệu đi đâu.
+        </div>
+      </nav>
+      <div class="main">
+        <header class="site-intro">
+          <h1>Thuế cho thuê nhà: máy tính và sổ doanh thu 2026</h1>
+          <p>
+            Công cụ miễn phí cho người cho thuê từ một đến năm căn nhà: nhập tiền thuê để ước tính thuế,
+            ghi sổ doanh thu từng hợp đồng và nhận nhắc hạn khai. Mọi số liệu nằm trong trình duyệt của bạn.
+          </p>
+          <noscript>
+            <p>Trang này cần bật JavaScript để chạy máy tính và sổ doanh thu. Phần giải đáp bên dưới vẫn đọc được.</p>
+          </noscript>
+        </header>
+        <section id="overview" class="overview"></section>
+        <section id="ledger" class="ledger"></section>
+      </div>
+      <aside class="side">
+        <section id="deadlines" class="deadlines"></section>
+        <section id="app" class="card"></section>
+      </aside>
+    </div>
+    <nav class="tabbar" aria-label="Mục chính">
+      <a href="#overview"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7" /><path d="M5 10v10h14V10" /></svg>Tổng quan</a>
+      <a href="#ledger"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z" /><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z" /></svg>Sổ</a>
+      <a href="#deadlines"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 13h6M10 17h6" /></svg>Hạn, tờ khai</a>
+      <a href="#app"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 19h8" /></svg>Tính nhanh</a>
+    </nav>
     <section id="info" class="site-info">
       <h2>Giải đáp nhanh về thuế cho thuê nhà năm 2026</h2>
       <details>

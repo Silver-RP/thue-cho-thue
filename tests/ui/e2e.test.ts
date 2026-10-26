@@ -131,7 +131,7 @@ describe("đối chiếu UI với engine qua ô nhập thật", () => {
   it("mục 3: khai 2 lần ca 100.000.000 × 12 -> hai hạn 31/07/2026 rồi 31/01/2027 theo thứ tự", () => {
     type("rent", "100.000.000");
     type("periods", "12");
-    type("filing", "twice");
+    (root.querySelector('input[name="filing"][value="twice"]') as HTMLInputElement).checked = true;
     calc();
     const text = results();
     const a = text.indexOf("31/07/2026");

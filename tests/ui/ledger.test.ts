@@ -115,7 +115,8 @@ describe("sổ doanh thu trên giao diện", () => {
     mount();
     addProperty("A");
     addContract("A", "T");
-    const f = addReceipt("T", "2026-02-30", "1.000.000");
+    // Ô type="date" làm sạch ngày không có thật thành chuỗi rỗng (H-13); ngày không có thật kiểm ở tests/ledger.
+    const f = addReceipt("T", "", "1.000.000");
     const dateInput = f.querySelector('[name="receivedOn"]') as HTMLElement;
     const err = f.querySelector("#" + dateInput.id + "-error") as HTMLElement;
     expect(err.hidden).toBe(false);

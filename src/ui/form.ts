@@ -1,4 +1,4 @@
-import { availableYears, type TaxRules } from "../rules";
+import { availableYears, getRules, type TaxRules } from "../rules";
 import { calculate, type CalcForm, type PrepaidForm } from "./calculator";
 import { formatVnd, parseVnd } from "./money";
 
@@ -37,12 +37,18 @@ function el<K extends keyof HTMLElementTagNameMap>(
 
 let counter = 0;
 
-function field(parent: HTMLElement, prefix: string, label: string, control: HTMLElement): Field {
+function field(parent: HTMLElement, prefix: string, label: string, control: HTMLElement, suffix?: string): Field {
   const id = `${prefix}-${control.getAttribute("name")}`;
   control.id = id;
   const errId = `${id}-error`;
   const wrap = el("div", { class: "field" });
-  wrap.append(el("label", { for: id }, label), control);
+  if (suffix) {
+    const box = el("div", { class: "input" });
+    box.append(control, el("span", { class: "suffix" }, suffix));
+    wrap.append(el("label", { for: id }, label), box);
+  } else {
+    wrap.append(el("label", { for: id }, label), control);
+  }
   const error = el("p", { class: "field-error", id: errId, role: "alert" });
   error.hidden = true;
   wrap.append(error);
@@ -94,8 +100,8 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   }
 
   const form = el("form", { class: "calc", novalidate: "" });
-  const rent = field(form, prefix, "Tiền thuê mỗi kỳ (đồng)", el("input", { type: "text", name: "rent", inputmode: "numeric", autocomplete: "off", placeholder: "VD: 10.000.000" }));
-  const periods = field(form, prefix, "Số kỳ nhận tiền trong năm", el("input", { type: "text", name: "periods", inputmode: "numeric", autocomplete: "off", value: "12" }));
+  const rent = field(form, prefix, "Tiền thuê mỗi kỳ (đồng)", el("input", { type: "text", name: "rent", inputmode: "numeric", autocomplete: "off", placeholder: "VD: 10.000.000" }), "đ");
+  const periods = field(form, prefix, "Số kỳ nhận tiền trong năm", el("input", { type: "text", name: "periods", inputmode: "numeric", autocomplete: "off", value: "12" }), "kỳ");
 
   const prepaidToggleWrap = el("div", { class: "field field-check" });
   const toggle = el("input", { type: "checkbox", name: "prepaidOn", id: `${prefix}-prepaidOn` });
@@ -116,15 +122,28 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
     prepaidBox.hidden = !toggle.checked;
   });
 
-  const filingSel = el("select", { name: "filing" });
-  filingSel.append(el("option", { value: "once" }, "Khai 1 lần (cả năm)"), el("option", { value: "twice" }, "Khai 2 lần (theo kỳ)"));
-  field(form, prefix, "Cách khai thuế", filingSel);
+  const filingBox = el("fieldset", { class: "field filing" });
+  filingBox.append(el("legend", {}, "Cách khai"));
+  const seg = el("div", { class: "seg" });
+  const radios: HTMLInputElement[] = [];
+  for (const [value, text] of [["once", "Khai 1 lần"], ["twice", "Khai 2 lần"]] as const) {
+    const lab = el("label");
+    const r = el("input", { type: "radio", name: "filing", value });
+    r.checked = value === "once";
+    radios.push(r);
+    lab.append(r, text);
+    seg.append(lab);
+  }
+  filingBox.append(seg);
+  form.append(filingBox);
 
   form.append(el("button", { type: "submit", class: "primary" }, "Tính thuế"));
 
   const results = el("section", { class: "results", "aria-live": "polite" });
   const disclaimer = el("p", { class: "disclaimer" }, DISCLAIMER);
-  root.append(el("h1", {}, "Thuế cho thuê nhà"), form, results, disclaimer);
+  const card = el("section", { class: "card calc-card", "aria-labelledby": `${prefix}-title` });
+  card.append(el("h2", { id: `${prefix}-title` }, "Tính nhanh một hợp đồng"), form, results);
+  root.append(el("h1", {}, "Thuế cho thuê nhà"), card, disclaimer);
 
   const readInt = (f: Field, min: number, max: number, what: string): number | null => {
     const raw = (f.el as HTMLInputElement).value.trim();
@@ -175,7 +194,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       rentPerPeriod: rentV,
       periodsInYear: periodsV,
       prepaid,
-      filingMode: filingSel.value === "twice" ? "twice" : "once",
+      filingMode: radios.find((r) => r.checked)?.value === "twice" ? "twice" : "once",
     };
     const out = calculate(input, options.rules);
     if (out.error || !out.result) {
@@ -183,6 +202,26 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       return;
     }
     const r = out.result;
+
+    const mini = el("div", { class: "mini", role: "status" });
+    const notice = r.deadlines.find((d) => d.kind === "revenue_notice");
+    if (r.status === "taxable") {
+      mini.classList.add("due");
+      const sub = el("p", {}, `Thuế TNCN ${formatVnd(r.totalPit)}, thuế GTGT ${formatVnd(r.totalVat)}`);
+      if (r.vatEstimated) sub.append(" ", el("span", { class: "chip est" }, "ước tính"));
+      mini.append(el("b", {}, `Phải nộp khoảng ${formatVnd(r.totalTax)}`), sub);
+    } else {
+      const threshold = (options.rules ?? getRules(options.year)).threshold;
+      mini.append(
+        el("b", {}, "Chưa phải nộp thuế"),
+        el(
+          "p",
+          {},
+          `Doanh thu ${formatVnd(r.totalRevenue)} dưới ngưỡng ${formatVnd(threshold)}.` +
+            (notice ? ` Chỉ cần thông báo doanh thu trước ${dmy(notice.date)}.` : ""),
+        ),
+      );
+    }
 
     const wrap = el("div", { class: "table-scroll" });
     const table = el("table", { class: "result-table" });
@@ -214,7 +253,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       li.append(el("br"), el("small", { class: "citation" }, `Căn cứ: ${s.citation}`));
       steps.append(li);
     }
-    results.append(el("h2", {}, "Kết quả"), wrap, el("h2", {}, "Giải thích từng bước"), steps);
+    results.append(mini, el("h2", {}, "Kết quả"), wrap, el("h2", {}, "Giải thích từng bước"), steps);
   };
 
   form.addEventListener("submit", (e) => {
