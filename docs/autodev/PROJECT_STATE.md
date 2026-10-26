@@ -9,10 +9,10 @@ Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md
 | R2 | merged (#8) | Máy tính thuế một căn; 4/4 task PASS vòng 1; T5 đạt |
 | R3 | merged (#11) | Sổ doanh thu nhiều căn; 4/4 task PASS vòng 1; T6 đạt |
 | R4 | merged (#15) | Hạn khai, `.ics`, bảng 01/TTS + 01-1/BK-TTS, CSV, chép, hướng dẫn eTax; 4/4 task PASS vòng 1; T7 đạt |
-| R5 | merged (#18) | Trang công khai, SEO, workflow deploy Pages, `tests/build`; 4/4 task PASS vòng 1; T8 đạt; T9 chưa (Pages chưa bật, H-08) |
+| R5 | merged (#18) | Trang công khai, SEO, workflow deploy Pages, `tests/build`; 4/4 task PASS vòng 1; T8 đạt; T9 đạt sau khi leader bật Pages (H-08 đóng) |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt ~89% theo chỉ số (8/9: T1–T8); theo khối lượng việc thật ~60% (audit R4–R5; supervisor ước 78%). Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~60% (audit R4–R5; supervisor ước 78%). Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -24,7 +24,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 44 passed |
 | T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 28 passed |
 | T8 | `yarn -s build && yarn -s test tests/build` | build 0, 0 failed, gzip ≤ 100 KB | build 0, 45 passed, ~16 KB |
-| T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` | exit 0 | 404 (Pages chưa bật) |
+| T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` | exit 0 | exit 0 (Pages bật; smoke `scripts/smoke-pages.sh` sạch) |
 
 ## Kiến trúc hiện nay
 - `src/rules/`: `types.ts` (`TaxRules`), `2026.ts` (mọi số luật + căn cứ L1–L7), `index.ts` (`getRules(year)`, năm chưa có thì ném lỗi).
@@ -64,7 +64,6 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-05 | low | Lỗi engine (ngày trả trước không có thật) hiện chuỗi kỹ thuật `receivedOn ...` trên máy tính R2 (sổ R3 đã chặn) |
 | H-06 | low | Sổ R3: `render()` vẽ lại toàn bộ sau mỗi thay đổi, dữ liệu gõ dở ở form khác mất |
 | H-07 | low | Sổ R3: khoá dự phòng chỉ ghi khi trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) |
-| H-08 | high | R5 sửa phần code (base, `tests/build`, workflow). Còn: repo chưa bật Pages → deploy run đầu đỏ ở `configure-pages`, trang 404 (T9); verify chưa chạy `yarn -s build`, `smoke` rỗng (config, việc leader) |
 | H-09 | medium | Sổ báo sai: mọi lỗi tính hiện "Chưa có quy định thuế" (`ui/ledger.ts:198`) |
 | H-10 | medium | Kho hỏng/phiên bản mới → thao tác đầu ghi đè khoá chính; UI không có đường lấy bản dự phòng |
 | H-11 | medium | Hai tab ghi đè nhau, mất dữ liệu im lặng |
@@ -85,6 +84,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-26 | low | `.ics`: tiêu đề 2 lần khai trùng, UID không `SEQUENCE` |
 
 ## Quyết định gần đây
+- 2026-10-26: Đóng H-08 (`docs/audits/2026-10-26-3.md`): leader bật Pages; chạy lại deploy xanh; T9 exit 0; JS dựng form thật (Chrome headless); thêm `yarn -s build` vào verify và smoke `scripts/smoke-pages.sh`. Không còn lỗ cao mở.
 - 2026-10-26: Audit R4–R5 (`docs/audits/2026-10-26-2.md`): thêm H-19..H-26, không đóng H-xx nào; H-08 vẫn mở (Pages 404). Đề xuất R6: mất dữ liệu (H-10/12/11), báo sai thuế (H-14/02/01/09), hạn và xuất (H-19/20/22), kiểm thật (H-21). Ghi nhận: agent góc (c) đã gọi `gh api` một lần (chỉ đọc, ngoài ràng buộc).
 - 2026-10-26: Supervisor duyệt và merge R5 (#18): verify sạch, build 0, `tests/build` 45, T4 210 passed, gzip ~16 KB; 4/4 task PASS vòng 1; không quyết định (c). Run deploy đầu đỏ ở `configure-pages` (Pages chưa bật), T9 404 → H-08 thu hẹp, chờ leader bật Pages. Thêm H-18.
 - 2026-10-26: Supervisor duyệt và merge R4 (#15): verify sạch, T7 28, T4 165 passed; 4/4 task PASS vòng 1; không quyết định (c); thêm H-17 (thấp), mở rộng H-14 sang bảng tờ khai. Mẫu tờ khai vẫn `confirmed: false` (H-04).
