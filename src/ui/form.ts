@@ -4,6 +4,8 @@ import { formatVnd, parseVnd } from "./money";
 
 export interface MountOptions {
   year: number;
+  /** Ngày hôm nay (YYYY-MM-DD); có thì hạn đã qua mang nhãn "đã qua". */
+  today?: string;
   /** Chỉ dùng cho test: luật thay cho getRules(year). */
   rules?: TaxRules;
   /** Năm gần nhất có luật; khi `year` chưa có luật thì hiện nút về năm này. */
@@ -192,14 +194,14 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       ["Trạng thái", r.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
     for (const d of r.deadlines) {
-      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), ""]);
+      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), options.today !== undefined && d.date < options.today ? "đã qua" : ""]);
     }
     const tbody = el("tbody");
     for (const [name, value, tag] of rows) {
       const tr = el("tr");
       tr.append(el("th", { scope: "row" }, name));
       const td = el("td", {}, value);
-      if (tag) td.append(" ", el("span", { class: "badge" }, `(${tag})`));
+      if (tag) td.append(" ", el("span", { class: "badge", ...(tag === "đã qua" ? { "data-past": "" } : {}) }, `(${tag})`));
       tr.append(td);
       tbody.append(tr);
     }

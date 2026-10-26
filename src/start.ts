@@ -36,6 +36,8 @@ const BLOCKED_MESSAGE =
   "Hãy bật lại việc lưu dữ liệu trang web (cookie và bộ nhớ trang) trong phần cài đặt quyền riêng tư của trình duyệt, " +
   "hoặc thoát chế độ ẩn danh, rồi tải lại trang. Máy tính thuế ở trên vẫn dùng bình thường.";
 
+const PAST_SUFFIX = / \(đã qua\)$/;
+
 /** Gỡ lần gắn trước (listener `storage`) khi `startApp` được gọi lại. */
 let previous: (() => void) | null = null;
 
@@ -83,7 +85,7 @@ export function startApp(doc: Document, options: StartOptions): void {
     select.value = String(year);
     const rules = extra.get(year);
     const common = { fallbackYear, onSwitchYear: show };
-    if (appRoot) unmountCalc = mountCalculator(appRoot, { year, ...(rules ? { rules } : {}), ...common });
+    if (appRoot) unmountCalc = mountCalculator(appRoot, { year, today, ...(rules ? { rules } : {}), ...common });
     if (ledgerRoot) {
       if (storage) {
         unmountLedger = mountLedger(ledgerRoot, {
@@ -110,7 +112,26 @@ export function startApp(doc: Document, options: StartOptions): void {
   };
   select.addEventListener("change", () => show(Number(select.value)));
   show(current);
+
+  // FAQ: gắn "đã qua" vào span hạn có ngày < today (gỡ nhãn cũ trước để gọi lại không nhân đôi).
+  const spans = Array.from(doc.querySelectorAll<HTMLElement>('[data-rule="deadline"]'));
+  const original = new Map<HTMLElement, string>();
+  for (const s of spans) {
+    const text = s.textContent ?? "";
+    original.set(s, text.replace(PAST_SUFFIX, ""));
+    s.removeAttribute("data-past");
+    s.textContent = original.get(s)!;
+    const m = /(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s.textContent);
+    if (m && `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` < today) {
+      s.textContent = `${original.get(s)} (đã qua)`;
+      s.setAttribute("data-past", "");
+    }
+  }
   previous = () => {
+    for (const [s, t] of original) {
+      s.textContent = t;
+      s.removeAttribute("data-past");
+    }
     unmountCalc?.();
     unmountLedger?.();
     picker.remove();
