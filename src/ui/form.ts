@@ -1,11 +1,17 @@
-import type { TaxRules } from "../rules";
+import { availableYears, type TaxRules } from "../rules";
 import { calculate, type CalcForm, type PrepaidForm } from "./calculator";
 import { formatVnd, parseVnd } from "./money";
 
 export interface MountOptions {
   year: number;
+  /** Ngày hôm nay (YYYY-MM-DD); có thì hạn đã qua mang nhãn "đã qua". */
+  today?: string;
   /** Chỉ dùng cho test: luật thay cho getRules(year). */
   rules?: TaxRules;
+  /** Năm gần nhất có luật; khi `year` chưa có luật thì hiện nút về năm này. */
+  fallbackYear?: number;
+  /** Được gọi khi người dùng bấm nút về năm có luật. */
+  onSwitchYear?: (year: number) => void;
 }
 
 export const DISCLAIMER = "Kết quả chỉ để tham khảo, không thay thế tư vấn thuế.";
@@ -61,9 +67,31 @@ function dmy(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
-export function mountCalculator(root: HTMLElement, options: MountOptions): void {
+export function mountCalculator(root: HTMLElement, options: MountOptions): () => void {
   const prefix = `tc${++counter}`;
   root.replaceChildren();
+  const unmount = (): void => root.replaceChildren();
+
+  const hasRules = options.rules ? options.rules.year === options.year : availableYears().includes(options.year);
+  if (!hasRules) {
+    const note = el("div", { class: "no-rules", role: "status" });
+    note.append(
+      el(
+        "p",
+        {},
+        `Chưa có quy định thuế cho năm ${options.year}; ứng dụng không tự đoán luật nên chưa tính thuế cho năm này. ` +
+          "Khi có văn bản chính thức, ứng dụng sẽ được cập nhật.",
+      ),
+    );
+    const { fallbackYear, onSwitchYear } = options;
+    if (fallbackYear !== undefined && onSwitchYear) {
+      const go = el("button", { type: "button", name: "switch-year" }, `Xem năm ${fallbackYear}`);
+      go.addEventListener("click", () => onSwitchYear(fallbackYear));
+      note.append(go);
+    }
+    root.append(el("h1", {}, "Thuế cho thuê nhà"), note, el("p", { class: "disclaimer" }, DISCLAIMER));
+    return unmount;
+  }
 
   const form = el("form", { class: "calc", novalidate: "" });
   const rent = field(form, prefix, "Tiền thuê mỗi kỳ (đồng)", el("input", { type: "text", name: "rent", inputmode: "numeric", autocomplete: "off", placeholder: "VD: 10.000.000" }));
@@ -166,14 +194,14 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): void 
       ["Trạng thái", r.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
     for (const d of r.deadlines) {
-      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), ""]);
+      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), options.today !== undefined && d.date < options.today ? "đã qua" : ""]);
     }
     const tbody = el("tbody");
     for (const [name, value, tag] of rows) {
       const tr = el("tr");
       tr.append(el("th", { scope: "row" }, name));
       const td = el("td", {}, value);
-      if (tag) td.append(" ", el("span", { class: "badge" }, `(${tag})`));
+      if (tag) td.append(" ", el("span", { class: "badge", ...(tag === "đã qua" ? { "data-past": "" } : {}) }, `(${tag})`));
       tr.append(td);
       tbody.append(tr);
     }
@@ -193,4 +221,5 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): void 
     e.preventDefault();
     run();
   });
+  return unmount;
 }
