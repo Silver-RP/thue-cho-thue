@@ -202,3 +202,18 @@ describe("Lần sao lưu cuối và nhắc (H-43)", () => {
     expect(reminder()).not.toBeNull();
   });
 });
+
+describe("CSS nút sổ (B1)", () => {
+  it(".lg-actions button vẫn chung khối với min-height, không dính margin của .lg-backup-info p", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const css = readFileSync(join(__dirname, "../../src/ui/style.css"), "utf8");
+    const block = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].find((m) =>
+      m[1].split(",").some((s) => s.trim() === ".lg-actions button"),
+    );
+    expect(block).toBeDefined();
+    expect(block![2]).toMatch(/min-height:\s*2\.75rem/);
+    expect(block![2]).not.toMatch(/margin/);
+    expect(block![1]).not.toContain(".lg-backup-info p");
+  });
+});
