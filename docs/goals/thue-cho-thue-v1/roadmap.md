@@ -68,6 +68,26 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 - **Pre-mortem:** (a) test phụ thuộc ngày chạy: ca cố định 2027-01-15 và 2027-03-01; (b) FAQ còn ngày cứng: test quét bản build; (c) nới kiểm nhập làm lọt file lạ: ca file lạ.
 - **Phản biện:** `proposals/R7.md` (A → A1 → A1.1).
 
+## R8: Giao diện mới theo mockup (thêm 2026-10-27, leader uỷ quyền chạy tự động)
+- **Mục tiêu:** mở trang là thấy ngay "có phải nộp không, bao nhiêu, hạn khi nào", trên cả điện thoại và máy tính.
+- **Phạm vi (4 task):** (1) token màu/chữ/khoảng cách ở `:root` của `src/ui/style.css` đúng tên trong `docs/design/mockup-r8.html`, khung app: thanh trên có tên và chọn năm, menu bên (máy tính) / thanh dưới (điện thoại) nhảy tới từng khu, ô "Dữ liệu chỉ nằm trên máy bạn"; giữ `#app`, `#ledger`, `#info` và nội dung SEO; (2) khối "Thuế cho thuê năm N của bạn" từ sổ: câu trả lời lớn ("Phải nộp khoảng X đ" / "Chưa phải nộp thuế" / sổ trống / năm chưa có luật), thanh ngưỡng, ngày vượt ngưỡng, biên lai "Cách tính" đánh số; (3) thẻ hạn: hạn kế tiếp, "còn N ngày" / "hôm nay là hạn" / "đã qua", dòng thời gian các hạn, nút `.ics`; sổ: thẻ căn trên điện thoại, bảng trong hộp cuộn trên máy tính; ô ngày `type="date"` (H-13); (4) "Tính nhanh một hợp đồng": máy tính cũ trong thẻ mới, chọn cách khai dạng hai nút, hậu tố "đ", kết quả dạng thẻ trạng thái.
+- **Chỉ số:** T4, T5, T6, T7, T8 (giữ xanh; gzip ≤ 100 KB, không font hay mạng ngoài).
+- **Ước tính:** 5,0 USD, 1,2 giờ máy.
+- **Xong khi:** `yarn -s lint`, `yarn -s build`, `yarn -s test` xanh; test: số ở tổng quan, biên lai, bảng/thẻ căn bằng nhau và bằng `annual()`; tương phản WCAG AA ≥ 4,5 cho mọi cặp chữ/nền token; ca `today` cố định 2027-01-10 / 01-31 / 02-01.
+- **Phụ thuộc:** R7.
+- **Pre-mortem:** (a) chép số mẫu từ mockup: test số từ engine; (b) test UI cũ bị xoá thay vì sửa: số ca `tests/ui` không giảm; (c) tràn ngang trên điện thoại: bảng trong hộp cuộn, supervisor chụp Chrome headless 390 px.
+- **Phản biện:** `proposals/R8.md` (A → A1 → A1.1).
+
+## R9: Không mất sổ, đúng ngày, test chặt (thêm 2026-10-27, leader uỷ quyền chạy tự động)
+- **Mục tiêu:** qua mùa khai 2027 không mất sổ, ngày và năm mặc định đúng theo giờ Việt Nam và theo luật đã cấu hình.
+- **Phạm vi (4 task):** (1) đổi năm không mất dữ liệu gõ dở, không xoá cờ "sổ đã đổi ở tab khác"; nhập file đang chạy thì huỷ khi gỡ (H-41); (2) `navigator.storage.persist()` khi sổ có dữ liệu, "Lần sao lưu cuối", nhắc tải bản sao lưu khi sổ có dữ liệu mà chưa sao lưu 30 ngày (H-43); (3) `localToday` theo `Asia/Ho_Chi_Minh`; mốc đổi năm = ngày sau hạn khai cả năm của `getRules(năm-1)`; đọc lại ngày khi `visibilitychange` (H-39, H-40; không tự dời hạn ngày nghỉ, H-04 là việc người); (4) làm chặt ca R7 theo cột "test cần có" của H-42.
+- **Chỉ số:** T4, T5, T6, T7, T8.
+- **Ước tính:** 4,0 USD, 1,0 giờ máy.
+- **Xong khi:** lint, build, test xanh; mỗi lỗ có ca tái hiện đúng cột "tái hiện" của audit (đỏ trước khi sửa); mọi test đọc ngày đều ghim giờ.
+- **Phụ thuộc:** R8.
+- **Pre-mortem:** (a) test múi giờ chỉ đúng trên máy UTC+7: ca `TZ` khác; (b) `persist()` không có trong happy-dom: ca giả API; (c) ca H-42 vẫn xanh vô nghĩa: đảo điều kiện phải đỏ.
+- **Phản biện:** `proposals/R9.md` (A → A1 → A1.1).
+
 ## Tổng
 
 | # | Mốc | Phụ thuộc | Chỉ số | USD | Giờ máy |
@@ -79,7 +99,9 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 | 5 | R5 | R4 | T8, T9, T4 | 3,0 | 0,8 |
 | 6 | R6 | R5 | T4, T5, T6, T7 | 4,0 | 1,0 |
 | 7 | R7 | R6 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
-| | | | | **23,0** | **6,1** |
+| 8 | R8 | R7 | T4, T5, T6, T7, T8 | 5,0 | 1,2 |
+| 9 | R9 | R8 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
+| | | | | **32,0** | **8,3** |
 
 ## Thứ tự cắt
 R4 phần `.ics` → R3 phần nhiều căn (giữ một căn) → R4 phần xuất CSV (giữ bảng số trên màn hình).

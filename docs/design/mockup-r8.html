@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup R8: Thuế cho thuê nhà</title>
+<!--
+  Bản vẽ đích của R8 (P17, 2026-10-27). Tĩnh, không JS. Bố cục theo ảnh leader
+  (docs/research ở repo plugin), số liệu đúng src/rules/2026.ts, "hôm nay" = 10/01/2027.
+  Màu, chữ, khoảng cách ở :root là token; app thật chép đúng các token này.
+  Không font ngoài, không ảnh: app không được gọi mạng (T8).
+-->
+<style>
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --line: #e3e8f0;
+  --text: #0f1b2d;
+  --muted: #52607a;
+  --primary: #1a56db;
+  --primary-soft: #eaf0fd;
+  --ok: #0e6b3b;
+  --ok-soft: #e8f5ee;
+  --due: #a3360b;
+  --due-soft: #fff3ec;
+  --warn: #8a5300;
+  --warn-soft: #fff6e0;
+  --radius: 12px;
+  --gap: 16px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --num: 1.0625rem;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 var(--font); }
+.tnum { font-variant-numeric: tabular-nums; white-space: nowrap; }
+svg.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Khung */
+.topbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.125rem; color: var(--primary); text-decoration: none; }
+.brand span { color: var(--text); }
+.year { margin-left: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: inherit; font-weight: 600; color: var(--text); }
+.shell { display: flex; flex-wrap: wrap; gap: 24px; max-width: 1280px; margin: 0 auto; padding: 24px 20px 96px; }
+.nav { flex: 0 0 180px; display: flex; flex-direction: column; gap: 4px; }
+.nav a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 500; }
+.nav a[aria-current="page"] { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.privacy { margin-top: 24px; padding: 14px; border-radius: var(--radius); background: var(--primary-soft); font-size: 0.875rem; color: var(--muted); }
+.privacy strong { display: flex; gap: 8px; align-items: center; color: var(--primary); margin-bottom: 4px; }
+.main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: var(--gap); }
+.side { flex: 1 1 300px; max-width: 340px; min-width: 0; display: flex; flex-direction: column; gap: var(--gap); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.card h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 1.125rem; }
+
+/* Kết quả năm */
+.hero { padding: 24px; }
+.hero .eyebrow { margin: 0; color: var(--muted); font-weight: 600; }
+.hero .answer { margin: 4px 0 4px; font-size: clamp(1.75rem, 4.5vw, 2.5rem); line-height: 1.2; font-weight: 800; }
+.hero .sub { margin: 0; color: var(--muted); }
+.hero.owe .answer { color: var(--text); }
+.meter { margin: 20px 0 6px; }
+.meter-bar { position: relative; height: 12px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.meter-fill { position: absolute; inset: 0 auto 0 0; width: 83.3%; background: var(--primary); }
+.meter-over { position: absolute; inset: 0 0 0 83.3%; background: var(--due); }
+.meter-legend { display: flex; justify-content: space-between; gap: 8px; font-size: 0.875rem; color: var(--muted); margin-top: 6px; }
+.chip { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 99px; font-size: 0.8125rem; font-weight: 600; }
+.chip.est { background: var(--warn-soft); color: var(--warn); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.past { background: var(--line); color: var(--muted); }
+
+/* Biên lai */
+.receipt { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+.receipt li { display: flex; gap: 12px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); counter-increment: step; }
+.receipt li::before { content: counter(step) "."; color: var(--muted); min-width: 1.25rem; }
+.receipt .what { flex: 1; }
+.receipt .how { display: block; font-size: 0.875rem; color: var(--muted); }
+.receipt .amt { font-weight: 700; font-size: var(--num); }
+.total { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 12px; padding: 14px 16px; border-radius: 10px; background: var(--primary-soft); font-weight: 700; }
+.total .amt { font-size: 1.25rem; }
+.cite { margin: 12px 0 0; font-size: 0.875rem; color: var(--muted); }
+.cite a { color: var(--primary); }
+
+/* Căn và hợp đồng */
+.props { display: grid; gap: 12px; }
+.prop { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; }
+.prop b { font-size: 1rem; }
+.prop .meta { grid-column: 1; color: var(--muted); font-size: 0.9375rem; }
+.prop .rev { grid-column: 2; grid-row: 1 / span 2; text-align: right; align-self: center; font-weight: 700; }
+.prop .rev small { display: block; font-weight: 500; color: var(--muted); font-size: 0.8125rem; }
+.prop .chip { grid-column: 1 / -1; justify-self: start; margin-top: 4px; }
+.table-box { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 0.875rem; }
+td.n, th.n { text-align: right; }
+td:first-child { white-space: normal; min-width: 12rem; }
+td .sub2 { display: block; font-size: 0.8125rem; color: var(--muted); }
+tfoot td { font-weight: 700; border-bottom: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; text-decoration: none; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* Hạn */
+.due { background: var(--due-soft); border-color: #f6d3c2; }
+.due h2 { color: var(--due); }
+.due .date { margin: 0; font-size: 1.75rem; font-weight: 800; color: var(--due); }
+.due p { margin: 4px 0 0; }
+.timeline { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; }
+.timeline li { display: flex; justify-content: space-between; gap: 12px; align-items: center; font-size: 0.9375rem; }
+
+/* Tính nhanh */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-weight: 600; }
+.input { display: flex; align-items: center; min-height: 48px; border: 1px solid #b9c3d3; border-radius: 10px; background: var(--surface); }
+.input input { flex: 1; min-width: 0; height: 46px; border: 0; padding: 0 14px; font: inherit; font-size: var(--num); background: transparent; color: var(--text); }
+.input .suffix { padding: 0 14px; color: var(--muted); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 10px; background: var(--bg); }
+.seg label { display: flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 8px; font-weight: 600; }
+.seg input { position: absolute; opacity: 0; }
+.seg label.on { background: var(--surface); box-shadow: 0 1px 2px rgb(15 27 45 / 0.12); }
+.mini { margin-top: 16px; padding: 14px 16px; border-radius: 10px; background: var(--ok-soft); color: var(--ok); }
+.mini b { display: flex; gap: 8px; align-items: center; font-size: 1.125rem; }
+.mini p { margin: 4px 0 0; color: var(--text); font-size: 0.9375rem; }
+
+.note { font-size: 0.875rem; color: var(--muted); }
+.note ul { margin: 8px 0 0; padding-left: 18px; }
+
+/* Thanh dưới trên điện thoại */
+.tabbar { display: none; }
+@media (max-width: 760px) {
+  .topbar { padding: 10px 16px; }
+  .shell { padding: 16px 16px 96px; gap: var(--gap); }
+  .nav { display: none; }
+  .card { padding: 16px; }
+  .hero { padding: 20px 16px; }
+  .wide-only { display: none; }
+  .side { max-width: none; }
+  .year { padding: 0 10px; }
+  .brand span { font-size: 1rem; white-space: nowrap; }
+  .year .lbl { display: none; }
+  .year { min-width: 0; }
+  .year select { width: 5.5rem; }
+  .prop { grid-template-columns: minmax(0, 1fr) auto; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: fixed; inset: auto 0 0 0; z-index: 2; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 52px; justify-content: center; font-size: 0.75rem; font-weight: 600; color: var(--muted); text-decoration: none; }
+  .tabbar a[aria-current="page"] { color: var(--primary); }
+}
+@media (min-width: 761px) { .narrow-only { display: none; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+    <span>Thuế cho thuê nhà</span>
+  </a>
+  <label class="year" for="year">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span class="lbl">Năm</span>
+    <select id="year" style="border:0;background:transparent;font:inherit;font-weight:700;color:inherit">
+      <option>2026</option>
+      <option>2027 · chưa có luật</option>
+    </select>
+  </label>
+</header>
+
+<div class="shell">
+  <nav class="nav" aria-label="Mục chính">
+    <a href="#" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>Tổng quan</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>Sổ doanh thu</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Hạn và tờ khai</a>
+    <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h8"/></svg>Tính nhanh</a>
+    <div class="privacy">
+      <strong><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4 3 7.5 7 9 4-1.5 7-5 7-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Dữ liệu chỉ nằm trên máy bạn</strong>
+      Không cần tài khoản, không gửi số liệu đi đâu. Lần sao lưu cuối: 02/01/2027.
+    </div>
+  </nav>
+
+  <main class="main">
+    <section class="card hero owe" aria-labelledby="hero-title">
+      <p class="eyebrow" id="hero-title">Thuế cho thuê năm 2026 của bạn</p>
+      <p class="answer">Phải nộp khoảng <span class="tnum">70.000.000 đ</span></p>
+      <p class="sub">Gồm thuế TNCN <span class="tnum">10.000.000 đ</span> và thuế GTGT <span class="tnum">60.000.000 đ</span> <span class="chip est">ước tính</span></p>
+      <div class="meter" role="img" aria-label="Doanh thu 1.200.000.000 đồng, vượt ngưỡng 1.000.000.000 đồng">
+        <div class="meter-bar"><div class="meter-fill"></div><div class="meter-over"></div></div>
+        <div class="meter-legend"><span>Doanh thu <b class="tnum">1.200.000.000 đ</b></span><span>Ngưỡng <span class="tnum">1.000.000.000 đ</span></span></div>
+      </div>
+      <p class="sub">Đã vượt ngưỡng từ ngày 05/10/2026.</p>
+    </section>
+
+    <section class="card due narrow-only" aria-labelledby="due-m">
+      <h2 id="due-m"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Hạn khai và nộp thuế</h2>
+      <p class="date tnum">31/01/2027</p>
+      <p>Còn 21 ngày · khai 1 lần cho cả năm 2026</p>
+      <div class="actions"><a class="btn" href="#">Thêm vào lịch (.ics)</a></div>
+    </section>
+
+    <section class="card" aria-labelledby="calc-title">
+      <h2 id="calc-title"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-2.5-1.5L12 21l-2.5-1.5L7 21z"/><path d="M10 8h4M10 12h4"/></svg>Cách tính</h2>
+      <ol class="receipt">
+        <li><span class="what">Tổng doanh thu 3 căn<span class="how">Theo ngày nhận tiền trong năm 2026</span></span><span class="amt tnum">1.200.000.000 đ</span></li>
+        <li><span class="what">Trừ ngưỡng năm 2026<span class="how">Trừ một lần cho tổng các hợp đồng</span></span><span class="amt tnum">− 1.000.000.000 đ</span></li>
+        <li><span class="what">Phần vượt ngưỡng</span><span class="amt tnum">200.000.000 đ</span></li>
+        <li><span class="what">Thuế TNCN<span class="how">200.000.000 đ × 5%</span></span><span class="amt tnum">10.000.000 đ</span></li>
+        <li><span class="what">Thuế GTGT <span class="chip est">ước tính</span><span class="how">1.200.000.000 đ × 5%, cơ sở tính chưa xác nhận</span></span><span class="amt tnum">60.000.000 đ</span></li>
+      </ol>
+      <div class="total"><span>Tổng thuế phải nộp</span><span class="amt tnum">70.000.000 đ</span></div>
+      <p class="cite">Căn cứ: Nghị định 141, Luật Thuế TNCN 109/2025 Điều 7.4, Nghị định 68 Điều 3.2 và 4.4. <a href="#">Xem chi tiết</a></p>
+    </section>
+
+    <section class="card" aria-labelledby="props-title">
+      <h2 id="props-title"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>Sổ doanh thu năm 2026</h2>
+      <div class="props narrow-only">
+        <div class="prop"><b>Căn hộ Quận 7</b><span class="meta">Anh Minh · 25.000.000 đ/tháng</span><span class="rev tnum">300.000.000 đ<small>12 kỳ thu</small></span><span class="chip ok">Đủ kỳ thu</span></div>
+        <div class="prop"><b>Nhà phố Thủ Đức</b><span class="meta">Chị Lan · 45.000.000 đ/tháng</span><span class="rev tnum">540.000.000 đ<small>12 kỳ thu</small></span><span class="chip ok">Đủ kỳ thu</span></div>
+        <div class="prop"><b>Mặt bằng Bình Thạnh</b><span class="meta">Cửa hàng Hoa Sen · 30.000.000 đ/tháng</span><span class="rev tnum">360.000.000 đ<small>12 kỳ thu</small></span><span class="chip warn">Hợp đồng hết hạn 31/12/2026</span></div>
+      </div>
+      <div class="table-box wide-only">
+        <table>
+          <caption class="sub2" style="caption-side:bottom;text-align:right;padding-top:6px;color:var(--muted);font-size:0.8125rem">Đơn vị: đồng</caption>
+          <thead><tr><th>Căn, người thuê</th><th class="n">Doanh thu</th><th class="n">Được trừ</th><th class="n">TNCN</th><th class="n">GTGT</th></tr></thead>
+          <tbody>
+            <tr><td>Căn hộ Quận 7<span class="sub2">Anh Minh · 25.000.000 đ/tháng · 12 kỳ</span></td><td class="n tnum">300.000.000</td><td class="n tnum">300.000.000</td><td class="n tnum">0</td><td class="n tnum">15.000.000</td></tr>
+            <tr><td>Nhà phố Thủ Đức<span class="sub2">Chị Lan · 45.000.000 đ/tháng · 12 kỳ</span></td><td class="n tnum">540.000.000</td><td class="n tnum">540.000.000</td><td class="n tnum">0</td><td class="n tnum">27.000.000</td></tr>
+            <tr><td>Mặt bằng Bình Thạnh<span class="sub2">Cửa hàng Hoa Sen · 30.000.000 đ/tháng · <span class="chip warn">hết hạn 31/12/2026</span></span></td><td class="n tnum">360.000.000</td><td class="n tnum">160.000.000</td><td class="n tnum">10.000.000</td><td class="n tnum">18.000.000</td></tr>
+          </tbody>
+          <tfoot><tr><td>Tổng</td><td class="n tnum">1.200.000.000</td><td class="n tnum">1.000.000.000</td><td class="n tnum">10.000.000</td><td class="n tnum">60.000.000</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="#">+ Thêm kỳ thu</a>
+        <a class="btn" href="#">Thêm căn</a>
+        <a class="btn" href="#">Xuất số liệu tờ khai 01/TTS</a>
+      </div>
+    </section>
+  </main>
+
+  <aside class="side">
+    <section class="card due wide-only" aria-labelledby="due-d">
+      <h2 id="due-d"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Hạn khai và nộp thuế</h2>
+      <p class="date tnum">31/01/2027</p>
+      <p>Còn 21 ngày · khai 1 lần cho cả năm 2026</p>
+      <ul class="timeline">
+        <li><span>31/07/2026 · Khai lần 1 (nếu khai 2 lần)</span><span class="chip past">đã qua</span></li>
+        <li><span>31/01/2027 · Khai cả năm</span><span class="chip warn">sắp tới</span></li>
+      </ul>
+      <div class="actions"><a class="btn" href="#">Thêm vào lịch (.ics)</a></div>
+    </section>
+
+    <section class="card" aria-labelledby="quick-title">
+      <h2 id="quick-title"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 19h8"/></svg>Tính nhanh một hợp đồng</h2>
+      <div class="field">
+        <label for="rent">Tiền thuê mỗi tháng</label>
+        <div class="input"><input id="rent" inputmode="numeric" value="25.000.000"><span class="suffix">đ</span></div>
+      </div>
+      <div class="field">
+        <label for="months">Số tháng nhận tiền trong năm</label>
+        <div class="input"><input id="months" inputmode="numeric" value="12"><span class="suffix">tháng</span></div>
+      </div>
+      <fieldset class="field" style="border:0;padding:0;margin:0 0 14px">
+        <legend style="font-weight:600;margin-bottom:6px">Cách khai</legend>
+        <div class="seg">
+          <label class="on"><input type="radio" name="mode" checked>Khai 1 lần</label>
+          <label><input type="radio" name="mode">Khai 2 lần</label>
+        </div>
+      </fieldset>
+      <button class="btn primary" type="button" style="width:100%">Tính thuế</button>
+      <div class="mini" role="status">
+        <b><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Chưa phải nộp thuế</b>
+        <p>Doanh thu <span class="tnum">300.000.000 đ</span> dưới ngưỡng <span class="tnum">1.000.000.000 đ</span>. Chỉ cần thông báo doanh thu trước 31/01/2027.</p>
+      </div>
+    </section>
+
+    <section class="card note" aria-labelledby="note-title">
+      <h2 id="note-title" style="color:var(--text)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Lưu ý</h2>
+      <ul>
+        <li>Thuế GTGT là số ước tính: cơ sở tính (toàn bộ doanh thu hay phần vượt) chưa được xác nhận.</li>
+        <li>Kết quả chỉ để tham khảo, không thay thế tư vấn thuế. Hãy đối chiếu với cơ quan thuế hoặc kế toán trước khi nộp.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+
+<nav class="tabbar" aria-label="Mục chính">
+  <a href="#" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>Tổng quan</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>Sổ</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Hạn, tờ khai</a>
+  <a href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 19h8"/></svg>Tính nhanh</a>
+</nav>
+</body>
+</html>
