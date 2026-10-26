@@ -206,6 +206,8 @@ describe("sổ doanh thu trên giao diện", () => {
     expect(storage.data.get(LEDGER_KEY)).toBe("{hong");
     expect(storage.data.get(BACKUP_KEY)).toBe("{hong");
     expect(storage.writes).toBe(1); // chỉ bản dự phòng
+    // H-10: kho hỏng thì khoá; phải chọn "Bắt đầu sổ mới" (confirm đồng ý) mới ghi khoá chính
+    Array.from(root.querySelectorAll("button")).find((b) => b.textContent === "Bắt đầu sổ mới")!.click();
     addProperty("A");
     expect(JSON.parse(storage.data.get(LEDGER_KEY)!).properties).toHaveLength(1);
     expect(root.querySelector(".ledger-error")).toBeNull();

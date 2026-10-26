@@ -1,8 +1,8 @@
 import type { TaxRules } from "../rules";
-import { exportLedger, importLedger } from "../ledger/backup";
-import { isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
+import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
+import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
-import { loadLedger, saveLedger, type StorageLike } from "../ledger/storage";
+import { loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
 import { summarizeYear, type YearSummary } from "../ledger/summary";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
@@ -37,6 +37,15 @@ function dmy(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
+function defaultDownload(filename: string, mime: string, content: string): void {
+  const url = URL.createObjectURL(new Blob([content], { type: `${mime};charset=utf-8` }));
+  const a = el("a", { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL?.(url);
+}
+
 function localToday(): string {
   const d = new Date();
   const p = (n: number) => String(n).padStart(2, "0");
@@ -49,7 +58,10 @@ function defaultNewId(): string {
   return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-const plainMoney = (n: number): string => formatVnd(n).replace(/ đ$/u, "");
+const LOCKED_MESSAGE =
+  "Sổ cũ chưa đọc được (dữ liệu hỏng hoặc do phiên bản khác lưu), nên ứng dụng không ghi đè lên nó. Bạn có thể tải bản sổ cũ về, hoặc bắt đầu sổ mới.";
+
+const plainMoney =(n: number): string => formatVnd(n).replace(/ đ$/u, "");
 
 // ---- Dựng biểu mẫu nhỏ ----
 
@@ -187,16 +199,29 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   const loaded = loadLedger(storage);
   let ledger: Ledger = loaded.ledger;
   /** Lỗi cấp trang (đọc hỏng, ghi lỗi, nhập lỗi) */
-  let pageError: string | null = loaded.error ?? null;
+  let pageError: string | null = loaded.locked ? LOCKED_MESSAGE : (loaded.error ?? null);
+  /** Khoá chính có dữ liệu cũ không đọc được: không ghi khoá chính cho tới khi người dùng chọn rõ. */
+  let locked = loaded.locked === true;
+  const lockedRaw = loaded.raw;
 
   /** Áp một phép sửa sổ; hợp lệ thì lưu và vẽ lại. Trả lỗi nếu có. */
   const apply = (result: LedgerResult): string | null => {
+    if (locked) return LOCKED_MESSAGE;
     if (isLedgerError(result)) return result.error;
     const saved = saveLedger(storage, result);
     if (!saved.ok) return saved.error;
     ledger = result;
     pageError = null;
     render();
+    return null;
+  };
+
+  /** Mở khoá sau khi chuỗi cũ đã được giữ ở khoá dự phòng. Trả lỗi nếu không giữ được. */
+  const unlockSafely = (): string | null => {
+    if (lockedRaw !== undefined && !preserveRaw(storage, lockedRaw)) {
+      return "Chưa giữ được bản sổ cũ ở khoá dự phòng nên chưa thể bắt đầu sổ mới. Hãy tải bản sổ cũ về trước.";
+    }
+    locked = false;
     return null;
   };
 
@@ -522,7 +547,15 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
             return;
           }
           const nonEmpty = ledger.properties.length + ledger.contracts.length + ledger.receipts.length > 0;
-          if (nonEmpty && !confirmFn("Nhập file sẽ thay toàn bộ sổ hiện tại. Bạn có chắc không?")) return;
+          if (locked) {
+            if (!confirmFn("Nhập file sẽ thay sổ cũ chưa đọc được. Bản sổ cũ sẽ được giữ ở khoá dự phòng của trình duyệt. Bạn có chắc không?")) return;
+            const lockErr = unlockSafely();
+            if (lockErr) {
+              slot.textContent = lockErr;
+              slot.hidden = false;
+              return;
+            }
+          } else if (nonEmpty && !confirmFn("Nhập file sẽ thay toàn bộ sổ hiện tại. Bạn có chắc không?")) return;
           const err = apply(parsed.ledger);
           if (err) {
             slot.textContent = err;
@@ -554,10 +587,44 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
     return f.form;
   };
 
+  const lockBlock = (): HTMLElement => {
+    const box = el("section", { class: "lg-locked" });
+    const slot = errorSlot();
+    if (lockedRaw !== undefined) {
+      const dl = el("button", { type: "button", name: "download-old" }, "Tải bản sổ cũ");
+      dl.addEventListener("click", () => {
+        try {
+          (options.download ?? defaultDownload)(`${APP_ID}-so-cu-${today}.json`, "application/json", lockedRaw);
+          slot.hidden = true;
+        } catch {
+          slot.textContent = "Không tạo được file để tải xuống.";
+          slot.hidden = false;
+        }
+      });
+      box.append(dl);
+    }
+    const fresh = el("button", { type: "button", name: "start-new", class: "danger" }, "Bắt đầu sổ mới");
+    fresh.addEventListener("click", () => {
+      if (!confirmFn("Bắt đầu sổ mới sẽ không dùng sổ cũ nữa (bản cũ vẫn được giữ ở khoá dự phòng của trình duyệt). Bạn nên tải bản sổ cũ về trước. Bạn có chắc không?")) return;
+      const err = unlockSafely();
+      if (err) {
+        slot.textContent = err;
+        slot.hidden = false;
+        return;
+      }
+      ledger = emptyLedger();
+      pageError = null;
+      render();
+    });
+    box.append(fresh, slot);
+    return box;
+  };
+
   function render(): void {
     root.replaceChildren();
     root.append(el("h2", { class: "lg-title" }, `Sổ doanh thu năm ${year}`));
     if (pageError) root.append(el("p", { class: "form-error ledger-error", role: "alert" }, pageError));
+    if (locked) root.append(lockBlock());
     root.append(el("h2", {}, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
     root.append(addPropertyForm());
