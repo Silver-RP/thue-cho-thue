@@ -3,7 +3,8 @@ import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
 import { LEDGER_KEY, loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
-import { summarizeYear, type YearSummary } from "../ledger/summary";
+import type { YearSummary } from "../ledger/summary";
+import { summarizeYearSafe } from "./year-summary";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
 import { formatVnd, parseVnd } from "./money";
@@ -261,11 +262,8 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   };
 
   const summaryOf = (): { summary?: YearSummary; error?: string } => {
-    try {
-      return { summary: summarizeYear(ledger, year, rules) };
-    } catch {
-      return { error: `Chưa có quy định thuế cho năm ${year}, nên chưa tính được thuế.` };
-    }
+    const out = summarizeYearSafe(ledger, year, rules);
+    return "summary" in out ? { summary: out.summary } : { error: out.error };
   };
 
   const confirmRemove = (what: string, hasKids: boolean): boolean | "plain" => {
@@ -478,7 +476,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
       ["Doanh thu cho thuê", formatVnd(s.totalRevenue), ""],
       ["Thuế TNCN", formatVnd(s.totalPit), ""],
       ["Thuế GTGT", formatVnd(s.totalVat), s.vatEstimated ? "ước tính" : ""],
-      ["Tổng thuế", formatVnd(s.totalTax), ""],
+      ["Tổng thuế", formatVnd(s.totalTax), s.vatEstimated ? "ước tính" : ""],
       ["Trạng thái", s.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
     for (const d of s.deadlines) {

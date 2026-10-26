@@ -3,7 +3,7 @@ import { buildDeclaration, type Cell } from "../export/declaration";
 import { form01TTS } from "../export/forms";
 import { deadlinesToIcs, icsFilename } from "../export/ics";
 import type { Ledger } from "../ledger/model";
-import { summarizeYear } from "../ledger/summary";
+import { summarizeYearSafe } from "./year-summary";
 import type { TaxRules } from "../rules";
 import { DISCLAIMER } from "./form";
 import { formatVnd } from "./money";
@@ -89,14 +89,13 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
       return;
     }
 
-    let summary;
-    try {
-      summary = summarizeYear(ledger, year, rules);
-    } catch {
-      note(`Chưa có quy định thuế cho năm ${year}, nên chưa lập được tờ khai.`, "form-error", "alert");
+    const outcome = summarizeYearSafe(ledger, year, rules, "lập được tờ khai");
+    if (!("summary" in outcome)) {
+      note(outcome.error, "form-error", "alert");
       disclaimer();
       return;
     }
+    const summary = outcome.summary;
     const taxable = summary.status === "taxable";
     const actionError = el("p", { class: "form-error export-error", role: "alert" });
     actionError.hidden = true;

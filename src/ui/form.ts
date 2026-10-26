@@ -162,7 +162,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): void 
       ["Doanh thu cho thuê", formatVnd(r.totalRevenue), ""],
       ["Thuế TNCN", formatVnd(r.totalPit), ""],
       ["Thuế GTGT", formatVnd(r.totalVat), r.vatEstimated ? "ước tính" : ""],
-      ["Tổng thuế", formatVnd(r.totalTax), ""],
+      ["Tổng thuế", formatVnd(r.totalTax), r.vatEstimated ? "ước tính" : ""],
       ["Trạng thái", r.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
     for (const d of r.deadlines) {

@@ -16,7 +16,7 @@ export interface FormField {
   /** Mã chỉ tiêu; null khi chưa xác nhận (không bịa mã) */
   code: string | null;
   label: string;
-  /** Dòng này là thuế GTGT: gắn nhãn "ước tính" khi luật GTGT chưa xác nhận */
+  /** Dòng này gồm/là thuế GTGT: gắn nhãn "ước tính" khi luật GTGT chưa xác nhận */
   vat?: boolean;
   value: (s: YearSummary, ctx: FormContext) => number | string;
 }
@@ -51,7 +51,7 @@ export const form01TTS: FormConfig = {
     { code: null, label: "Mức doanh thu được trừ ngưỡng", value: (s) => s.totalDeduction },
     { code: null, label: "Thuế GTGT", vat: true, value: (s) => s.totalVat },
     { code: null, label: "Thuế TNCN", value: (s) => s.totalPit },
-    { code: null, label: "Tổng số thuế phải nộp", value: (s) => s.totalTax },
+    { code: null, label: "Tổng số thuế phải nộp", vat: true, value: (s) => s.totalTax },
   ],
   annexName: "Phụ lục 01-1/BK-TTS (mỗi hợp đồng một dòng)",
   annexColumns: [
