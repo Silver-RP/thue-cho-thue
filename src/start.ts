@@ -52,7 +52,8 @@ function eachField(root: HTMLElement | null, region: string, fn: (key: string, f
     seen.set(cls, idx + 1);
     for (const f of Array.from(form.querySelectorAll<HTMLInputElement>("input, select, textarea"))) {
       if (!f.name || f.type === "file" || f.closest("[data-year-picker]")) continue;
-      fn(`${region}|${cls}#${idx}|${f.name}|${f.type}`, f);
+      const val = f.type === "radio" ? `|${f.value}` : "";
+      fn(`${region}|${cls}#${idx}|${f.name}|${f.type}${val}`, f);
     }
   }
 }

@@ -106,6 +106,21 @@ describe("H-41: đổi năm giữ chữ gõ dở", () => {
     chooseYear("2026");
     expect(storage.sets).toBe(0);
   });
+
+  it("radio cùng name: mặc định 'once' vẫn chọn sau đổi năm; chọn 'twice' giữ qua hai lần đổi", () => {
+    const state = () => Array.from(app().querySelectorAll<HTMLInputElement>('input[name="filing"]')).map((r) => [r.value, r.checked]);
+    start();
+    chooseYear("2026");
+    expect(state()).toEqual([["once", true], ["twice", false]]);
+    chooseYear("2027");
+    chooseYear("2026");
+    expect(state()).toEqual([["once", true], ["twice", false]]);
+    const twice = app().querySelector<HTMLInputElement>('input[name="filing"][value="twice"]')!;
+    twice.checked = true;
+    chooseYear("2027");
+    chooseYear("2026");
+    expect(state()).toEqual([["once", false], ["twice", true]]);
+  });
 });
 
 describe("H-41: cờ stale sống qua đổi năm", () => {
