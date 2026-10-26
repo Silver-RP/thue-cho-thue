@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { build } from "vite";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 const BASE = "/thue-cho-thue/";
 const ROOT = resolve(__dirname, "../..");
@@ -120,7 +120,14 @@ describe("build Pages (dev-01)", () => {
 
     const scriptRef = internalRefs(html).find((r) => r.endsWith(".js"))!;
     const js = readFileSync(join(outDir, scriptRef.slice(BASE.length)), "utf8");
-    expect(() => (0, eval)(js)).not.toThrow();
+    // H-38: bundle đọc đồng hồ khi chạy; ghim ngày còn luật để test không đỏ từ 01/02/2027.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-27T12:00:00"));
+    try {
+      expect(() => (0, eval)(js)).not.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
 
     const app = document.querySelector("#app")!;
     expect(app.querySelector('input[name="rent"]')).not.toBeNull();
