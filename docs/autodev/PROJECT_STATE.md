@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-27 · Nguồn: duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-27 · Nguồn: audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -14,7 +14,7 @@ Cập nhật: 2026-10-27 · Nguồn: duyệt R7 (#29), audit R6 (`docs/audits/20
 | R7 | merged (#29) | Qua mùa khai 2027: năm mặc định `filingYear(today)`, ô chọn năm, báo rõ năm chưa có luật; "đã qua" ở máy tính và FAQ; tổng năm không hạn khi không doanh thu; nhập lại bản sổ cũ; 4/4 task PASS vòng 1; đóng H-20, H-27, H-28; H-31 còn luật 2027 |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~64% (audit R6; supervisor ước ~68%). Ba điều (audit R6): máy tính ~72%, sổ ~80% code / ~58% chứng minh, nhắc hạn + xuất + Pages ~50% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~65% (audit R7; supervisor ước ~68%). Ba điều (audit R7): máy tính ~72%, sổ ~82% code / ~60% chứng minh, nhắc hạn + xuất + Pages ~52% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -88,6 +88,16 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-29 | medium | Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới → nên cập nhật; kho bị chặn) |
 | H-30 | medium | Nhập file khi khoá: `locked=false` trước `apply`; `apply` lỗi thì lệch trạng thái/màn hình |
 | H-31 | medium | R7 thêm năm mặc định, chọn năm, báo rõ năm chưa có luật; còn: luật 2027 (`src/rules/2027.ts`) cần leader/kế toán xác nhận (`human_only`) |
+| H-38 | high | `tests/main.test.ts`, `tests/build/build.test.ts` dùng đồng hồ thật: đỏ từ 01/02/2027 (năm 2027 chưa có luật → không có `form`), chặn deploy đúng mùa khai; hôm nay xanh vì ngày máy |
+| H-39 | medium | Từ 01/02/2027 trang mặc định mở năm 2027 không có máy tính; `01-02` cứng trong `filingYear`, không đọc `rules.deadlines`; 31/01/2027 là Chủ Nhật (H-04) |
+| H-40 | low | `localToday` theo múi giờ máy (hạn theo giờ VN), không test giá trị; tab qua nửa đêm giữ năm/nhãn cũ (cùng gốc H-33) |
+| H-41 | medium | Đổi năm gỡ cả máy tính lẫn sổ, mất dữ liệu gõ dở, xoá cờ stale; nhập file async không huỷ khi gỡ mount |
+| H-42 | medium | Ca R7 yếu: `import-old` dòng 87 vô nghĩa, ca chính một căn trống, không kiểm khoá dự phòng; FAQ thiếu biên ngày và so với `getRules`; `ledger-total` trả trước lỏng |
+| H-43 | medium | Chỉ `localStorage`, không `persist()`, không nhắc xuất; Safari/iOS xoá sau 7 ngày không dùng (chưa thử trên máy) |
+| H-44 | low | FAQ hứa "đã qua" nhưng nhãn do JS; không-JS và ô chọn 2027 vẫn thấy ngày 2026 |
+| H-45 | low | `importLedger` không `app` nhận mọi object đủ 5 khoá, bỏ im khoá lạ; thiếu test vòng xuất→nhập đầy đủ |
+| H-46 | low | `BigInt`/`replaceChildren` không phát hiện: trình duyệt cũ chỉ thấy phần tĩnh |
+| H-47 | low | "Chưa có kỳ thu năm N" hiện cả khi có kỳ thu tổng 0 đ |
 | H-32 | medium | Chưa ai làm: đo người dùng thật (chỉ `pageview`), Lighthouse mobile ≥ 90, mốc 05/12/2026 |
 | H-33 | low | `today` chốt lúc mount; `endOn < startOn` được nhận; kỳ thu năm khác không báo |
 | H-34 | low | Stale `render()` xoá dữ liệu gõ, mất focus, radio lệch; sự kiện `storage` key/newValue null |
@@ -96,6 +106,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
 
 ## Quyết định gần đây
+- 2026-10-27: Audit R7 (`docs/audits/2026-10-27.md`): thêm H-38..H-47 (1 cao, 4 vừa, 5 thấp); đóng H-20, H-27, H-28 (auditor tự chạy 6 file test R7, 32 passed); H-31 còn luật 2027 và H-39. H-38 cao: test theo đồng hồ thật đỏ từ 01/02/2027. % theo việc ~65%. Đề xuất R8: H-38/H-39/H-40 trước 01/02/2027, rồi H-41/H-42/H-43 cùng H-13, H-29, H-30, H-35, rồi H-32.
 - 2026-10-27: Supervisor duyệt và merge R7 (#29): verify/smoke sạch, build 0, T4 275, T5 82, T6 61, T7 34, `tests/build` 48, gzip ~18 KB; ca mới đỏ trên `src` cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027. Câu FAQ mới cần leader đọc duyệt trước khi quảng bá.
 - 2026-10-26: Audit R6 (`docs/audits/2026-10-26-4.md`): thêm H-27..H-37, không tự đóng H-xx; H-09..H-12, H-14, H-19 có test thật qua DOM. H-13 vẫn mở (ô ngày trên điện thoại). % theo việc ~64%. Đề xuất R7: H-13, H-27..H-30, H-35 trước (cùng `ledger.ts`), rồi H-32, H-31.
 - 2026-10-26: Supervisor duyệt và merge R6 (#24): verify/smoke sạch, build 0, T4 245, T5 70, T6 61, T7 34; 26 ca mới đỏ trên `src` cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-09, H-10, H-11, H-12, H-14, H-19; thu hẹp H-20; cập nhật H-07.
