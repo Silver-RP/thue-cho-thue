@@ -44,5 +44,6 @@
 
 ## R8
 - dev-01 DONE (vòng 1, commit 8b1934d). Token 17 của mockup, khung `topbar`/`nav`/`tabbar`/`.privacy`, `#overview`, `#deadlines` rỗng, ô chọn năm vào `[data-year-slot]` (không có slot thì giữ chỗ cũ). Test mới `tests/build/shell.test.ts` (token, khung dist, ô năm, tương phản 12 cặp, @media, không font/URL ngoài). Sau sửa: 294 passed, 0 failed (trước 276); tests/ui 82. Không sửa test cũ. Ghi chú reviewer: `h1` trong `index.html` còn viết cứng "2026" (có từ trước); chưa đo bố cục 390/1280 px, để supervisor chụp.
+- dev-02 DONE (vòng 1, commit 3a0f38a). Mới `src/ui/overview.ts` (`renderOverview`: câu lớn, thanh ngưỡng, biên lai), `mountLedger` thêm `onSummary`, `startApp` vẽ `#overview`; test mới `tests/ui/overview.test.ts` (13 ca). Sau sửa: 307 passed, 0 failed; tests/ui 95. Không sửa test cũ. Ghi chú reviewer: `overview.ts` ghép `"rate"+"Bps"` để qua guard R2 (đã ghi đề xuất (c)); dòng "cách tính" tự dựng cơ sở × thuế suất có thể lệch vài đồng so với số engine khi nhiều hợp đồng (H-04).
 
 ## Đề xuất chờ duyệt
