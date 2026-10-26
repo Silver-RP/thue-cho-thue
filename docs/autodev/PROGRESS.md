@@ -7,6 +7,7 @@
 | R3 | 15 phút worker (ước tính 20) | 3,03 USD theo metrics.py (ước tính 3,7) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,76, USD 0,82 |
 | R4 | 12 phút worker (ước tính 15) | 3,50 USD theo metrics.py (ước tính 3,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,83, USD 1,17 |
 | R5 | 12 phút worker (ước tính 14) | 1,73 + ~1,33 USD (ước tính 3,0) | 4 task, 4 vòng review (ước tính 4–6), 0 lần dừng; B3 phút 0,87, USD ~1,02 |
+| R6 | 18 phút worker (ước tính 16) | 2,25 + ~1,31 USD (ước tính 4,0) | 4 task, 4 vòng review (ước tính 4–7), 0 lần dừng; B3 phút 1,16, USD ~0,89 |
 
 ## R1: duyệt của supervisor (2026-10-26, PR #5)
 
@@ -208,3 +209,46 @@ Thêm: `grep -oE "(src\|href)=..." dist/index.html` → tài nguyên `/thue-cho-
 Nguồn viết cứng "01 tỷ đồng"; `data-rule=deadline` chỉ so 31/01/2027; test happy-dom `eval` bundle chỉ đúng khi một chunk; chưa quét bundle không chứa `yaml`. Supervisor thêm: dự phòng `fetch` analytics không `.catch` (chỉ khi bật); action Node 20 bị cảnh báo deprecated. Gộp vào H-18.
 
 Quyết định: đạt tiêu chí 1, 2, 4; tiêu chí 3 theo plan đo sau merge và chưa đạt vì Pages chưa bật (ngoài quyền supervisor: bật Pages là công khai trang, chờ leader). Merge #18 (main không có check bắt buộc). Không quyết định (c). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R5 `done`, T8 đạt (8/9), T9 chờ.
+
+## R6: duyệt của supervisor (2026-10-26, PR #24, merge b57d0df)
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên `origin/milestone/R6` 4be213a)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify sạch, build 0 | `verify.py`; `verify.py --smoke`; `yarn -s build` | "sạch (không có lỗi mới so với baseline)"; smoke `pages` ok; build exit 0 |
+| 2 | T4 > 210 passed | `yarn -s test` | 27 file, 245 passed, 0 failed |
+| 3 | T5 | `yarn -s test tests/ui` | 7 file, 70 passed (trước 60) |
+| 4 | T6 | `yarn -s test tests/ledger` | 5 file, 61 passed (trước 44) |
+| 5 | T7 | `yarn -s test tests/export` | 5 file, 34 passed (trước 28) |
+| 6 | Mỗi lỗ có ca qua DOM, đỏ trước khi sửa | `git checkout origin/main -- src` rồi chạy 5 file test mới (`tests/main.test.ts`, `tests/ledger/safe-storage.test.ts`, `tests/ui/two-tabs.test.ts`, `tests/ui/money-label.test.ts`, `tests/export/deadlines-past.test.ts`), sau đó trả `src` về | 26 failed, 9 passed: H-12 (main SecurityError), H-10 (13 ca: thêm căn trên `{"schemaVersion":2…` và `{oops`, tải bản cũ, sổ mới, nhập JSON, getItem ném), H-11 (3 ca), H-14 (ca 1–3), H-09 (ca 5, 6b), H-20 (ca 1-2, biên hôm nay, `.ics` today), H-19 (ca 5). 9 ca xanh sẵn là ca chống hồi quy (3 căn liên tiếp, năm 2027, quét `new Date`, trả trước phân bổ…). Trên nhánh mốc: tất cả xanh. Khớp số đỏ worker ghi trong `plan/PROGRESS.md` |
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 16 | 18 | 1,16× |
+| USD | 4,0 | 2,25 + ~1,31 (metrics.py; supervisor tạm tính) | ~0,89× |
+| Vòng review | 4–7 | 4 | trong khoảng |
+
+### Pre-mortem
+1. Test đi vòng hàm thuần → chặn: mọi ca lỗ đi qua `mountLedger`/`mountCalculator`/import `src/main.ts`; supervisor xác nhận đỏ trên `src` cũ (bảng trên).
+2. Hai tab giả bằng một object → chặn: `two-tabs` dùng hai `mountLedger` trên cùng `FakeStorage`, ca không bắn sự kiện vẫn chặn.
+3. "Hôm nay" từ `new Date()` → chặn: `deadlines-past` ca 4 quét `src/export`, `src/ui/export.ts`; ca biên hôm nay/hôm sau.
+4. Kẹt ở sổ khoá / sổ mới ghi đè bản cũ → chặn: `safe-storage` (tải bản cũ, confirm false/true, dự phòng đã có chuỗi khác, không ghi được dự phòng thì vẫn khoá). Còn hở nhỏ: cả hai khoá dự phòng đầy thì ghi đè `backup:2` (H-07).
+5. Nhập JSON khi kho hỏng → chặn: `safe-storage` ca nhập JSON (từ chối/đồng ý, dự phòng trước).
+6. Getter `localStorage` ném → chặn: `tests/main.test.ts`.
+7. Tab tự chặn chính mình → chặn: `two-tabs` ca 3 căn liên tiếp.
+8. Nhãn "ước tính" chỉ ở một nơi → chặn: `money-label` ca 1–3 kèm luật đã xác nhận không có nhãn.
+9. H-09 so chuỗi lỗi engine → chặn: `money-label` ca 6b (luật giả ném lỗi khác).
+10. H-19 lọc `receivedOn` làm mất hạn phân bổ → chặn: `deadlines-past` ca 6.
+11. `VALARM` sót/thừa theo sự kiện → chặn: đếm `BEGIN:VALARM` theo từng `VEVENT` (ca 1-2, 3).
+
+### Kiểm độc lập (vitest, file tạm trong `tests/ui/`, đã xoá sau khi chạy)
+- Hai tab cùng mở trên kho hỏng `{oops`: A "Bắt đầu sổ mới" + thêm "A"; B "Bắt đầu sổ mới" + thêm "B" → kho vẫn `["A"]` (B bị chặn vì khoá chính đã khác), `backup` vẫn `{oops`. Đạt.
+- `StorageEvent` khoá chính với `newValue: null` (tab khác xoá) → B hiện "Sổ đã được đổi ở tab khác". Đạt (reviewer ghi thiếu ca này).
+- Đường chạy thật: `mountLedger` lấy `today` bằng `localToday()` (chỉ trong UI) và truyền cho `mountExport`, nên trang thật gắn "đã qua" theo ngày máy người dùng.
+
+### Ghi chú reviewer (không chặn)
+`preserveRaw` ghi đè `backup:2` khi cả hai dự phòng đầy (gộp H-07); ca khoá cho "hợp đồng trừ ngưỡng"/"cách khai" chạy trên sổ rỗng (an toàn vì mọi ghi qua `apply()`); `summarizeYearSafe` gộp mọi lỗi tính (ngoài thiếu luật) thành thông báo về số tiền.
+
+Quyết định: đạt 6/6 tiêu chí cấp mốc. Merge #24 (main không có check bắt buộc). Không quyết định (c); Đề xuất chờ duyệt giữ nguyên (mốc engine H-02/H-01/H-03; FAQ tĩnh cho leader; cảnh báo "Khai 2 lần" gắn H-04; máy tính chưa có `today`); đề xuất "thêm build vào verify" đã xong (H-08 đóng). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R6 `done`.

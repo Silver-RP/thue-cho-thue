@@ -25,7 +25,7 @@
     {"id": "R5", "title": "Trang công khai, SEO, deploy GitHub Pages sau test xanh, test build", "depends_on": ["R4"], "metrics": ["T8", "T9", "T4"],
      "est_usd": 3.0, "est_hours": 0.8, "status": "done", "plan_file": "plan/R5.md"},
     {"id": "R6", "title": "Vá trước khi quảng bá: không mất dữ liệu sổ (H-10, H-11, H-12), không báo sai tiền (H-14, H-09), hạn đã qua và năm không có kỳ thu (H-20, H-19)", "depends_on": ["R5"], "metrics": ["T4", "T5", "T6", "T7"],
-     "est_usd": 4.0, "est_hours": 1.0, "status": "planned"}
+     "est_usd": 4.0, "est_hours": 1.0, "status": "done", "plan_file": "plan/R6.md"}
   ],
   "cut_order": ["R4", "R3"],
   "human_only": ["Xác nhận cơ sở tính GTGT (L5) và mẫu tờ khai hiện hành", "Chọn dịch vụ analytics/form", "Duyệt nội dung trang trước khi quảng bá"]

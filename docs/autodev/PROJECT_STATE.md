@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18)
+Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -10,19 +10,20 @@ Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md
 | R3 | merged (#11) | Sổ doanh thu nhiều căn; 4/4 task PASS vòng 1; T6 đạt |
 | R4 | merged (#15) | Hạn khai, `.ics`, bảng 01/TTS + 01-1/BK-TTS, CSV, chép, hướng dẫn eTax; 4/4 task PASS vòng 1; T7 đạt |
 | R5 | merged (#18) | Trang công khai, SEO, workflow deploy Pages, `tests/build`; 4/4 task PASS vòng 1; T8 đạt; T9 đạt sau khi leader bật Pages (H-08 đóng) |
+| R6 | merged (#24) | Vá trước khi quảng bá: kho hỏng khoá ghi, hai tab, `localStorage` bị chặn, nhãn "ước tính", lỗi tổng năm đúng nguyên nhân, hạn "đã qua", năm không kỳ thu; 4/4 task PASS vòng 1; đóng H-09..H-12, H-14, H-19 |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~60% (audit R4–R5; supervisor ước 78%). Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~60% (audit R4–R5), sau R6 supervisor ước ~68%. Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
 | T1 | `yarn -s test tests/tax` | 0 failed, ≥ 15 passed | 25 passed |
 | T2 | `yarn -s test tests/rules` | 0 failed, ≥ 4 passed | 7 passed |
 | T3 | `yarn -s lint` | exit 0 | exit 0 |
-| T4 | `yarn -s test` | 0 failed | 210 passed |
-| T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 60 passed |
-| T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 44 passed |
-| T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 28 passed |
+| T4 | `yarn -s test` | 0 failed | 245 passed |
+| T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 70 passed |
+| T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 61 passed |
+| T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 34 passed |
 | T8 | `yarn -s build && yarn -s test tests/build` | build 0, 0 failed, gzip ≤ 100 KB | build 0, 45 passed, ~16 KB |
 | T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` | exit 0 | exit 0 (Pages bật; smoke `scripts/smoke-pages.sh` sạch) |
 
@@ -52,6 +53,11 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | Đọc tiền VNĐ có dấu ngăn, từ chối mơ hồ (R2) | `tests/ui/money.test.ts`, `tests/ui/e2e.test.ts` (gõ `"100.000.000"`) |
 | Ô lỗi không hiện số; miễn trừ luôn có; nhãn "ước tính" theo `vatEstimated` (R2) | `tests/ui/form.test.ts`, `tests/ui/e2e.test.ts` |
 | JSON sai cấu trúc không ghi đè kho; kho hỏng chép dự phòng, không ghi khoá chính (R3) | `tests/ledger/schema-storage.test.ts`, `tests/ledger/ui-e2e.test.ts` |
+| Kho hỏng/phiên bản lạ/đọc lỗi → sổ khoá ghi qua DOM, tải bản cũ, sổ mới chỉ sau khi giữ chuỗi cũ (R6) | `tests/ledger/safe-storage.test.ts` |
+| `localStorage` bị chặn: máy tính vẫn chạy, sổ báo tiếng Việt (R6) | `tests/main.test.ts` |
+| Hai tab: kiểm khoá chính trước mỗi lần ghi, nghe `storage` (R6) | `tests/ui/two-tabs.test.ts` |
+| Dòng tổng mang "ước tính" theo `vatEstimated` ở máy tính, sổ, bảng/CSV; lỗi tổng năm phân biệt thiếu luật bằng `getRules` (R6) | `tests/ui/money-label.test.ts` |
+| Hạn đã qua (`date < today`): nhãn, `.ics` không `VALARM`; năm không doanh thu không hiện hạn; `src/export` không đọc giờ hệ thống (R6) | `tests/export/deadlines-past.test.ts` |
 | File mẫu schema v1 đóng băng luôn nạp được; đổi schema phải thêm di chuyển (R3) | `tests/ledger/fixtures/ledger-v1.json` + `tests/ledger/schema-storage.test.ts` |
 
 ## Lỗ hổng mở
@@ -63,19 +69,13 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-04 | medium | Cơ sở GTGT (L5), làm tròn (đã chạy: 2 hợp đồng 1.000.000.010 + 10 đ → PIT 0, làm tròn tổng ra 1), dời hạn ngày nghỉ (31/01/2027 là Chủ Nhật), số liệu khai 31/7, mẫu tờ khai R4: chờ leader/kế toán xác nhận |
 | H-05 | low | Lỗi engine (ngày trả trước không có thật) hiện chuỗi kỹ thuật `receivedOn ...` trên máy tính R2 (sổ R3 đã chặn) |
 | H-06 | low | Sổ R3: `render()` vẽ lại toàn bộ sau mỗi thay đổi, dữ liệu gõ dở ở form khác mất |
-| H-07 | low | Sổ R3: khoá dự phòng chỉ ghi khi trống; lần kho hỏng thứ hai không được sao lưu (UI có báo lỗi) |
-| H-09 | medium | Sổ báo sai: mọi lỗi tính hiện "Chưa có quy định thuế" (`ui/ledger.ts:198`) |
-| H-10 | medium | Kho hỏng/phiên bản mới → thao tác đầu ghi đè khoá chính; UI không có đường lấy bản dự phòng |
-| H-11 | medium | Hai tab ghi đè nhau, mất dữ liệu im lặng |
-| H-12 | medium | `window.localStorage` ném lỗi → sổ trắng không báo; `main.ts` không có test; R5 đưa trang lên công khai nên lỗi này sẽ lộ |
+| H-07 | low | R6 thêm khoá dự phòng thứ hai; còn: khi cả `backup` và `backup:2` đã giữ chuỗi khác, `preserveRaw` ghi đè `backup:2` |
 | H-13 | medium | Ô ngày dùng `inputmode=numeric` (thiếu dấu "-" trên điện thoại) |
-| H-14 | medium | "Tổng thuế" gồm GTGT chưa xác nhận mà không có nhãn ước tính (máy tính, sổ, và từ R4 cả dòng "Tổng số thuế phải nộp" trong bảng/CSV 01/TTS) |
 | H-15 | low | Test quét số luật yếu (không đệ quy, không `main.ts`) |
 | H-16 | low | Cụm UX nhỏ (nhập lại cùng file, xoá không hỏi, revokeObjectURL, kết quả cũ…; R4: radio không hoàn lại khi `setFilingMode` lỗi, `DISCLAIMER` hai lần): xem audit |
 | H-17 | low | Phụ lục 01-1/BK-TTS năm 2026 liệt kê cả hợp đồng không có doanh thu 2026 (dòng toàn 0); e2e R4 không có ca này |
 | H-18 | low | Ghi chú R5: nguồn viết cứng "01 tỷ" ngoài `data-rule`; test bundle giả định một chunk; dự phòng `fetch` analytics không bắt lỗi (chỉ khi bật); action Node 20 deprecated |
-| H-19 | medium | Phần xuất kiểm `receipts.length` mọi năm: sổ chỉ có kỳ thu năm khác vẫn hiện hạn và nút `.ics` (`ui/export.ts:86`) |
-| H-20 | medium | Hạn đã qua (31/07/2026) vẫn hiện, vẫn vào `.ics` kèm báo thức; trang công khai viết cứng; không cảnh báo |
+| H-20 | low | R6 vá phần app; còn: FAQ `index.html` viết cứng "lần đầu 31/07/2026" (leader duyệt nội dung), máy tính một căn chưa gắn "đã qua" |
 | H-21 | medium | Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, URL cứng, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn |
 | H-22 | medium | CSV phân tách `,` có thể vỡ cột trên Excel vi-VN (chưa xác nhận); tiền tố `'`, ô bắt đầu khoảng trắng/`\n` |
 | H-23 | low | UX xuất: đổi cách khai mất focus, "Chép" không phản hồi gần nút, `aria-label` trùng |
@@ -84,6 +84,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-26 | low | `.ics`: tiêu đề 2 lần khai trùng, UID không `SEQUENCE` |
 
 ## Quyết định gần đây
+- 2026-10-26: Supervisor duyệt và merge R6 (#24): verify/smoke sạch, build 0, T4 245, T5 70, T6 61, T7 34; 26 ca mới đỏ trên `src` cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-09, H-10, H-11, H-12, H-14, H-19; thu hẹp H-20; cập nhật H-07.
 - 2026-10-26: Đóng H-08 (`docs/audits/2026-10-26-3.md`): leader bật Pages; chạy lại deploy xanh; T9 exit 0; JS dựng form thật (Chrome headless); thêm `yarn -s build` vào verify và smoke `scripts/smoke-pages.sh`. Không còn lỗ cao mở.
 - 2026-10-26: Audit R4–R5 (`docs/audits/2026-10-26-2.md`): thêm H-19..H-26, không đóng H-xx nào; H-08 vẫn mở (Pages 404). Đề xuất R6: mất dữ liệu (H-10/12/11), báo sai thuế (H-14/02/01/09), hạn và xuất (H-19/20/22), kiểm thật (H-21). Ghi nhận: agent góc (c) đã gọi `gh api` một lần (chỉ đọc, ngoài ràng buộc).
 - 2026-10-26: Supervisor duyệt và merge R5 (#18): verify sạch, build 0, `tests/build` 45, T4 210 passed, gzip ~16 KB; 4/4 task PASS vòng 1; không quyết định (c). Run deploy đầu đỏ ở `configure-pages` (Pages chưa bật), T9 404 → H-08 thu hẹp, chờ leader bật Pages. Thêm H-18.
