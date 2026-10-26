@@ -71,7 +71,9 @@ export function startApp(doc: Document, options: StartOptions): void {
     select.append(o);
   }
   picker.append(label, select);
-  if (appRoot) appRoot.before(picker);
+  const slot = doc.querySelector<HTMLElement>("[data-year-slot]");
+  if (slot) slot.replaceChildren(picker);
+  else if (appRoot) appRoot.before(picker);
   else (ledgerRoot ?? doc.body).before(picker);
 
   let unmountCalc: (() => void) | null = null;
