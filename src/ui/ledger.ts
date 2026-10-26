@@ -2,7 +2,7 @@ import type { TaxRules } from "../rules";
 import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
-import { loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
+import { LEDGER_KEY, loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
 import { summarizeYear, type YearSummary } from "../ledger/summary";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
@@ -21,6 +21,8 @@ export interface LedgerMountOptions {
   download?: (filename: string, mime: string, content: string) => void;
   /** Chép vào clipboard (mặc định navigator.clipboard); truyền xuống phần xuất. */
   copy?: (text: string) => Promise<void> | void;
+  /** Nơi nhận sự kiện `storage` của tab khác (mặc định window). */
+  events?: EventTarget;
 }
 
 type Props = Partial<Record<string, string>>;
@@ -60,6 +62,8 @@ function defaultNewId(): string {
 
 const LOCKED_MESSAGE =
   "Sổ cũ chưa đọc được (dữ liệu hỏng hoặc do phiên bản khác lưu), nên ứng dụng không ghi đè lên nó. Bạn có thể tải bản sổ cũ về, hoặc bắt đầu sổ mới.";
+
+const STALE_MESSAGE = "Sổ đã được đổi ở tab khác. Hãy tải lại sổ để thấy bản mới nhất; ứng dụng chưa ghi gì để tránh mất dữ liệu.";
 
 const plainMoney =(n: number): string => formatVnd(n).replace(/ đ$/u, "");
 
@@ -202,14 +206,45 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   let pageError: string | null = loaded.locked ? LOCKED_MESSAGE : (loaded.error ?? null);
   /** Khoá chính có dữ liệu cũ không đọc được: không ghi khoá chính cho tới khi người dùng chọn rõ. */
   let locked = loaded.locked === true;
-  const lockedRaw = loaded.raw;
+  let lockedRaw = loaded.raw;
+
+  /** Chuỗi khoá chính lần cuối chính tab này đọc hoặc ghi (null = chưa có, undefined = không đọc được). */
+  const readRaw = (): string | null | undefined => {
+    try {
+      return storage.getItem(LEDGER_KEY);
+    } catch {
+      return undefined;
+    }
+  };
+  let lastSeen = readRaw();
+  /** Tab khác đã đổi khoá chính. */
+  let stale = false;
+
+  const reload = (): void => {
+    const again = loadLedger(storage);
+    ledger = again.ledger;
+    locked = again.locked === true;
+    lockedRaw = again.raw;
+    pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
+    lastSeen = readRaw();
+    stale = false;
+    render();
+  };
 
   /** Áp một phép sửa sổ; hợp lệ thì lưu và vẽ lại. Trả lỗi nếu có. */
   const apply = (result: LedgerResult): string | null => {
     if (locked) return LOCKED_MESSAGE;
     if (isLedgerError(result)) return result.error;
+    if (stale || readRaw() !== lastSeen) {
+      if (!stale) {
+        stale = true;
+        render();
+      }
+      return STALE_MESSAGE;
+    }
     const saved = saveLedger(storage, result);
     if (!saved.ok) return saved.error;
+    lastSeen = readRaw();
     ledger = result;
     pageError = null;
     render();
@@ -590,11 +625,12 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   const lockBlock = (): HTMLElement => {
     const box = el("section", { class: "lg-locked" });
     const slot = errorSlot();
-    if (lockedRaw !== undefined) {
+    const oldRaw = lockedRaw;
+    if (oldRaw !== undefined) {
       const dl = el("button", { type: "button", name: "download-old" }, "Tải bản sổ cũ");
       dl.addEventListener("click", () => {
         try {
-          (options.download ?? defaultDownload)(`${APP_ID}-so-cu-${today}.json`, "application/json", lockedRaw);
+          (options.download ?? defaultDownload)(`${APP_ID}-so-cu-${today}.json`, "application/json", oldRaw);
           slot.hidden = true;
         } catch {
           slot.textContent = "Không tạo được file để tải xuống.";
@@ -624,6 +660,13 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
     root.replaceChildren();
     root.append(el("h2", { class: "lg-title" }, `Sổ doanh thu năm ${year}`));
     if (pageError) root.append(el("p", { class: "form-error ledger-error", role: "alert" }, pageError));
+    if (stale) {
+      const box = el("div", { class: "lg-stale" });
+      const reloadBtn = el("button", { type: "button", name: "reload" }, "Tải lại sổ");
+      reloadBtn.addEventListener("click", reload);
+      box.append(el("p", { class: "form-error", role: "alert" }, STALE_MESSAGE), reloadBtn);
+      root.append(box);
+    }
     if (locked) root.append(lockBlock());
     root.append(el("h2", {}, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
@@ -641,6 +684,15 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
       ...(rules ? { rules } : {}),
     });
   }
+
+  const events = options.events ?? (typeof window !== "undefined" ? window : undefined);
+  events?.addEventListener("storage", (e) => {
+    const ev = e as StorageEvent;
+    if (ev.key !== LEDGER_KEY || stale) return;
+    if (ev.newValue !== null && ev.newValue === lastSeen) return;
+    stale = true;
+    render();
+  });
 
   // Không ghi gì khi mở trang: chỉ ghi sau thao tác của người dùng.
   render();
