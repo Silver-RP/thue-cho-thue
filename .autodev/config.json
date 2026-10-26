@@ -9,11 +9,20 @@
       "cmd": "yarn -s lint"
     },
     {
+      "name": "build",
+      "cmd": "yarn -s build"
+    },
+    {
       "name": "test",
       "cmd": "yarn -s test"
     }
   ],
-  "smoke": [],
+  "smoke": [
+    {
+      "name": "pages",
+      "cmd": "sh scripts/smoke-pages.sh"
+    }
+  ],
   "max_rounds": 3,
   "max_verify_blocks": 3,
   "blocked_policy": "continue_independent",
