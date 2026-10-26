@@ -252,3 +252,45 @@ Quyết định: đạt tiêu chí 1, 2, 4; tiêu chí 3 theo plan đo sau merge
 `preserveRaw` ghi đè `backup:2` khi cả hai dự phòng đầy (gộp H-07); ca khoá cho "hợp đồng trừ ngưỡng"/"cách khai" chạy trên sổ rỗng (an toàn vì mọi ghi qua `apply()`); `summarizeYearSafe` gộp mọi lỗi tính (ngoài thiếu luật) thành thông báo về số tiền.
 
 Quyết định: đạt 6/6 tiêu chí cấp mốc. Merge #24 (main không có check bắt buộc). Không quyết định (c); Đề xuất chờ duyệt giữ nguyên (mốc engine H-02/H-01/H-03; FAQ tĩnh cho leader; cảnh báo "Khai 2 lần" gắn H-04; máy tính chưa có `today`); đề xuất "thêm build vào verify" đã xong (H-08 đóng). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R6 `done`.
+
+## R7: duyệt của supervisor (2026-10-27, PR #29, merge aedd62f)
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên `origin/milestone/R7` 0244024)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify + smoke sạch | `verify.py`; `verify.py --smoke` | "sạch (không có lỗi mới so với baseline)"; smoke `pages` ok |
+| 2 | T4 > 245 | `yarn -s test` | 32 file, 275 passed, 0 failed |
+| 3 | T5 ≥ 6, tăng | `yarn -s test tests/ui` | 10 file, 82 passed (trước 70) |
+| 4 | T6 ≥ 8 | `yarn -s test tests/ledger` | 5 file, 61 passed (đạt ngưỡng; không tăng: ca H-28 qua DOM nằm ở `tests/ui/import-old.test.ts`) |
+| 5 | T7 ≥ 6 | `yarn -s test tests/export` | 5 file, 34 passed (giữ) |
+| 6 | T8: build + tests/build, gzip ≤ 100 KB, không gọi mạng | `yarn -s build && yarn -s test tests/build`; `gzip -c dist/assets/*`; `grep -rlE "fetch\(\|XMLHttpRequest" src` | build 0, 48 passed; JS 17.302 B + CSS 1.033 B gzip (~18 KB); chỉ `src/analytics.ts` |
+| 7 | H-20, H-27, H-28, H-31 có ca qua DOM/`startApp`, đỏ trước khi sửa | `git checkout origin/main -- src index.html` (bỏ `src/start.ts`), chạy `tests/start.test.ts`, `tests/ui/calc-past.test.ts`, `tests/ui/import-old.test.ts`, `tests/ui/ledger-total.test.ts`, rồi trả `src` về | `tests/start.test.ts` đỏ (chưa có `startApp`, H-31); 6 ca đỏ: H-20 máy tính (2), H-28 (2), H-27 (2); 6 ca xanh sẵn là chống hồi quy (file lạ bị từ chối, trả trước phân bổ…). Trên nhánh mốc: tất cả xanh; `tests/build/faq-deadline.test.ts` 3 passed; `tests/main.test.ts` 2 passed |
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 18 | 20 | 1,13× |
+| USD | 4,0 | 2,58 + ~1,36 (metrics.py; supervisor tạm tính) | ~0,99× |
+| Vòng review | 4–7 | 4 | trong khoảng |
+
+### Pre-mortem
+1. Test phụ thuộc ngày chạy → chặn: `tests/start.test.ts` (2027-01-15/01-31/02-01/03-01, quét `new Date(`/`Date.now(`); supervisor thêm biên 2027-01-31 trên HTML build.
+2. FAQ ngày cứng → chặn: `tests/build/faq-deadline.test.ts`. Câu "1/1/2026" ở Nguồn đổi thành `<span data-rule="year">` (điều chỉnh (a) của worker).
+3. Nới kiểm nhập → chặn: `import-old` mục 2–3; supervisor thêm `app: null`, `properties: "x"`, `__proto__` (đều bị từ chối).
+4. Rò listener khi đổi năm → chặn: `tests/start.test.ts` mục 6.
+5. Năm chưa có luật ném lỗi / không thấy 2027 → chặn: `tests/start.test.ts` mục 3–5; supervisor thêm 2027-02-01 trên HTML build.
+6. H-27 lọc theo `receivedOn` → chặn: `ledger-total` ca trả trước `allocate`.
+7. H-28 chỉ sửa hàm thuần → chặn: `import-old` mục 1 qua DOM.
+8. Analytics/chặn `localStorage` hỏng → chặn: `tests/main.test.ts`; supervisor thêm `storage: null` + đổi năm.
+
+### Kiểm độc lập (vitest, file ngoài repo `/tmp/r7probe/probe.test.ts`, 4/4 passed)
+- `today` 2027-01-31, gọi `startApp` hai lần trên `dist/index.html`: một ô chọn năm, giá trị 2026; 31/01/2027 không "đã qua"; 31/07/2026 đúng một nhãn "đã qua".
+- `today` 2027-02-01: không ném; `#app` báo "Chưa có quy định thuế cho năm 2027"; không lộ `getRules`/`REGISTRY`/`schemaVersion`.
+- `storage: null`, đổi 2027 → 2026: đúng một `role=alert` ở `#ledger`, máy tính có form.
+- `importLedger`: `app: null`, `properties` không phải mảng, `__proto__` thiếu khoá → từ chối; sổ đúng dạng không `app` → nhận.
+
+### Ghi chú (không chặn)
+`startApp` giữ hàm gỡ ở biến cấp module (`previous`): gọi trên hai `document` khác nhau sẽ gỡ nhầm (chỉ test gặp). Reviewer ghi probe vào `/tmp` (worker báo là lỗi plugin).
+
+Quyết định: đạt 7/7 tiêu chí cấp mốc. Merge #29 (main không có check bắt buộc). Không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027 (`human_only`). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R7 `done`.

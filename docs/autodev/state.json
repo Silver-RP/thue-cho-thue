@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26",
+  "updated": "2026-10-27",
   "goals": [
     {
       "id": "thue-cho-thue-v1",
@@ -105,13 +105,6 @@
       "milestone": null
     },
     {
-      "id": "H-20",
-      "severity": "low",
-      "summary": "Trang tĩnh viết cứng \"lần đầu 31/07/2026\"; máy tính một căn chưa gắn \"đã qua\"",
-      "text": "R6 (#24) đã vá phần app (nhãn \"đã qua\", .ics bỏ báo thức hạn đã qua). Còn: FAQ trong index.html viết cứng 31/07/2026 (cần leader duyệt nội dung, human_only); mountCalculator không có today",
-      "milestone": "R6"
-    },
-    {
       "id": "H-21",
       "severity": "medium",
       "summary": "Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn",
@@ -154,20 +147,6 @@
       "milestone": null
     },
     {
-      "id": "H-27",
-      "severity": "medium",
-      "summary": "Bảng tổng năm của sổ hiện hạn cho năm không doanh thu; nhãn đã qua ở đó không có test",
-      "text": "Bảng tổng năm của sổ hiện hạn cho năm không doanh thu; nhãn đã qua ở đó không có test (audit R6 2026-10-26-4)",
-      "milestone": null
-    },
-    {
-      "id": "H-28",
-      "severity": "medium",
-      "summary": "Bản sổ cũ tải về (không có app) không nhập lại được bằng Nhập JSON",
-      "text": "Bản sổ cũ tải về (không có app) không nhập lại được bằng Nhập JSON (audit R6 2026-10-26-4)",
-      "milestone": null
-    },
-    {
       "id": "H-29",
       "severity": "medium",
       "summary": "Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới, kho bị chặn)",
@@ -184,9 +163,9 @@
     {
       "id": "H-31",
       "severity": "medium",
-      "summary": "Từ 2027 app cứng năm 2026, không chọn năm, không luật 2027",
-      "text": "Từ 2027 app cứng năm 2026, không chọn năm, không luật 2027 (audit R6 2026-10-26-4)",
-      "milestone": null
+      "summary": "Chưa có luật 2027 (việc người); R7 đã thêm năm mặc định, chọn năm, báo rõ năm chưa có luật",
+      "text": "R7 (#29): năm mặc định filingYear(today), ô chọn năm, năm chưa có luật báo rõ kèm nút về năm có luật. Còn: src/rules/2027.ts cần leader/kế toán xác nhận ngưỡng, thuế suất, hạn (human_only)",
+      "milestone": "R7"
     },
     {
       "id": "H-32",
@@ -268,16 +247,34 @@
         "status": "merged",
         "pr": 24,
         "merge_commit": "b57d0df"
+      },
+      {
+        "id": "R7",
+        "status": "merged",
+        "pr": 29,
+        "merge_commit": "aedd62f"
       }
     ],
     "plugin": []
   },
   "outlook": [
     {
+      "id": "mốc UX khoá sổ",
+      "goal": "H-29, H-30 (khoá sổ), H-33, H-13, H-34 theo Đề xuất chờ duyệt của plan/R7.md",
+      "needs_team": false,
+      "status": "chờ /autodev:audit R7 hoặc /autodev:propose-next"
+    },
+    {
       "id": "mốc engine",
       "goal": "H-02 (tổng tràn số im lặng), H-01, H-03: mốc engine nhỏ theo Đề xuất chờ duyệt của plan/R6.md",
       "needs_team": false,
       "status": "chờ /autodev:propose-next"
+    },
+    {
+      "id": "luật 2027",
+      "goal": "src/rules/2027.ts khi có văn bản (H-31 phần người)",
+      "needs_team": true,
+      "status": "chờ leader"
     }
   ],
   "decisions": [
@@ -320,6 +317,10 @@
     {
       "date": "2026-10-26",
       "text": "Audit R6 (docs/audits/2026-10-26-4.md): thêm H-27..H-37, không tự đóng H-xx; H-09..H-12, H-14, H-19 có test thật. H-13 vẫn mở (ô ngày trên điện thoại). % theo việc ~64% (máy tính ~72, sổ ~58 chứng minh, nhắc hạn+xuất+Pages ~50). Đề xuất R7: H-13, H-27..H-30, H-35 trước; rồi H-32, H-31."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Supervisor duyệt và merge R7 (#29): verify/smoke sạch, build 0, T4 275, T5 82, T6 61, T7 34, tests/build 48, gzip ~18 KB; ca mới đỏ trên src cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027 (human_only)."
     }
   ]
 }
