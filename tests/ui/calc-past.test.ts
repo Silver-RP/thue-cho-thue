@@ -11,7 +11,7 @@ const calcTwice = (today?: string) => {
   mountCalculator(root, { year: 2026, ...(today ? { today } : {}) });
   type("rent", "100.000.000");
   type("periods", "12");
-  type("filing", "twice");
+  (root.querySelector('input[name="filing"][value="twice"]') as HTMLInputElement).checked = true;
   root.querySelector("form")!.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
 };
 const deadlineRow = (date: string) =>

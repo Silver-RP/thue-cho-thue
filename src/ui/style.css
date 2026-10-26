@@ -717,3 +717,96 @@ button.primary {
 .lg-total-row td {
   font-weight: 700;
 }
+
+/* Máy tính nhanh: ô tiền có hậu tố, nút chọn cách khai, thẻ kết quả */
+.input {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  border: 1px solid var(--muted);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.input input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+}
+
+.input .suffix {
+  padding: 0 14px;
+  color: var(--muted);
+}
+
+.filing {
+  border: 0;
+  padding: 0;
+  margin: 0 0 14px;
+}
+
+.filing legend {
+  font-weight: 600;
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.seg label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seg input {
+  position: absolute;
+  opacity: 0;
+}
+
+.seg label:has(input:checked) {
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 27 45 / 0.12);
+}
+
+.seg label:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+}
+
+.mini {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.mini.due {
+  background: var(--due-soft);
+  color: var(--due);
+}
+
+.mini b {
+  display: block;
+  font-size: 1.125rem;
+}
+
+.mini p {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 0.9375rem;
+}
