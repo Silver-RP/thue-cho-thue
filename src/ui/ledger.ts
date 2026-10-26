@@ -75,7 +75,7 @@ interface FieldSpec {
   name: string;
   label: string;
   value?: string;
-  kind?: "text" | "numeric" | "select" | "check";
+  kind?: "text" | "numeric" | "date" | "select" | "check";
   options?: [string, string][];
   placeholder?: string;
 }
@@ -109,6 +109,9 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
     } else if (s.kind === "check") {
       control = el("input", { type: "checkbox", name: s.name });
       (control as HTMLInputElement).checked = s.value === "1";
+    } else if (s.kind === "date") {
+      control = el("input", { type: "date", name: s.name, autocomplete: "off" });
+      (control as HTMLInputElement).value = s.value ?? "";
     } else {
       control = el("input", {
         type: "text",
@@ -321,9 +324,9 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
 
   const contractFields = (c?: Contract): FieldSpec[] => [
     { name: "tenant", label: "Người thuê", value: c?.tenant ?? "" },
-    { name: "signedOn", label: "Ngày ký (AAAA-MM-DD)", value: c?.signedOn ?? "", kind: "numeric", placeholder: "AAAA-MM-DD" },
-    { name: "startOn", label: "Ngày bắt đầu (AAAA-MM-DD)", value: c?.startOn ?? "", kind: "numeric", placeholder: "AAAA-MM-DD" },
-    { name: "endOn", label: "Ngày kết thúc (tuỳ chọn)", value: c?.endOn ?? "", kind: "numeric", placeholder: "AAAA-MM-DD" },
+    { name: "signedOn", label: "Ngày ký", value: c?.signedOn ?? "", kind: "date" },
+    { name: "startOn", label: "Ngày bắt đầu", value: c?.startOn ?? "", kind: "date" },
+    { name: "endOn", label: "Ngày kết thúc (tuỳ chọn)", value: c?.endOn ?? "", kind: "date" },
   ];
 
   const addContractForm = (propertyId: string): HTMLElement => {
@@ -379,7 +382,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   /** Biểu mẫu kỳ thu: có `r` là sửa, không có là thêm. */
   const receiptForm = (contractId: string, r?: Receipt): HTMLElement => {
     const f = buildForm(r ? "lg-receipt-form" : "lg-receipt-add", [
-      { name: "receivedOn", label: "Ngày nhận (AAAA-MM-DD)", value: r?.receivedOn ?? "", kind: "numeric", placeholder: "AAAA-MM-DD" },
+      { name: "receivedOn", label: "Ngày nhận", value: r?.receivedOn ?? "", kind: "date" },
       { name: "amount", label: "Số tiền (đồng)", value: r ? plainMoney(r.amount) : "", kind: "numeric", placeholder: "VD: 10.000.000" },
       { name: "prepaidOn", label: "Trả trước nhiều năm", kind: "check", value: r?.prepaid ? "1" : "" },
       { name: "years", label: "Số năm trả trước", value: String(r?.prepaid?.years ?? 2), kind: "numeric" },
@@ -521,6 +524,24 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     pw.append(pt);
     box.append(pw);
 
+    // Thẻ từng căn (điện thoại; bảng hợp đồng ẩn ở màn hẹp)
+    const cards = el("div", { class: "lg-cards" });
+    for (const p of s.revenueByProperty) {
+      const mine = ledger.contracts.filter((x) => x.propertyId === p.propertyId);
+      const ids = new Set(mine.map((x) => x.id));
+      const periods = ledger.receipts.filter((r) => ids.has(r.contractId) && r.receivedOn.startsWith(`${year}-`)).length;
+      const card = el("article", { class: "card lg-card", "data-property": p.propertyId });
+      card.append(el("h4", {}, p.name));
+      card.append(el("p", { class: "lg-card-revenue tnum", "data-col": "revenue" }, formatVnd(p.revenue)));
+      for (const m of mine) {
+        const row = s.contracts.find((x) => x.contractId === m.id);
+        card.append(el("p", { class: "lg-card-contract", "data-contract": m.id }, `${m.tenant}: ${formatVnd(row?.revenue ?? 0)}`));
+      }
+      card.append(el("p", { class: "sub lg-card-periods" }, `${periods} kỳ thu trong năm ${year}`));
+      cards.append(card);
+    }
+    box.append(cards);
+
     // Theo hợp đồng
     box.append(el("h3", {}, "Thuế theo hợp đồng"));
     const ct = el("table", { class: "result-table lg-by-contract" });
@@ -547,8 +568,15 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       }
       cb.append(tr);
     }
-    ct.append(head, cb);
-    const cw = el("div", { class: "table-scroll" });
+    const foot = el("tfoot");
+    const fr = el("tr", { class: "lg-total-row" });
+    fr.append(el("th", { scope: "row" }, "Tổng"));
+    for (const [k, v] of [["revenue", s.totalRevenue], ["deduction", s.totalDeduction], ["pit", s.totalPit], ["vat", s.totalVat]] as const) {
+      fr.append(el("td", { "data-col": k }, formatVnd(v)));
+    }
+    foot.append(fr);
+    ct.append(head, cb, foot);
+    const cw = el("div", { class: "table-scroll lg-contract-wrap" });
     cw.append(ct);
     box.append(cw);
     return box;

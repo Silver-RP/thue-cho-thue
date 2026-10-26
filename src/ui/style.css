@@ -658,3 +658,62 @@ button.primary {
   font-size: 0.875rem;
   color: var(--muted);
 }
+
+/* Hạn và tờ khai */
+.due .due-date {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.due .due-left {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--due);
+}
+
+.due .timeline {
+  list-style: none;
+  margin: var(--gap) 0;
+  padding: 0;
+}
+
+.due .timeline li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Thẻ từng căn: chỉ hiện ở màn hẹp, thay cho bảng hợp đồng */
+.lg-cards {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .lg-cards {
+    display: grid;
+    gap: var(--gap);
+  }
+
+  .lg-contract-wrap {
+    display: none;
+  }
+}
+
+.lg-card h4 {
+  margin: 0 0 0.25rem;
+}
+
+.lg-card p {
+  margin: 0.2rem 0;
+}
+
+.lg-card-revenue {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.lg-total-row th,
+.lg-total-row td {
+  font-weight: 700;
+}
