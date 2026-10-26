@@ -1,28 +1,28 @@
 {
-  "milestone": "R5",
-  "current_task": null,
+  "milestone": "R6",
+  "current_task": "dev-02",
   "tasks": {
     "dev-01": {
       "status": "DONE",
       "round": 1
     },
     "dev-02": {
-      "status": "DONE",
-      "round": 1
+      "status": "IN_PROGRESS",
+      "round": 0
     },
     "dev-03": {
-      "status": "DONE",
-      "round": 1
+      "status": "TODO",
+      "round": 0
     },
     "dev-04": {
-      "status": "DONE",
-      "round": 1
+      "status": "TODO",
+      "round": 0
     }
   },
   "verify": {
     "last_status": "PASS",
-    "hook_runs": 20,
-    "last_hook_at": "2026-10-25T20:18:18Z",
+    "hook_runs": 21,
+    "last_hook_at": "2026-10-26T11:19:44Z",
     "last_hook_agent": "autodev:developer",
     "consecutive_blocks": 0
   },
@@ -89,6 +89,26 @@
       }
     },
     "R4": {
+      "tasks": {
+        "dev-01": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-02": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-03": {
+          "status": "DONE",
+          "round": 1
+        },
+        "dev-04": {
+          "status": "DONE",
+          "round": 1
+        }
+      }
+    },
+    "R5": {
       "tasks": {
         "dev-01": {
           "status": "DONE",
