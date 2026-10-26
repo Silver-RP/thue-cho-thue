@@ -294,3 +294,47 @@ Quyết định: đạt 6/6 tiêu chí cấp mốc. Merge #24 (main không có c
 `startApp` giữ hàm gỡ ở biến cấp module (`previous`): gọi trên hai `document` khác nhau sẽ gỡ nhầm (chỉ test gặp). Reviewer ghi probe vào `/tmp` (worker báo là lỗi plugin).
 
 Quyết định: đạt 7/7 tiêu chí cấp mốc. Merge #29 (main không có check bắt buộc). Không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027 (`human_only`). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R7 `done`.
+
+## R8: duyệt của supervisor (2026-10-27, PR #35, merge 4d9b5e8)
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên `origin/milestone/R8` 6d857a2)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify + smoke sạch | `verify.py`; `verify.py --smoke` | "sạch (không có lỗi mới so với baseline)"; smoke `pages` ok |
+| 2 | T4 > 276 | `yarn -s test` | 36 file, 331 passed, 0 failed |
+| 3 | T5 ≥ 82 + ca mới | `yarn -s test tests/ui` | 13 file, 119 passed (trước 82; không xoá ca, 3 ca cũ sửa theo DOM, ghi trong `plan/PROGRESS.md`) |
+| 4 | T6 không giảm | `yarn -s test tests/ledger` | 5 file, 61 passed |
+| 5 | T7 không giảm | `yarn -s test tests/export` | 5 file, 34 passed |
+| 6 | T8: build + tests/build, gzip ≤ 100 KB, không font/URL ngoài | `yarn -s build && yarn -s test tests/build` | build 0; 6 file, 66 passed; JS 20,09 KB + CSS 2,63 KB gzip (~23 KB); `tests/build/shell.test.ts` quét `@import`/`@font-face`/`url(http` |
+| 7 | Một sổ vượt ngưỡng qua `startApp`: tổng quan, biên lai, thẻ căn, bảng = `summarizeYear` | `tests/ui/overview.test.ts` "số ở câu lớn, biên lai…" + `tests/ui/due.test.ts` "3 thẻ căn bằng revenueByProperty…" (cùng sổ 3 căn, tách 2 ca); supervisor kiểm thêm trên bản build trong Chrome | xanh; Chrome: `.answer` "Phải nộp khoảng 70.000.000 đ" = `.total` = "Tổng thuế 70.000.000 đ" ở `.lg-total`; thẻ căn 300/540/360 triệu; `tfoot` 1.200.000.000 / 1.000.000.000 / 10.000.000 / 60.000.000 đ |
+| 8 | Chrome headless 390 px và 1280 px, sổ mẫu vượt ngưỡng, `today` thật | bản `dist` chép ra `/tmp/r8shot-*`, `seed.js` ghi sổ 3 căn tên dài vào `localStorage`, `http.server`; 1280: `--window-size=1280`; 390: Chrome không thu dưới 500 px nên đo trong `iframe` rộng 390 | 390: `scrollWidth` 390 = `innerWidth`, `.tabbar` grid + `position: fixed` đáy, `.nav` none, `.lg-cards` grid (3 thẻ), `.lg-contract-wrap` none, không phần tử nào vượt mép ngoài `.table-scroll`. 1280: `scrollWidth` 1280, `.nav` flex, `.tabbar` none, bảng hiện, thẻ căn ẩn. Thẻ hạn "31/01/2027 · Còn 96 ngày" (today 2026-10-27) |
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 24 | 22 | 0,92× |
+| USD | 5,0 | 2,93 + ~1,40 (metrics.py; supervisor tạm tính) | ~0,86× |
+| Vòng review | 4–8 | 4 | trong khoảng |
+
+### Pre-mortem
+1. Số lệch/chép mockup → chặn: `overview.test.ts` (bằng `summarizeYear`, đổi theo khi thêm/xoá kỳ thu qua DOM, quét số mẫu), `due.test.ts` (thẻ căn = bảng = tổng); supervisor thêm ca 1 căn 2 hợp đồng + trả trước `lump` + khai 2 lần.
+2. Xoá test UI cũ → chặn: T5 82 → 119; 3 ca sửa theo DOM giữ khẳng định.
+3. Tràn ngang điện thoại → chặn: test cấu trúc + supervisor đo Chrome 390 px (tiêu chí 8).
+4. Đếm ngày sai biên/đọc đồng hồ → chặn: `due.test.ts` (`daysUntil` 5 ca, 2027-01-10/01-31/02-01), quét `new Date(` R7 xanh.
+5. Ô `type="date"` mất lỗi → chặn: `due.test.ts` "ô ngày trống…"; `tests/ledger` ngày không có thật xanh.
+6. Mất `name="tax-year"`/hai ô → chặn: `tests/build/shell.test.ts`, `tests/start.test.ts`; supervisor gọi `startApp` hai lần trên `dist/index.html`: một ô.
+7. Tổng quan không vẽ lại / kho chặn → chặn: `overview.test.ts` (sổ khoá, `storage: null`).
+8. Tương phản thấp → chặn: `shell.test.ts` (12 cặp ≥ 4,5).
+9. Radio cách khai mất giá trị → chặn: `calc-card.test.ts` (twice → 2 hạn).
+10. Font/mạng ngoài → chặn: `shell.test.ts`, `tests/build`.
+
+### Kiểm độc lập (vitest, file ngoài repo `/tmp/r8shot-*/edge.test.ts`, 3/3 passed)
+- 1 căn 2 hợp đồng + 1 căn trả trước `lump` 900.000.001 đ, khai 2 lần, `today` 2027-01-10: tổng quan = `summarizeYear`; thẻ căn = `revenueByProperty`; thẻ hạn "khai 2 lần", có 31/07/2026, "Còn 21 ngày".
+- Sổ trống trên `dist/index.html`: tổng quan "chưa có kỳ thu", thẻ hạn "Chưa có kỳ thu năm 2026", không số tiền.
+- `startApp` hai lần: một ô năm, một `.answer`; số = `summarizeYear` (ô năm hiện chỉ có 2026 nên nhánh đổi năm không chạy; R7 đã có test).
+
+### Ghi chú (không chặn) → H-48
+`overview.ts` đọc thuế suất qua `["rate","Bps"].join("")` để lách quét `rateBps`; dòng "cách tính" tự dựng cơ sở × thuế suất (chữ); `h1` cứng "2026"; lỗi ngày trống ở `src/ledger/ops.ts:48` còn "AAAA-MM-DD". Ở 1280 px máy tính bên phải còn tiêu đề cũ "Thuế cho thuê nhà" trên thẻ "Tính nhanh một hợp đồng" (trùng tên trang).
+
+Quyết định: đạt 8/8 tiêu chí cấp mốc. Merge #35 (main không có check bắt buộc). Quyết định (c): lách `rateBps` không chặn merge (giá trị vẫn từ `TaxRules`); hướng sửa ở mốc sau là `src/rules` xuất nhãn thuế suất để guard giữ chặt, không allowlist. Đóng H-13 (ca `due.test.ts` "bốn ô ngày có type=date"; `main` trước đó không có `type="date"`). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R8 `done`.
