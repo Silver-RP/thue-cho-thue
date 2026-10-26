@@ -3,7 +3,7 @@ import { buildDeclaration, type Cell } from "../export/declaration";
 import { form01TTS } from "../export/forms";
 import { deadlinesToIcs, icsFilename } from "../export/ics";
 import type { Ledger } from "../ledger/model";
-import { summarizeYear } from "../ledger/summary";
+import { summarizeYearSafe } from "./year-summary";
 import type { TaxRules } from "../rules";
 import { DISCLAIMER } from "./form";
 import { formatVnd } from "./money";
@@ -83,20 +83,20 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     };
 
     const ledger = getLedger();
-    if (ledger.receipts.length === 0) {
+    const noRevenue = (): void => {
       note(`Chưa có kỳ thu năm ${year}. Hãy nhập kỳ thu để xem hạn khai và bảng số liệu.`);
       disclaimer();
-      return;
-    }
+    };
+    if (ledger.receipts.length === 0) return noRevenue();
 
-    let summary;
-    try {
-      summary = summarizeYear(ledger, year, rules);
-    } catch {
-      note(`Chưa có quy định thuế cho năm ${year}, nên chưa lập được tờ khai.`, "form-error", "alert");
+    const outcome = summarizeYearSafe(ledger, year, rules, "lập được tờ khai");
+    if (!("summary" in outcome)) {
+      note(outcome.error, "form-error", "alert");
       disclaimer();
       return;
     }
+    const summary = outcome.summary;
+    if (summary.totalRevenue === 0) return noRevenue();
     const taxable = summary.status === "taxable";
     const actionError = el("p", { class: "form-error export-error", role: "alert" });
     actionError.hidden = true;
@@ -129,9 +129,11 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     // Danh sách hạn
     const list = el("ul", { class: "export-deadlines" });
     for (const d of summary.deadlines) {
-      const li = el("li", { "data-date": d.date });
+      const isPast = d.date < today;
+      const li = el("li", { "data-date": d.date, ...(isPast ? { "data-past": "" } : {}) });
       li.append(
         el("strong", {}, dmy(d.date)),
+        ...(isPast ? [" ", el("span", { class: "badge export-past" }, "(đã qua)")] : []),
         ` - ${d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế"}. `,
         el("span", { class: "export-citation" }, d.citation),
       );
@@ -142,7 +144,7 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
       const ics = el("button", { type: "button", name: "download-ics" }, "Tải nhắc lịch (.ics)");
       ics.addEventListener("click", () => {
         try {
-          download(icsFilename(year), "text/calendar", deadlinesToIcs(summary.deadlines, { year, stamp }));
+          download(icsFilename(year), "text/calendar", deadlinesToIcs(summary.deadlines, { year, stamp, today }));
           actionError.hidden = true;
         } catch {
           fail("Không tạo được file nhắc lịch để tải xuống.");
