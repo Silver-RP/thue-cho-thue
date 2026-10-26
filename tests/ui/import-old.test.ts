@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { exportLedger, importLedger } from "../../src/ledger/backup";
 import { emptyLedger } from "../../src/ledger/model";
-import { LEDGER_KEY, type StorageLike } from "../../src/ledger/storage";
+import { BACKUP_KEY, BACKUP_KEY_2, LEDGER_KEY, type StorageLike } from "../../src/ledger/storage";
 import { mountLedger } from "../../src/ui/ledger";
 
 class FakeStorage implements StorageLike {
@@ -71,20 +71,22 @@ describe("H-28: nhập lại bản sổ cũ đã tải", () => {
   });
 
   it("mục 2: file lạ bị từ chối, kho không đổi", async () => {
-    const bads = [
-      "{}",
-      "[]",
-      '{"schemaVersion":1}',
-      '{"schemaVersion":1,"properties":[]}',
-      `{"app":"khac","schemaVersion":1,"properties":[],${KEYS}}`,
-      "{hong",
+    const NOT_APP = "không phải do ứng dụng";
+    const bads: [string, string][] = [
+      ["{}", NOT_APP],
+      ["[]", "không đúng dạng dữ liệu"],
+      ['{"schemaVersion":1}', NOT_APP],
+      ['{"schemaVersion":1,"properties":[]}', NOT_APP],
+      ['{"schemaVersion":1,"properties":[],"contracts":[],"receipts":[]}', NOT_APP],
+      [`{"app":"khac","schemaVersion":1,"properties":[],${KEYS}}`, NOT_APP],
+      ["{hong", "không phải JSON hợp lệ"],
     ];
-    for (const b of bads) {
+    for (const [b, expected] of bads) {
       storage = new FakeStorage();
       storage.data.set(LEDGER_KEY, V2);
       mount();
       await fileInput(b);
-      expect(errText(), b).not.toBe("");
+      expect(errText(), b).toContain(expected);
       expect(storage.data.get(LEDGER_KEY), b).toBe(V2);
       expect(importLedger(b).ok, b).toBe(false);
     }
@@ -101,5 +103,49 @@ describe("H-28: nhập lại bản sổ cũ đã tải", () => {
   it("mục 4: file có app của exportLedger vẫn nhập được", () => {
     const out = exportLedger(emptyLedger(), "2026-10-26");
     expect(importLedger(out.text).ok).toBe(true);
+  });
+
+  const FULL = {
+    app: "thue-cho-thue",
+    schemaVersion: 1,
+    properties: [{ id: "p1", name: "Căn A", address: "1 Phố" }],
+    contracts: [{ id: "c1", propertyId: "p1", tenant: "Lan", signedOn: "2025-12-01", startOn: "2026-01-01", endOn: "2026-12-31" }],
+    receipts: [
+      { id: "r1", contractId: "c1", receivedOn: "2026-02-01", amount: 123456789 },
+      { id: "r2", contractId: "c1", receivedOn: "2026-03-01", amount: 5000000, prepaid: { years: 2, mode: "allocate" } },
+    ],
+    deductionChoice: { "2026": "c1" },
+    filingMode: { "2026": "twice" },
+  };
+
+  it("mục 5: nhập sổ đầy đủ trên sổ khoá -> khoá chính bằng sổ nhập, V2 cũ còn ở khoá dự phòng", async () => {
+    storage.data.set(LEDGER_KEY, V2);
+    mount();
+    await fileInput(JSON.stringify(FULL));
+    expect(errText()).toBe("");
+    const { app: _app, ...expected } = FULL;
+    expect(JSON.parse(storage.data.get(LEDGER_KEY)!)).toEqual(expected);
+    expect(storage.data.get(BACKUP_KEY)).toBe(V2);
+  });
+
+  it("mục 5b: dự phòng đã giữ chuỗi khác -> V2 cũ sang backup:2, dự phòng cũ không bị đè", async () => {
+    storage.data.set(LEDGER_KEY, V2);
+    storage.data.set(BACKUP_KEY, "CHUOI-DU-PHONG-TRUOC");
+    mount();
+    await fileInput(JSON.stringify(FULL));
+    expect(errText()).toBe("");
+    expect(storage.data.get(BACKUP_KEY)).toBe("CHUOI-DU-PHONG-TRUOC");
+    expect(storage.data.get(BACKUP_KEY_2)).toBe(V2);
+    expect(JSON.parse(storage.data.get(LEDGER_KEY)!).receipts).toHaveLength(2);
+  });
+
+  it("mục 5c: mount lại sau nhập không ghi thêm gì vào kho", async () => {
+    storage.data.set(LEDGER_KEY, V2);
+    mount();
+    await fileInput(JSON.stringify(FULL));
+    const after = JSON.stringify([...storage.data]);
+    mount();
+    expect(JSON.stringify([...storage.data])).toBe(after);
+    expect(storage.data.get(BACKUP_KEY_2)).toBeUndefined();
   });
 });
