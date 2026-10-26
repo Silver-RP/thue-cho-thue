@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-27 · Nguồn: audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-27 · Nguồn: đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -88,7 +88,6 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-29 | medium | Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới → nên cập nhật; kho bị chặn) |
 | H-30 | medium | Nhập file khi khoá: `locked=false` trước `apply`; `apply` lỗi thì lệch trạng thái/màn hình |
 | H-31 | medium | R7 thêm năm mặc định, chọn năm, báo rõ năm chưa có luật; còn: luật 2027 (`src/rules/2027.ts`) cần leader/kế toán xác nhận (`human_only`) |
-| H-38 | high | `tests/main.test.ts`, `tests/build/build.test.ts` dùng đồng hồ thật: đỏ từ 01/02/2027 (năm 2027 chưa có luật → không có `form`), chặn deploy đúng mùa khai; hôm nay xanh vì ngày máy |
 | H-39 | medium | Từ 01/02/2027 trang mặc định mở năm 2027 không có máy tính; `01-02` cứng trong `filingYear`, không đọc `rules.deadlines`; 31/01/2027 là Chủ Nhật (H-04) |
 | H-40 | low | `localToday` theo múi giờ máy (hạn theo giờ VN), không test giá trị; tab qua nửa đêm giữ năm/nhãn cũ (cùng gốc H-33) |
 | H-41 | medium | Đổi năm gỡ cả máy tính lẫn sổ, mất dữ liệu gõ dở, xoá cờ stale; nhập file async không huỷ khi gỡ mount |
@@ -106,6 +105,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
 
 ## Quyết định gần đây
+- 2026-10-27: Đóng H-38 (`docs/audits/2026-10-27-2.md`): leader sửa tay, ghim giờ `tests/main.test.ts` và `tests/build/build.test.ts`, thêm ca `main` ở 2027-03-01; dưới đồng hồ giả 2027 mã cũ 3 failed, mã mới 276 passed. Không còn lỗ cao mở.
 - 2026-10-27: Audit R7 (`docs/audits/2026-10-27.md`): thêm H-38..H-47 (1 cao, 4 vừa, 5 thấp); đóng H-20, H-27, H-28 (auditor tự chạy 6 file test R7, 32 passed); H-31 còn luật 2027 và H-39. H-38 cao: test theo đồng hồ thật đỏ từ 01/02/2027. % theo việc ~65%. Đề xuất R8: H-38/H-39/H-40 trước 01/02/2027, rồi H-41/H-42/H-43 cùng H-13, H-29, H-30, H-35, rồi H-32.
 - 2026-10-27: Supervisor duyệt và merge R7 (#29): verify/smoke sạch, build 0, T4 275, T5 82, T6 61, T7 34, `tests/build` 48, gzip ~18 KB; ca mới đỏ trên `src` cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027. Câu FAQ mới cần leader đọc duyệt trước khi quảng bá.
 - 2026-10-26: Audit R6 (`docs/audits/2026-10-26-4.md`): thêm H-27..H-37, không tự đóng H-xx; H-09..H-12, H-14, H-19 có test thật qua DOM. H-13 vẫn mở (ô ngày trên điện thoại). % theo việc ~64%. Đề xuất R7: H-13, H-27..H-30, H-35 trước (cùng `ledger.ts`), rồi H-32, H-31.

@@ -210,13 +210,6 @@
       "milestone": null
     },
     {
-      "id": "H-38",
-      "severity": "high",
-      "summary": "Test main/build dùng đồng hồ thật: đỏ từ 01/02/2027, chặn deploy",
-      "text": "Test main/build dùng đồng hồ thật: đỏ từ 01/02/2027, chặn deploy (audit R7 2026-10-27)",
-      "milestone": null
-    },
-    {
       "id": "H-39",
       "severity": "medium",
       "summary": "Từ 01/02/2027 mặc định năm 2027 không có máy tính; 01-02 cứng ngoài rules",
@@ -395,6 +388,10 @@
     {
       "date": "2026-10-27",
       "text": "Audit R7 (docs/audits/2026-10-27.md): thêm H-38..H-47 (1 cao, 4 vừa, 5 thấp); đóng H-20, H-27, H-28 (tự chạy 6 file test, 32 passed); H-31 còn luật 2027 và H-39. % theo việc ~65%. Đề xuất R8: H-38/H-39/H-40 trước 01/02/2027."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Đóng H-38 (audit 2026-10-27-2): leader sửa tay, ghim giờ 2 test, ca main ở 2027-03-01; dưới đồng hồ giả 2027 mã cũ 3 failed, mã mới 276 passed. Không còn lỗ cao mở."
     }
   ]
 }
