@@ -5,7 +5,7 @@
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
       "percent": 100,
-      "percent_by_work": 68,
+      "percent_by_work": 64,
       "metrics": [
         "T1",
         "T2",
@@ -152,6 +152,83 @@
       "summary": "ics: tiêu đề 2 lần khai trùng, UID không SEQUENCE",
       "text": "ics: tiêu đề 2 lần khai trùng, UID không SEQUENCE (audit R4-R5 2026-10-26-2)",
       "milestone": null
+    },
+    {
+      "id": "H-27",
+      "severity": "medium",
+      "summary": "Bảng tổng năm của sổ hiện hạn cho năm không doanh thu; nhãn đã qua ở đó không có test",
+      "text": "Bảng tổng năm của sổ hiện hạn cho năm không doanh thu; nhãn đã qua ở đó không có test (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-28",
+      "severity": "medium",
+      "summary": "Bản sổ cũ tải về (không có app) không nhập lại được bằng Nhập JSON",
+      "text": "Bản sổ cũ tải về (không có app) không nhập lại được bằng Nhập JSON (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-29",
+      "severity": "medium",
+      "summary": "Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới, kho bị chặn)",
+      "text": "Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới, kho bị chặn) (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-30",
+      "severity": "medium",
+      "summary": "Nhập file khi khoá: locked tắt trước apply, lỗi thì lệch trạng thái",
+      "text": "Nhập file khi khoá: locked tắt trước apply, lỗi thì lệch trạng thái (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-31",
+      "severity": "medium",
+      "summary": "Từ 2027 app cứng năm 2026, không chọn năm, không luật 2027",
+      "text": "Từ 2027 app cứng năm 2026, không chọn năm, không luật 2027 (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-32",
+      "severity": "medium",
+      "summary": "Đo người dùng thật, Lighthouse, mốc 05/12 chưa ai làm (ngoài T1-T9)",
+      "text": "Đo người dùng thật, Lighthouse, mốc 05/12 chưa ai làm (ngoài T1-T9) (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-33",
+      "severity": "low",
+      "summary": "today chốt lúc mount; endOn<startOn được nhận; kỳ thu năm khác không báo",
+      "text": "today chốt lúc mount; endOn<startOn được nhận; kỳ thu năm khác không báo (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-34",
+      "severity": "low",
+      "summary": "Stale render xoá dữ liệu gõ, mất focus, radio lệch, storage key null",
+      "text": "Stale render xoá dữ liệu gõ, mất focus, radio lệch, storage key null (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-35",
+      "severity": "low",
+      "summary": "Xuất JSON khi khoá ra sổ rỗng; Bắt đầu sổ mới khi getItem ném bỏ giữ chuỗi cũ",
+      "text": "Xuất JSON khi khoá ra sổ rỗng; Bắt đầu sổ mới khi getItem ném bỏ giữ chuỗi cũ (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-36",
+      "severity": "low",
+      "summary": "Test R6 rỗng (2 ca khoá), events mặc định window, smoke-pages.sh không test",
+      "text": "Test R6 rỗng (2 ca khoá), events mặc định window, smoke-pages.sh không test (audit R6 2026-10-26-4)",
+      "milestone": null
+    },
+    {
+      "id": "H-37",
+      "severity": "low",
+      "summary": "Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; lint chỉ tsc",
+      "text": "Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; lint chỉ tsc (audit R6 2026-10-26-4)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -239,6 +316,10 @@
     {
       "date": "2026-10-26",
       "text": "Supervisor duyệt và merge R6 (#24): verify/smoke sạch, build 0, T4 245, T5 70, T6 61, T7 34; 26 ca mới đỏ trên src cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-09, H-10, H-11, H-12, H-14, H-19; H-20 thu hẹp (FAQ tĩnh, máy tính); H-07 cập nhật."
+    },
+    {
+      "date": "2026-10-26",
+      "text": "Audit R6 (docs/audits/2026-10-26-4.md): thêm H-27..H-37, không tự đóng H-xx; H-09..H-12, H-14, H-19 có test thật. H-13 vẫn mở (ô ngày trên điện thoại). % theo việc ~64% (máy tính ~72, sổ ~58 chứng minh, nhắc hạn+xuất+Pages ~50). Đề xuất R7: H-13, H-27..H-30, H-35 trước; rồi H-32, H-31."
     }
   ]
 }

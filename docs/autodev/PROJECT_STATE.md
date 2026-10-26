@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-26 · Nguồn: audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -13,7 +13,7 @@ Cập nhật: 2026-10-26 · Nguồn: audit R4–R5 (`docs/audits/2026-10-26-2.md
 | R6 | merged (#24) | Vá trước khi quảng bá: kho hỏng khoá ghi, hai tab, `localStorage` bị chặn, nhãn "ước tính", lỗi tổng năm đúng nguyên nhân, hạn "đã qua", năm không kỳ thu; 4/4 task PASS vòng 1; đóng H-09..H-12, H-14, H-19 |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~60% (audit R4–R5), sau R6 supervisor ước ~68%. Ba điều (audit R4–R5): máy tính ~70%, sổ ~75% code / ~50% chứng minh, nhắc hạn + xuất + Pages ~40% gộp (`.ics` ~75%, xuất ~55%, Pages code ~85% nhưng chạy thật 0%; mẫu tờ khai chưa xác nhận, H-04).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~64% (audit R6; supervisor ước ~68%). Ba điều (audit R6): máy tính ~72%, sổ ~80% code / ~58% chứng minh, nhắc hạn + xuất + Pages ~50% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -82,8 +82,20 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-24 | low | `filingMode: null` làm từ chối cả file nhập |
 | H-25 | low | robots/sitemap dưới thư mục con, thiếu favicon/og:image, không có `preview`, workflow không chạy trên PR |
 | H-26 | low | `.ics`: tiêu đề 2 lần khai trùng, UID không `SEQUENCE` |
+| H-27 | medium | Bảng tổng năm của sổ (`ledger.ts:482`) hiện hạn cho năm không doanh thu, mâu thuẫn khối xuất; nhãn "đã qua" ở đó chưa có test |
+| H-28 | medium | "Tải bản sổ cũ" tải chuỗi kho không có `app` → "Nhập JSON" từ chối (`backup.ts:30`) |
+| H-29 | medium | Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới → nên cập nhật; kho bị chặn) |
+| H-30 | medium | Nhập file khi khoá: `locked=false` trước `apply`; `apply` lỗi thì lệch trạng thái/màn hình |
+| H-31 | medium | Từ 2027 app cứng năm 2026, không chọn năm, không luật 2027 (đúng mùa khai) |
+| H-32 | medium | Chưa ai làm: đo người dùng thật (chỉ `pageview`), Lighthouse mobile ≥ 90, mốc 05/12/2026 |
+| H-33 | low | `today` chốt lúc mount; `endOn < startOn` được nhận; kỳ thu năm khác không báo |
+| H-34 | low | Stale `render()` xoá dữ liệu gõ, mất focus, radio lệch; sự kiện `storage` key/newValue null |
+| H-35 | low | Xuất JSON khi khoá ra sổ rỗng; "Bắt đầu sổ mới" khi `getItem` ném bỏ giữ chuỗi cũ |
+| H-36 | low | Test R6 rỗng (2 ca khoá), `events` mặc định `window` không test, `smoke-pages.sh` không test |
+| H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
 
 ## Quyết định gần đây
+- 2026-10-26: Audit R6 (`docs/audits/2026-10-26-4.md`): thêm H-27..H-37, không tự đóng H-xx; H-09..H-12, H-14, H-19 có test thật qua DOM. H-13 vẫn mở (ô ngày trên điện thoại). % theo việc ~64%. Đề xuất R7: H-13, H-27..H-30, H-35 trước (cùng `ledger.ts`), rồi H-32, H-31.
 - 2026-10-26: Supervisor duyệt và merge R6 (#24): verify/smoke sạch, build 0, T4 245, T5 70, T6 61, T7 34; 26 ca mới đỏ trên `src` cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-09, H-10, H-11, H-12, H-14, H-19; thu hẹp H-20; cập nhật H-07.
 - 2026-10-26: Đóng H-08 (`docs/audits/2026-10-26-3.md`): leader bật Pages; chạy lại deploy xanh; T9 exit 0; JS dựng form thật (Chrome headless); thêm `yarn -s build` vào verify và smoke `scripts/smoke-pages.sh`. Không còn lỗ cao mở.
 - 2026-10-26: Audit R4–R5 (`docs/audits/2026-10-26-2.md`): thêm H-19..H-26, không đóng H-xx nào; H-08 vẫn mở (Pages 404). Đề xuất R6: mất dữ liệu (H-10/12/11), báo sai thuế (H-14/02/01/09), hạn và xuất (H-19/20/22), kiểm thật (H-21). Ghi nhận: agent góc (c) đã gọi `gh api` một lần (chỉ đọc, ngoài ràng buộc).
