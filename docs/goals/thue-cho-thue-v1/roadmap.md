@@ -58,6 +58,16 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 
 - **Phản biện:** `proposals/R6.md` (A → A1 → A1.1).
 
+## R7: Dùng được qua mùa khai 2027 (thêm 2026-10-26, leader duyệt ~7 USD)
+- **Mục tiêu:** tháng 1/2027 người dùng mở trang vẫn khai được năm 2026, thấy đúng hạn còn lại, và giữ được sổ.
+- **Phạm vi (4 task):** (1) năm: mặc định = năm đang khai (trước 01/02 là năm trước), ô chọn năm trong các năm có luật, năm chưa có luật thì báo rõ, không bịa luật 2027; `today` truyền vào `main.ts` (H-31); (2) hạn: máy tính một căn có nhãn "đã qua"; FAQ không viết cứng "31/07/2026" ngoài `data-rule` (H-20); (3) sổ: bảng "Tổng năm" không hiện hạn khi năm không có doanh thu, có test nhãn "đã qua" (H-27); (4) nhập lại được file "Tải bản sổ cũ" khi đúng schema sổ, file lạ vẫn bị từ chối (H-28).
+- **Chỉ số:** T4, T5, T6, T7, T8 (giữ xanh).
+- **Ước tính:** 4,0 USD, 1,0 giờ máy (R6 thật: worker 2,25 + supervisor 1,64 + plan 1,24).
+- **Xong khi:** `yarn -s lint`, `yarn -s build`, `yarn -s test` xanh; mỗi lỗ có ca tái hiện đúng cột "tái hiện" của audit (đỏ trước khi sửa).
+- **Phụ thuộc:** R6.
+- **Pre-mortem:** (a) test phụ thuộc ngày chạy: ca cố định 2027-01-15 và 2027-03-01; (b) FAQ còn ngày cứng: test quét bản build; (c) nới kiểm nhập làm lọt file lạ: ca file lạ.
+- **Phản biện:** `proposals/R7.md` (A → A1 → A1.1).
+
 ## Tổng
 
 | # | Mốc | Phụ thuộc | Chỉ số | USD | Giờ máy |
@@ -68,7 +78,8 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 | 4 | R4 | R3 | T7, T4 | 2,5 | 0,7 |
 | 5 | R5 | R4 | T8, T9, T4 | 3,0 | 0,8 |
 | 6 | R6 | R5 | T4, T5, T6, T7 | 4,0 | 1,0 |
-| | | | | **19,0** | **5,1** |
+| 7 | R7 | R6 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
+| | | | | **23,0** | **6,1** |
 
 ## Thứ tự cắt
 R4 phần `.ics` → R3 phần nhiều căn (giữ một căn) → R4 phần xuất CSV (giữ bảng số trên màn hình).
