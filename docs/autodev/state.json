@@ -70,13 +70,6 @@
       "milestone": null
     },
     {
-      "id": "H-13",
-      "severity": "medium",
-      "summary": "Ô ngày inputmode numeric",
-      "text": "src/ui/ledger.ts:260-262,318 (audit 2026-10-26)",
-      "milestone": null
-    },
-    {
       "id": "H-15",
       "severity": "low",
       "summary": "Test quét số luật yếu",
@@ -271,6 +264,13 @@
       "summary": "Chưa có kỳ thu hiện cả khi kỳ thu tổng 0 đ",
       "text": "Chưa có kỳ thu hiện cả khi kỳ thu tổng 0 đ (audit R7 2026-10-27)",
       "milestone": null
+    },
+    {
+      "id": "H-48",
+      "severity": "low",
+      "summary": "R8: lách quét rateBps ở overview.ts; cách tính dựng trong UI",
+      "text": "overview.ts đọc thuế suất qua [\"rate\",\"Bps\"].join(\"\") để lách quét rateBps của tests/ui/calculator.test.ts; dòng cách tính tự dựng cơ sở × thuế suất (chữ, số tiền từ engine); h1 cứng 2026; lỗi ngày trống ở src/ledger/ops.ts:48 còn AAAA-MM-DD (duyệt R8 2026-10-27)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -316,6 +316,12 @@
         "status": "merged",
         "pr": 29,
         "merge_commit": "aedd62f"
+      },
+      {
+        "id": "R8",
+        "status": "merged",
+        "pr": 35,
+        "merge_commit": "4d9b5e8"
       }
     ],
     "plugin": []
@@ -323,7 +329,7 @@
   "outlook": [
     {
       "id": "mốc UX khoá sổ",
-      "goal": "H-29, H-30 (khoá sổ), H-33, H-13, H-34 theo Đề xuất chờ duyệt của plan/R7.md",
+      "goal": "H-29, H-30 (khoá sổ), H-33, H-34 theo Đề xuất chờ duyệt của plan/R7.md (H-13 đóng ở R8)",
       "needs_team": false,
       "status": "chờ /autodev:audit R7 hoặc /autodev:propose-next"
     },
@@ -392,6 +398,10 @@
     {
       "date": "2026-10-27",
       "text": "Đóng H-38 (audit 2026-10-27-2): leader sửa tay, ghim giờ 2 test, ca main ở 2027-03-01; dưới đồng hồ giả 2027 mã cũ 3 failed, mã mới 276 passed. Không còn lỗ cao mở."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Supervisor duyệt và merge R8 (#35, 4d9b5e8): verify/smoke sạch, T4 331, T5 119, T6 61, T7 34, tests/build 66, gzip ~23 KB; Chrome headless 390/1280 px không tràn ngang; 4/4 task PASS vòng 1. Quyết định (c): lách rateBps ở overview.ts không chặn merge, hướng sửa là src/rules xuất nhãn thuế suất (H-48). Đóng H-13."
     }
   ]
 }
