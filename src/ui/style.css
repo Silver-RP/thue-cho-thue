@@ -404,6 +404,14 @@ button.primary {
 }
 
 .lg-actions button,
+.lg-backup-info p {
+  margin: 0 0 0.5rem;
+}
+
+.lg-backup-reminder {
+  font-weight: 600;
+}
+
 .lg-backup button {
   min-height: 2.75rem;
   padding: 0 1rem;
