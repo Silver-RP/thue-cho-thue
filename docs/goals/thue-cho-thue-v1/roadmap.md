@@ -47,6 +47,17 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 - **Phụ thuộc:** R4.
 - **Pre-mortem:** (a) đường dẫn tài nguyên sai dưới `/thue-cho-thue/` → trang trắng: smoke kiểm có nội dung, không chỉ 200; (b) deploy chạy dù test đỏ: workflow `needs: test`; (c) Pages chưa bật → smoke đỏ: workflow dùng `actions/configure-pages` với `enablement`, nếu vẫn lỗi thì dừng hỏi leader.
 
+## R6: Vá trước khi quảng bá (thêm 2026-10-26, leader chọn)
+- **Mục tiêu:** người dùng thật không mất sổ, không thấy con số thuế gây hiểu nhầm, không được nhắc hạn đã qua.
+- **Phạm vi (4 task):** (1) kho an toàn: kho hỏng/phiên bản mới thì chặn ghi đè khoá chính và có nút lấy bản dự phòng (H-10); `localStorage` bị chặn thì báo tiếng Việt, có test `main.ts` (H-12); (2) hai tab: listener `storage` + kiểm phiên bản trước khi ghi, tab cũ báo "sổ đã đổi, tải lại" thay vì ghi đè (H-11); (3) tiền: dòng "Tổng thuế" ở máy tính, sổ, bảng xuất mang nhãn "ước tính" khi GTGT `unconfirmed` (H-14); thông báo lỗi sổ phân biệt lỗi số tiền với năm chưa có quy định (H-09); (4) hạn: so với hôm nay, hạn đã qua có nhãn "đã qua" và `.ics` bỏ báo thức của hạn đó (H-20); năm đang xem không có kỳ thu thì không hiện hạn/nút `.ics`/bảng (H-19).
+- **Chỉ số:** T4, T5, T6, T7 (giữ xanh, số test tăng).
+- **Ước tính:** 4,0 USD, 1,0 giờ máy (R3/R4 thật 5,1/4,6 USD; phạm vi nhỏ hơn, toàn sửa).
+- **Xong khi:** `yarn -s lint`, `yarn -s build`, `yarn -s test` xanh; mỗi lỗ trên có ít nhất một test tái hiện đúng ca trong audit (đỏ trước khi sửa).
+- **Phụ thuộc:** R5.
+- **Pre-mortem:** (a) test gọi thẳng hàm lưu thay vì đi qua DOM → H-10 "đã sửa" trên giấy: ca phải dùng `mountLedger` rồi thao tác thêm căn và so chuỗi khoá chính; (b) hai tab giả lập bằng hai biến trỏ cùng object → không thấy ghi đè: hai `mountLedger` trên cùng `FakeStorage` và bắn sự kiện `storage`; (c) "hôm nay" lấy `new Date()` trong code → test lệch theo ngày chạy: `today` truyền vào, test cố định ngày.
+
+- **Phản biện:** `proposals/R6.md` (A → A1 → A1.1).
+
 ## Tổng
 
 | # | Mốc | Phụ thuộc | Chỉ số | USD | Giờ máy |
@@ -56,7 +67,8 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 | 3 | R3 | R2 | T6, T4 | 3,5 | 1,0 |
 | 4 | R4 | R3 | T7, T4 | 2,5 | 0,7 |
 | 5 | R5 | R4 | T8, T9, T4 | 3,0 | 0,8 |
-| | | | | **15,0** | **4,1** |
+| 6 | R6 | R5 | T4, T5, T6, T7 | 4,0 | 1,0 |
+| | | | | **19,0** | **5,1** |
 
 ## Thứ tự cắt
 R4 phần `.ics` → R3 phần nhiều căn (giữ một căn) → R4 phần xuất CSV (giữ bảng số trên màn hình).
