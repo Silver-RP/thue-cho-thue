@@ -6,17 +6,63 @@ import { mountLedger } from "./ui/ledger";
 import { renderDue } from "./ui/due";
 import { renderOverview } from "./ui/overview";
 
-/** Năm đang khai: trước 01/02 vẫn là năm trước (hạn khai 31/01). */
-export function filingYear(today: string): number {
-  const y = Number(today.slice(0, 4));
-  return today < `${today.slice(0, 4)}-02-01` ? y - 1 : y;
+const NEAREST_SCAN_YEARS = 50;
+
+interface Due {
+  month: number;
+  day: number;
+  yearOffset: number;
 }
 
-/** Hàm duy nhất đọc đồng hồ; chỉ `src/main.ts` gọi. */
-export function localToday(): string {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+/** Hạn khai cả năm: phần tử `once` muộn nhất (yearOffset, rồi tháng, rồi ngày lớn nhất). */
+function latestOnce(rules: TaxRules): Due | null {
+  let best: Due | null = null;
+  for (const d of rules.deadlines.once) {
+    if (
+      !best ||
+      d.yearOffset > best.yearOffset ||
+      (d.yearOffset === best.yearOffset && (d.month > best.month || (d.month === best.month && d.day > best.day)))
+    )
+      best = d;
+  }
+  return best;
+}
+
+/**
+ * Năm đang khai: đến hết hạn khai cả năm (đọc từ `deadlines.once` của luật năm trước, hoặc luật gần nhất có)
+ * vẫn là năm trước. Không dời hạn vào ngày làm việc.
+ */
+export function filingYear(today: string, rulesOf?: (year: number) => TaxRules | undefined): number {
+  const y = Number(today.slice(0, 4));
+  const lookup = (year: number): TaxRules | undefined => {
+    try {
+      return (rulesOf ?? getRules)(year);
+    } catch {
+      return undefined;
+    }
+  };
+  let rules = lookup(y - 1);
+  for (let k = 2; !rules && k <= NEAREST_SCAN_YEARS; k++) rules = lookup(y - k);
+  const due = rules ? latestOnce(rules) : null;
+  if (due && due.yearOffset >= 1) {
+    const p = (n: number) => String(n).padStart(2, "0");
+    return today <= `${today.slice(0, 4)}-${p(due.month)}-${p(due.day)}` ? y - 1 : y;
+  }
+  // Không có luật nào (hoặc luật không có hạn sang năm sau): giữ quy tắc cũ, hạn khai là 31/01 nên hết ngày đó là năm mới.
+  return today <= `${today.slice(0, 4)}-01-31` ? y - 1 : y;
+}
+
+/** Hàm duy nhất đọc đồng hồ; chỉ `src/main.ts` gọi. Ngày theo giờ Việt Nam, không phụ thuộc múi giờ máy. */
+export function localToday(now?: Date): string {
+  const d = now ?? new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((x) => x.type === t)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 export interface StartOptions {
@@ -31,6 +77,8 @@ export interface StartOptions {
   confirm?: (message: string) => boolean;
   download?: (filename: string, mime: string, content: string) => void;
   copy?: (text: string) => Promise<void> | void;
+  /** Đọc ngày hôm nay; có thì khi quay lại tab mà ngày đã đổi, trang được gắn lại với ngày mới. */
+  clock?: () => string;
 }
 
 const BLOCKED_MESSAGE =
@@ -78,6 +126,9 @@ interface Previous {
   teardown: () => void;
   capture: (into: Snapshot) => void;
   roots: [HTMLElement | null, HTMLElement | null];
+  stale: () => boolean;
+  /** Năm đang chọn và năm mặc định của lần gắn đó. */
+  year: () => { chosen: number; dflt: number };
 }
 
 /** Gỡ lần gắn trước (listener `storage`) khi `startApp` được gọi lại. */
@@ -85,21 +136,32 @@ let previous: Previous | null = null;
 
 /** Gắn ô chọn năm, máy tính (#app) và sổ (#ledger). Gọi lại thì gắn lại từ đầu. */
 export function startApp(doc: Document, options: StartOptions): void {
+  run(doc, options, false);
+}
+
+/** `fromClock`: gắn lại do đổi ngày; giữ cờ stale và năm người dùng đã chọn khác mặc định. */
+function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   const carried: Snapshot = new Map();
   /** Sổ đã đổi ở tab khác: sống qua các lần gắn lại. */
   let stale = false;
+  let keptYear: number | null = null;
   if (
     previous &&
     previous.roots[0] === doc.querySelector<HTMLElement>("#app") &&
     previous.roots[1] === doc.querySelector<HTMLElement>("#ledger")
   ) {
     previous.capture(carried);
+    if (fromClock) {
+      stale = previous.stale();
+      const y = previous.year();
+      if (y.chosen !== y.dflt) keptYear = y.chosen;
+    }
   }
   previous?.teardown();
   const { today, storage } = options;
   const extra = new Map<number, TaxRules>((options.rules ?? []).map((r) => [r.year, r]));
   const withRules = [...new Set([...availableYears(), ...extra.keys()])].sort((a, b) => a - b);
-  const current = filingYear(today);
+  const current = filingYear(today, (y) => extra.get(y) ?? getRules(y));
   const years = withRules.includes(current) ? withRules : [...withRules, current].sort((a, b) => a - b);
   const fallbackYear = withRules.length > 0 ? withRules[withRules.length - 1] : undefined;
 
@@ -199,7 +261,7 @@ export function startApp(doc: Document, options: StartOptions): void {
     restore(ledgerRoot, "ledger", carried);
   };
   select.addEventListener("change", () => show(Number(select.value)));
-  show(current);
+  show(keptYear !== null && years.includes(keptYear) ? keptYear : current);
 
   // FAQ: gắn "đã qua" vào span hạn có ngày < today (gỡ nhãn cũ trước để gọi lại không nhân đôi).
   const spans = Array.from(doc.querySelectorAll<HTMLElement>('[data-rule="deadline"]'));
@@ -215,7 +277,19 @@ export function startApp(doc: Document, options: StartOptions): void {
       s.setAttribute("data-past", "");
     }
   }
+  const onVisible = (): void => {
+    if (doc.visibilityState !== "visible" || !options.clock) return;
+    let now: string;
+    try {
+      now = options.clock();
+    } catch {
+      return;
+    }
+    if (now !== today) run(doc, { ...options, today: now }, true);
+  };
+  if (options.clock) doc.addEventListener("visibilitychange", onVisible);
   const teardown = (): void => {
+    doc.removeEventListener("visibilitychange", onVisible);
     for (const [s, t] of original) {
       s.textContent = t;
       s.removeAttribute("data-past");
@@ -226,7 +300,13 @@ export function startApp(doc: Document, options: StartOptions): void {
     dueRoot?.replaceChildren();
     picker.remove();
   };
-  previous = { teardown, capture: snapshot, roots: [appRoot, ledgerRoot] };
+  previous = {
+    teardown,
+    capture: snapshot,
+    roots: [appRoot, ledgerRoot],
+    stale: () => stale,
+    year: () => ({ chosen: Number(select.value), dflt: current }),
+  };
 
   try {
     analyticsFromEnv().track("pageview", doc.location?.pathname ?? "/");
