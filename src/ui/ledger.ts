@@ -4,7 +4,7 @@ import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResu
 import * as ops from "../ledger/ops";
 import { LEDGER_KEY, loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
 import type { YearSummary } from "../ledger/summary";
-import { summarizeYearSafe } from "./year-summary";
+import { summarizeYearSafe, type YearSummaryOutcome } from "./year-summary";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
 import { formatVnd, parseVnd } from "./money";
@@ -28,6 +28,8 @@ export interface LedgerMountOptions {
   copy?: (text: string) => Promise<void> | void;
   /** Nơi nhận sự kiện `storage` của tab khác (mặc định window). */
   events?: EventTarget;
+  /** Gọi sau mỗi lần vẽ với đúng kết quả khối tổng năm dùng (null khi sổ khoá). */
+  onSummary?: (outcome: YearSummaryOutcome | null) => void;
 }
 
 type Props = Partial<Record<string, string>>;
@@ -261,6 +263,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
 
   const summaryOf = (): { summary?: YearSummary; error?: string; noRules?: boolean } => {
     const out = summarizeYearSafe(ledger, year, rules);
+    options.onSummary?.(locked ? null : out);
     return "summary" in out ? { summary: out.summary } : { error: out.error, noRules: out.kind === "no-rules" };
   };
 

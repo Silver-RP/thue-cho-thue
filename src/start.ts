@@ -1,8 +1,9 @@
 import { analyticsFromEnv } from "./analytics";
 import type { StorageLike } from "./ledger/storage";
-import { availableYears, type TaxRules } from "./rules";
+import { availableYears, getRules, type TaxRules } from "./rules";
 import { mountCalculator } from "./ui/form";
 import { mountLedger } from "./ui/ledger";
+import { renderOverview } from "./ui/overview";
 
 /** Năm đang khai: trước 01/02 vẫn là năm trước (hạn khai 31/01). */
 export function filingYear(today: string): number {
@@ -53,6 +54,7 @@ export function startApp(doc: Document, options: StartOptions): void {
 
   const appRoot = doc.querySelector<HTMLElement>("#app");
   const ledgerRoot = doc.querySelector<HTMLElement>("#ledger");
+  const overviewRoot = doc.querySelector<HTMLElement>("#overview");
 
   doc.querySelectorAll('[data-year-picker]').forEach((n) => n.remove());
   const picker = doc.createElement("div");
@@ -87,6 +89,21 @@ export function startApp(doc: Document, options: StartOptions): void {
     select.value = String(year);
     const rules = extra.get(year);
     const common = { fallbackYear, onSwitchYear: show };
+    const rulesOf = (): TaxRules | undefined => {
+      try {
+        return rules ?? getRules(year);
+      } catch {
+        return undefined;
+      }
+    };
+    if (overviewRoot) {
+      // Kho bị chặn: không có sổ nên không có onSummary; vẫn phải có câu thay vì để trống.
+      if (!storage) renderOverview(overviewRoot, null, { year });
+    }
+    const onSummary = overviewRoot
+      ? (outcome: Parameters<typeof renderOverview>[1]): void =>
+          renderOverview(overviewRoot, outcome, { year, rules: rulesOf(), ...common })
+      : undefined;
     if (appRoot) unmountCalc = mountCalculator(appRoot, { year, today, ...(rules ? { rules } : {}), ...common });
     if (ledgerRoot) {
       if (storage) {
@@ -96,6 +113,7 @@ export function startApp(doc: Document, options: StartOptions): void {
           storage,
           ...(rules ? { rules } : {}),
           ...common,
+          ...(onSummary ? { onSummary } : {}),
           ...(options.events ? { events: options.events } : {}),
           ...(options.newId ? { newId: options.newId } : {}),
           ...(options.confirm ? { confirm: options.confirm } : {}),
@@ -136,6 +154,7 @@ export function startApp(doc: Document, options: StartOptions): void {
     }
     unmountCalc?.();
     unmountLedger?.();
+    overviewRoot?.replaceChildren();
     picker.remove();
   };
 
