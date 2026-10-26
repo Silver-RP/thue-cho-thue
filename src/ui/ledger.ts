@@ -480,7 +480,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
       ["Trạng thái", s.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
     for (const d of s.deadlines) {
-      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), ""]);
+      rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), d.date < today ? "đã qua" : ""]);
     }
     const tbody = el("tbody");
     for (const [name, value, tag] of rows) {

@@ -5,6 +5,8 @@ export interface IcsOptions {
   year: number;
   /** DTSTAMP, dạng YYYYMMDDTHHMMSSZ, do người gọi truyền vào */
   stamp: string;
+  /** Hôm nay (YYYY-MM-DD). Có truyền thì hạn đã qua (date < today) không có báo thức. */
+  today?: string;
 }
 
 const encoder = new TextEncoder();
@@ -80,12 +82,13 @@ export function icsFilename(year: number): string {
 }
 
 /** Sinh file .ics: mỗi hạn một sự kiện cả ngày, nhắc trước 7 ngày và 1 ngày. */
-export function deadlinesToIcs(items: DeadlineItem[], { year, stamp }: IcsOptions): string {
+export function deadlinesToIcs(items: DeadlineItem[], { year, stamp, today }: IcsOptions): string {
   const lines: string[] = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//thue-cho-thue//VI", "CALSCALE:GREGORIAN"];
   for (const item of items) {
     const start = compact(item.date);
     const end = compact(nextDay(item.date));
-    const t = title(item, year);
+    const past = today !== undefined && item.date < today;
+    const t = past ? `${title(item, year)} (đã qua)` : title(item, year);
     lines.push(
       "BEGIN:VEVENT",
       `UID:${year}-${item.kind}-${start}@thue-cho-thue`,
@@ -94,8 +97,7 @@ export function deadlinesToIcs(items: DeadlineItem[], { year, stamp }: IcsOption
       `DTEND;VALUE=DATE:${end}`,
       `SUMMARY:${escapeText(t)}`,
       `DESCRIPTION:${escapeText(item.citation)}`,
-      ...alarm("-P7D", `${t} còn 7 ngày`),
-      ...alarm("-P1D", `${t} còn 1 ngày`),
+      ...(past ? [] : [...alarm("-P7D", `${t} còn 7 ngày`), ...alarm("-P1D", `${t} còn 1 ngày`)]),
       "END:VEVENT",
     );
   }
