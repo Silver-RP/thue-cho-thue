@@ -7,6 +7,13 @@ const REGISTRY: Record<number, TaxRules> = {
   2026: rules2026,
 };
 
+/** Các năm đã có luật, tăng dần. */
+export function availableYears(): number[] {
+  return Object.keys(REGISTRY)
+    .map(Number)
+    .sort((a, b) => a - b);
+}
+
 export function getRules(year: number): TaxRules {
   const found = Object.prototype.hasOwnProperty.call(REGISTRY, year)
     ? REGISTRY[year]

@@ -241,3 +241,6 @@ button.primary {
   font-size: 0.9rem;
   color: #4a5560;
 }
+
+.year-picker { max-width: 40rem; margin: 0 auto 1rem; padding: 0 1rem; }
+.no-rules { margin: 1rem 0; }

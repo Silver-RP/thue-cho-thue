@@ -15,8 +15,12 @@ export interface LedgerMountOptions {
   /** Chỉ dùng cho test: luật thay cho getRules(year). */
   rules?: TaxRules;
   newId?: () => string;
-  /** Ngày hôm nay (YYYY-MM-DD) để đặt tên file xuất. */
-  today?: string;
+  /** Ngày hôm nay (YYYY-MM-DD): đặt tên file xuất, nhãn "đã qua". */
+  today: string;
+  /** Năm gần nhất có luật; khi năm đang xem chưa có luật thì hiện nút về năm này. */
+  fallbackYear?: number;
+  /** Được gọi khi người dùng bấm nút về năm có luật. */
+  onSwitchYear?: (year: number) => void;
   confirm?: (message: string) => boolean;
   /** Tải file xuống (mặc định Blob + thẻ a); truyền xuống phần xuất. */
   download?: (filename: string, mime: string, content: string) => void;
@@ -49,16 +53,11 @@ function defaultDownload(filename: string, mime: string, content: string): void 
   URL.revokeObjectURL?.(url);
 }
 
-function localToday(): string {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
+let idCounter = 0;
 function defaultNewId(): string {
   const c = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
   if (c?.randomUUID) return c.randomUUID();
-  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  return `id-${(++idCounter).toString(36)}-${Math.random().toString(36).slice(2, 12)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 const LOCKED_MESSAGE =
@@ -195,10 +194,9 @@ const RECEIPT_ROUTES: [string, string][] = [
 
 // ---- Giao diện sổ ----
 
-export function mountLedger(root: HTMLElement, options: LedgerMountOptions): void {
-  const { year, storage, rules } = options;
+export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () => void {
+  const { year, storage, rules, today } = options;
   const newId = options.newId ?? defaultNewId;
-  const today = options.today ?? localToday();
   const confirmFn = options.confirm ?? ((m: string) => (typeof window !== "undefined" && typeof window.confirm === "function" ? window.confirm(m) : false));
 
   const loaded = loadLedger(storage);
@@ -261,9 +259,9 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
     return null;
   };
 
-  const summaryOf = (): { summary?: YearSummary; error?: string } => {
+  const summaryOf = (): { summary?: YearSummary; error?: string; noRules?: boolean } => {
     const out = summarizeYearSafe(ledger, year, rules);
-    return "summary" in out ? { summary: out.summary } : { error: out.error };
+    return "summary" in out ? { summary: out.summary } : { error: out.error, noRules: out.kind === "no-rules" };
   };
 
   const confirmRemove = (what: string, hasKids: boolean): boolean | "plain" => {
@@ -457,9 +455,15 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   const summaryBlock = (): HTMLElement => {
     const box = el("section", { class: "lg-summary", "aria-live": "polite" });
     box.append(el("h2", {}, `Tổng năm ${year}`));
-    const { summary: s, error } = summaryOf();
+    const { summary: s, error, noRules } = summaryOf();
     if (!s) {
       box.append(el("p", { class: "form-error", role: "alert" }, error ?? "Không tính được thuế."));
+      const { fallbackYear, onSwitchYear } = options;
+      if (noRules && fallbackYear !== undefined && onSwitchYear) {
+        const go = el("button", { type: "button", name: "switch-year" }, `Xem năm ${fallbackYear}`);
+        go.addEventListener("click", () => onSwitchYear(fallbackYear));
+        box.append(go);
+      }
       return box;
     }
     if (s.thresholdWarning) {
@@ -684,14 +688,20 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): voi
   }
 
   const events = options.events ?? (typeof window !== "undefined" ? window : undefined);
-  events?.addEventListener("storage", (e) => {
+  const onStorage = (e: Event): void => {
     const ev = e as StorageEvent;
     if (ev.key !== LEDGER_KEY || stale) return;
     if (ev.newValue !== null && ev.newValue === lastSeen) return;
     stale = true;
     render();
-  });
+  };
+  events?.addEventListener("storage", onStorage);
 
   // Không ghi gì khi mở trang: chỉ ghi sau thao tác của người dùng.
   render();
+
+  return () => {
+    events?.removeEventListener("storage", onStorage);
+    root.replaceChildren();
+  };
 }
