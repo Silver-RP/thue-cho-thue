@@ -483,7 +483,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       ["Tổng thuế", formatVnd(s.totalTax), s.vatEstimated ? "ước tính" : ""],
       ["Trạng thái", s.status === "taxable" ? "Phải nộp thuế" : "Chỉ thông báo doanh thu", ""],
     ];
-    for (const d of s.deadlines) {
+    for (const d of s.totalRevenue === 0 ? [] : s.deadlines) {
       rows.push([d.kind === "revenue_notice" ? "Hạn thông báo doanh thu" : "Hạn khai và nộp thuế", dmy(d.date), d.date < today ? "đã qua" : ""]);
     }
     const tbody = el("tbody");
@@ -500,6 +500,9 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     const wrap = el("div", { class: "table-scroll" });
     wrap.append(table);
     box.append(wrap);
+    if (s.totalRevenue === 0) {
+      box.append(el("p", { class: "export-note", role: "status" }, `Chưa có kỳ thu năm ${year}. Hạn khai sẽ hiện khi có doanh thu.`));
+    }
 
     // Doanh thu theo căn
     box.append(el("h3", {}, "Doanh thu theo căn"));
