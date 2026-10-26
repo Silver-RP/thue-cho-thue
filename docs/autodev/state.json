@@ -5,7 +5,7 @@
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
       "percent": 100,
-      "percent_by_work": 64,
+      "percent_by_work": 65,
       "metrics": [
         "T1",
         "T2",
@@ -208,6 +208,76 @@
       "summary": "Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; lint chỉ tsc",
       "text": "Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; lint chỉ tsc (audit R6 2026-10-26-4)",
       "milestone": null
+    },
+    {
+      "id": "H-38",
+      "severity": "high",
+      "summary": "Test main/build dùng đồng hồ thật: đỏ từ 01/02/2027, chặn deploy",
+      "text": "Test main/build dùng đồng hồ thật: đỏ từ 01/02/2027, chặn deploy (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-39",
+      "severity": "medium",
+      "summary": "Từ 01/02/2027 mặc định năm 2027 không có máy tính; 01-02 cứng ngoài rules",
+      "text": "Từ 01/02/2027 mặc định năm 2027 không có máy tính; 01-02 cứng ngoài rules (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-40",
+      "severity": "low",
+      "summary": "localToday theo múi giờ máy; tab qua nửa đêm; không test giá trị",
+      "text": "localToday theo múi giờ máy; tab qua nửa đêm; không test giá trị (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-41",
+      "severity": "medium",
+      "summary": "Đổi năm mất dữ liệu gõ dở; nhập file async không huỷ khi gỡ mount",
+      "text": "Đổi năm mất dữ liệu gõ dở; nhập file async không huỷ khi gỡ mount (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-42",
+      "severity": "medium",
+      "summary": "Ca R7 yếu: import-old dòng 87, FAQ thiếu biên/so getRules, ledger-total lỏng",
+      "text": "Ca R7 yếu: import-old dòng 87, FAQ thiếu biên/so getRules, ledger-total lỏng (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-43",
+      "severity": "medium",
+      "summary": "Không persist()/nhắc xuất; Safari/iOS xoá sau 7 ngày",
+      "text": "Không persist()/nhắc xuất; Safari/iOS xoá sau 7 ngày (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-44",
+      "severity": "low",
+      "summary": "FAQ hứa đã qua nhưng do JS; ô chọn 2027 vẫn thấy ngày 2026",
+      "text": "FAQ hứa đã qua nhưng do JS; ô chọn 2027 vẫn thấy ngày 2026 (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-45",
+      "severity": "low",
+      "summary": "importLedger không app nhận đủ 5 khoá, bỏ im khoá lạ; thiếu round-trip",
+      "text": "importLedger không app nhận đủ 5 khoá, bỏ im khoá lạ; thiếu round-trip (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-46",
+      "severity": "low",
+      "summary": "BigInt/replaceChildren không phát hiện trình duyệt cũ",
+      "text": "BigInt/replaceChildren không phát hiện trình duyệt cũ (audit R7 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-47",
+      "severity": "low",
+      "summary": "Chưa có kỳ thu hiện cả khi kỳ thu tổng 0 đ",
+      "text": "Chưa có kỳ thu hiện cả khi kỳ thu tổng 0 đ (audit R7 2026-10-27)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -321,6 +391,10 @@
     {
       "date": "2026-10-27",
       "text": "Supervisor duyệt và merge R7 (#29): verify/smoke sạch, build 0, T4 275, T5 82, T6 61, T7 34, tests/build 48, gzip ~18 KB; ca mới đỏ trên src cũ (supervisor tự chạy); 4/4 task PASS vòng 1; không quyết định (c). Đóng H-20, H-27, H-28; H-31 thu hẹp còn luật 2027 (human_only)."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Audit R7 (docs/audits/2026-10-27.md): thêm H-38..H-47 (1 cao, 4 vừa, 5 thấp); đóng H-20, H-27, H-28 (tự chạy 6 file test, 32 passed); H-31 còn luật 2027 và H-39. % theo việc ~65%. Đề xuất R8: H-38/H-39/H-40 trước 01/02/2027."
     }
   ]
 }
