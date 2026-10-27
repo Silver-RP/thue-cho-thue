@@ -20,7 +20,7 @@
 ## So với v0 (11/20)
 - Tăng: 1 (+1, hạn vào khối tổng quan), 3 (+1, sổ gọn), 6 (+1, nút chung), 7 (+1, ô tiền có dấu chấm), 9 (+1).
 - Giữ: 2, 4, 5, 8, 10. Không tiêu chí nào tụt.
-- Chiều cao trang S2: 22.123 → 10.869 px (390), 19.461 → 8.232 px (1280). Xem `do-dai.tsv`.
+- Chiều cao trang S2: 22.123 → 10.881 px (390), 19.461 → 8.232 px (1280). Xem `do-dai.tsv`.
 
 ## 3 chỗ nên sửa nhất (cho v2)
 1. **Ô chọn năm cắt chữ ở điện thoại** (V1, V6): nhãn năm chưa có luật ngắn lại để vừa ô.

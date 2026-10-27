@@ -482,6 +482,14 @@ button.primary {
 }
 
 @media (max-width: 760px) {
+  .site-intro .intro-long {
+    display: none;
+  }
+
+  .site-intro h1 {
+    font-size: 1.125rem;
+  }
+
   .topbar {
     padding: 10px 16px;
     flex-wrap: wrap;
@@ -950,7 +958,7 @@ button {
   font-weight: 600;
   color: var(--text);
   background: var(--surface);
-  border: 1px solid #c9d2e0;
+  border: 1px solid color-mix(in srgb, var(--muted) 35%, var(--surface));
   border-radius: 0.5rem;
   cursor: pointer;
 }
@@ -966,12 +974,12 @@ summary:focus-visible {
 }
 
 button.primary:hover {
-  background: #1747b8;
+  background: color-mix(in srgb, var(--primary) 85%, var(--text));
 }
 
 button.danger {
   color: var(--due);
-  border-color: #efc6b4;
+  border-color: color-mix(in srgb, var(--due) 30%, var(--surface));
 }
 
 button.danger:hover {
@@ -1004,7 +1012,7 @@ button.danger:hover {
   min-height: 44px;
   padding: 0 16px;
   font-weight: 600;
-  border: 1px solid #c9d2e0;
+  border: 1px solid color-mix(in srgb, var(--muted) 35%, var(--surface));
   border-radius: 0.5rem;
   background: var(--surface);
   cursor: pointer;
@@ -1093,7 +1101,7 @@ button.danger:hover {
 .lg-add > summary {
   width: 100%;
   justify-content: center;
-  border: 1px dashed #b8c4d6;
+  border: 1px dashed color-mix(in srgb, var(--muted) 35%, var(--surface));
   border-radius: 0.5rem;
 }
 
@@ -1188,20 +1196,6 @@ button.danger:hover {
 .lg-receipt-add > .form-error,
 .lg-receipt-form > .form-error {
   grid-column: 1 / -1;
-}
-
-@media (max-width: 760px) {
-  .site-intro .intro-long {
-    display: none;
-  }
-
-  .site-intro h1 {
-    font-size: 1.125rem;
-  }
-
-  .hero {
-    padding: 18px;
-  }
 }
 
 /* Chữ phóng to (S28): dòng kỳ thu xuống hàng thay vì tràn ngang */
