@@ -88,6 +88,16 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 - **Pre-mortem:** (a) test múi giờ chỉ đúng trên máy UTC+7: ca `TZ` khác; (b) `persist()` không có trong happy-dom: ca giả API; (c) ca H-42 vẫn xanh vô nghĩa: đảo điều kiện phải đỏ.
 - **Phản biện:** `proposals/R9.md` (A → A1 → A1.1).
 
+## R10: Số khớp, điện thoại đủ thuế, không ngõ cụt (thêm 2026-10-27, từ audit `2026-10-27-3`)
+- **Mục tiêu:** giao diện mới không có số lệch engine, không ẩn thuế trên điện thoại, không có nút bấm không ra gì.
+- **Phạm vi (4 task):** (1) gắn lại sau đổi năm/ngày phát lại trạng thái ô trả trước, khối ô con hiện đúng, "Tính thuế" ra kết quả (H-50); (2) biên lai lấy cơ sở và thuế suất từng dòng từ engine, bỏ tự nhân và mẹo đọc `rateBps` (H-51, H-48); (3) gắn lại do đổi ngày chỉ giữ ô đã sửa, đọc lại kho và bật cờ stale nếu kho đổi (H-52; ca tái hiện đỏ trước, không đỏ thì ghi rõ); (4) thẻ hợp đồng ≤ 760 px có Được trừ/TNCN/GTGT, không tiêu đề mồ côi; một `h1` (H-54); H-57 (`.hero.owe/.safe`, `aria-current`, 761–1090 px, `scroll-margin-top`, khu "Sao lưu" theo token).
+- **Chỉ số:** T4, T5, T6, T7, T8.
+- **Ước tính:** 4,5 USD, 1,0 giờ máy.
+- **Xong khi:** lint, build, test xanh; mỗi lỗ có ca theo cột "tái hiện" của audit (đỏ trước khi sửa); số trong thẻ = bảng = `summarizeYear`.
+- **Phụ thuộc:** R9.
+- **Pre-mortem:** (a) thẻ điện thoại lấy số từ nguồn khác bảng: ca so ba nơi; (b) test trả trước chỉ kiểm `hidden`: ca bấm tính có `.results`; (c) bố cục giữa không đo bằng happy-dom: supervisor chụp Chrome headless 390/820/1280.
+- **Phản biện:** `proposals/R10.md` (A → A1 → A1.1).
+
 ## Tổng
 
 | # | Mốc | Phụ thuộc | Chỉ số | USD | Giờ máy |
@@ -101,7 +111,8 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 | 7 | R7 | R6 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
 | 8 | R8 | R7 | T4, T5, T6, T7, T8 | 5,0 | 1,2 |
 | 9 | R9 | R8 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
-| | | | | **32,0** | **8,3** |
+| 10 | R10 | R9 | T4, T5, T6, T7, T8 | 4,5 | 1,0 |
+| | | | | **36,5** | **9,3** |
 
 ## Thứ tự cắt
 R4 phần `.ics` → R3 phần nhiều căn (giữ một căn) → R4 phần xuất CSV (giữ bảng số trên màn hình).
