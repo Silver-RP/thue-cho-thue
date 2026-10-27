@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-28 · Nguồn: duyệt R11 (#50), duyệt R10 (#44), audit R8–R9 (`docs/audits/2026-10-27-3.md`), duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-28 · Nguồn: audit R10–R11 (`docs/audits/2026-10-28.md`), duyệt R11 (#50), duyệt R10 (#44), audit R8–R9 (`docs/audits/2026-10-27-3.md`), duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -115,8 +115,20 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-35 | low | Xuất JSON khi khoá ra sổ rỗng (R11 bỏ nút "Bắt đầu sổ mới" khi `getItem` ném) |
 | H-36 | low | Test R6 rỗng (2 ca khoá), `events` mặc định `window` không test, `smoke-pages.sh` không test |
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
+| H-61 | medium | 390 px: thẻ hạn cuối trang, hero không nêu ngày (`index.html:54`) |
+| H-62 | medium | Từ 01/02 năm mặc định 2027 che thuế 2026 quá hạn (hero/thẻ hạn chỉ nói chưa có luật) |
+| H-63 | medium | `pitBase`/`vatBase`/nhãn chỉ ở biên lai; máy tính, 01/TTS, CSV, Chép, thẻ không có cơ sở |
+| H-64 | medium | `setItem`-only ném: sổ không giữ, không nhắc "Xuất JSON" (mở rộng H-29) |
+| H-65 | medium | Deploy chạy e2e nhưng không test giữ; e2e build khác bản deploy; `reuseExistingServer` |
+| H-66 | medium | e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn ẩn ở 1280, múi giờ trùng); 9 mã S chưa có ca |
+| H-67 | medium | `ui_check` 11/20 (min 16); nút khối xuất ≈21 px (< 44) |
+| H-68 | medium | Qua 00:00 mất năm đang xem nếu năm chỉ có nhờ sổ (`start.ts:317`) |
+| H-69 | medium | Giả định chưa xác nhận nói như chắc chắn (phân bổ năm dương lịch, quá hạn Chủ nhật, thông báo, khai 2 lần) |
+| H-70 | medium | Ô số tiền/ngày nhận không nhắc ngày nhận tiền, cọc, điện nước |
+| H-71..76 | low | a11y/khung (main, focus sau lưu, aria-live); khoá ma `carried`; câu "không đổi tổng" lệch đồng; kỳ thu 0 từ file; pageview lặp lúc 00:00; nhập đè không `preserveRaw`: xem audit 2026-10-28 |
 
 ## Quyết định gần đây
+- 2026-10-28: Audit R10–R11 (`docs/audits/2026-10-28.md`): thêm H-61..H-76 (10 vừa, 6 thấp), không đóng H-xx, không lỗ cao, số khớp tính tay S1–S17. % ~67%. Đề xuất R12 điện thoại/đúng ngày, R13 e2e đo thật, R14 cơ sở tính + giả định, R15 không mất sổ; H-32 còn 38 ngày, luật 2027 còn 96 ngày.
 - 2026-10-28: Supervisor duyệt và merge R11 (#50, 6d56929): verify/smoke sạch, T10 37 passed (lặp 3 lần 111), 0 `test.fail`, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, `tests/build` 73, gzip ~26 KB; H-58: 9 ca đỏ trên `src/start.ts`+`main.ts` trước R11 (supervisor tự chạy); 4/4 task PASS vòng 1. Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60.
 - 2026-10-28: Supervisor duyệt và merge R10 (#44, 3d576a9): verify/smoke sạch, T4 429, T5 168, T6 61, T7 34, `tests/build` 73, gzip ~24,9 KB; 31 ca mới đỏ trên `src` trước R10 (supervisor tự chạy); Chrome headless 390 (iframe)/820/1280 không tràn, thẻ 390 có TNCN/GTGT, `.side` 820 nằm trên sổ; 2 ca biên ngoài repo xanh; 4/4 task DONE (dev-02 hai vòng). Không quyết định (c). Đóng H-50..H-54; thu hẹp H-48, H-57.
 - 2026-10-27: Audit R8–R9 (`docs/audits/2026-10-27-3.md`): thêm H-50..H-59 (4 vừa, 6 thấp), không đóng H-xx nào, không lỗ cao. H-50 đã chạy lại. % theo việc ~67%. H-32 (còn 39 ngày đến 05/12) chưa ai làm; luật 2027 còn 97 ngày. Đề xuất: mốc không kẹt/không mất (H-50, H-52, H-56, H-55, H-54, H-29, H-30, H-35), mốc điện thoại (H-53, H-57), tin cậy số (H-51, H-48, H-37), rồi H-32.
