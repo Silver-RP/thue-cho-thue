@@ -5,7 +5,7 @@
       "id": "thue-cho-thue-v1",
       "text": "Web app tĩnh tự lo thuế cho thuê theo luật 2026",
       "percent": 100,
-      "percent_by_work": 65,
+      "percent_by_work": 67,
       "metrics": [
         "T1",
         "T2",
@@ -250,6 +250,76 @@
       "summary": "R9: ghi last-backup lỗi vẫn nhắc; ô gõ dở giữ khoá form đã mất; CSS gộp selector chưa quét chung",
       "text": "Ghi chú báo cáo R9: ghi last-backup thất bại (kho đầy/chặn) thì sau Xuất JSON vẫn nhắc; ảnh chụp ô gõ dở giữ khoá của form đã biến mất, giá trị cũ có thể hiện lại ở năm sau; test chưa quét chung lỗi gộp selector CSS (chỉ ca dev-02) (duyệt R9 2026-10-27)",
       "milestone": null
+    },
+    {
+      "id": "H-50",
+      "severity": "medium",
+      "summary": "Khôi phục ô trả trước không phát change: khối ô con ẩn, máy tính bấm Tính không ra gì, sổ nộp years/mode ẩn",
+      "text": "Khôi phục ô trả trước không phát change: khối ô con ẩn, máy tính bấm Tính không ra gì, sổ nộp years/mode ẩn (src/start.ts:113-123; form.ts:121; ledger.ts:432 (audit 2026-10-27-3))",
+      "milestone": null
+    },
+    {
+      "id": "H-51",
+      "severity": "medium",
+      "summary": "Dòng Cách tính tự dựng cơ sở × thuế suất, lệch 1 đ với số engine, không test chữ .how",
+      "text": "Dòng Cách tính tự dựng cơ sở × thuế suất, lệch 1 đ với số engine, không test chữ .how (src/ui/overview.ts:156-167)",
+      "milestone": null
+    },
+    {
+      "id": "H-52",
+      "severity": "medium",
+      "summary": "Remount do đổi ngày chép ảnh chụp đè dữ liệu tươi, tab bỏ lỡ storage không stale (chưa xác nhận)",
+      "text": "Remount do đổi ngày chép ảnh chụp đè dữ liệu tươi, tab bỏ lỡ storage không stale (chưa xác nhận) (src/start.ts:98-155)",
+      "milestone": null
+    },
+    {
+      "id": "H-53",
+      "severity": "medium",
+      "summary": "≤760px ẩn bảng thuế theo hợp đồng, tiêu đề mồ côi; test khẳng định việc ẩn",
+      "text": "≤760px ẩn bảng thuế theo hợp đồng, tiêu đề mồ côi; test khẳng định việc ẩn (style.css:706; ledger.ts:581; due.test.ts:207)",
+      "milestone": null
+    },
+    {
+      "id": "H-54",
+      "severity": "low",
+      "summary": "Hai h1 sau khi JS chạy",
+      "text": "Hai h1 sau khi JS chạy (index.html:42; form.ts:98,146)",
+      "milestone": null
+    },
+    {
+      "id": "H-55",
+      "severity": "low",
+      "summary": "Ô ngày kết thúc type=date mất giá trị dở không báo; ca ngày không thật đã đổi đầu vào",
+      "text": "Ô ngày kết thúc type=date mất giá trị dở không báo; ca ngày không thật đã đổi đầu vào (ledger.ts:129,187,378,397)",
+      "milestone": null
+    },
+    {
+      "id": "H-56",
+      "severity": "low",
+      "summary": "last-backup ghi vô điều kiện (khoá/stale/tải bị chặn/sổ mới/ngày tương lai); persist() bỏ kết quả",
+      "text": "last-backup ghi vô điều kiện (khoá/stale/tải bị chặn/sổ mới/ngày tương lai); persist() bỏ kết quả (ledger.ts:252,630,638-653,738)",
+      "milestone": null
+    },
+    {
+      "id": "H-57",
+      "severity": "low",
+      "summary": "CSS/hiển thị rời rạc: .hero.owe/.safe không quy tắc, aria-current chết, 761-1090px, scroll-margin, :has(), aria-live, hai chỗ chọn khai",
+      "text": "CSS/hiển thị rời rạc: .hero.owe/.safe không quy tắc, aria-current chết, 761-1090px, scroll-margin, :has(), aria-live, hai chỗ chọn khai (style.css; overview.ts:87)",
+      "milestone": null
+    },
+    {
+      "id": "H-58",
+      "severity": "low",
+      "summary": "Tab hiện suốt đêm 31/01→01/02 không đổi; main.ts localToday ngoài try",
+      "text": "Tab hiện suốt đêm 31/01→01/02 không đổi; main.ts localToday ngoài try (start.ts:280; main.ts:11)",
+      "milestone": null
+    },
+    {
+      "id": "H-59",
+      "severity": "low",
+      "summary": "Test theo cấu tạo: token so bản sao mockup, quét setSystemTime kể cả comment, hai smoke lệch nhau, thẻ căn đếm kỳ thu theo receivedOn",
+      "text": "Test theo cấu tạo: token so bản sao mockup, quét setSystemTime kể cả comment, hai smoke lệch nhau, thẻ căn đếm kỳ thu theo receivedOn (shell.test.ts; start-date.test.ts:229; deploy.yml)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -391,6 +461,10 @@
     {
       "date": "2026-10-27",
       "text": "Supervisor duyệt R9 (#38; PR đã merge trước bước duyệt, duyệt lại trên 502114d): verify/smoke sạch, T4 389, T5 139, T6 61, T7 34, tests/build 73, gzip ~23 KB; 24 ca mới đỏ trên src trước R9 (supervisor tự chạy); phép đảo FAQ < thành <= làm đỏ 2 ca; 4/4 task DONE (dev-01, dev-02 hai vòng). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low (còn thử Safari/iOS thật); thêm H-49."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Audit R8–R9 (docs/audits/2026-10-27-3.md): thêm H-50..H-59 (4 vừa, 6 thấp), không đóng H-xx nào; không lỗ cao. H-50 đã chạy lại (ngõ cụt tick trả trước sau đổi năm). % theo việc ~67%: sổ ~85% code/~62% chứng minh, hạn+xuất+Pages ~55%. H-32 (đo người dùng, Lighthouse, mốc 05/12: còn 39 ngày) chưa ai làm; luật 2027 còn 97 ngày. Đề xuất: mốc không kẹt/không mất (H-50, H-52, H-56, H-55, H-54, H-29, H-30, H-35), mốc điện thoại (H-53, H-57), tin cậy số (H-51, H-48, H-37), rồi H-32."
     }
   ]
 }

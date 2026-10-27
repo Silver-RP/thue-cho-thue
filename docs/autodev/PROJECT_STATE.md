@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-27 · Nguồn: duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-27 · Nguồn: audit R8–R9 (`docs/audits/2026-10-27-3.md`), duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -16,7 +16,7 @@ Cập nhật: 2026-10-27 · Nguồn: duyệt R9 (#38), duyệt R8 (#35), đóng 
 | R9 | merged (#38) | Không mất sổ, đúng ngày: đổi năm giữ chữ gõ dở + cờ stale, huỷ nhập file khi gỡ; `persist()`, "Lần sao lưu cuối", nhắc 30 ngày; ngày theo giờ VN, mốc đổi năm từ `deadlines.once`, đọc lại ngày khi quay lại tab; làm chặt ca R7; 4/4 task DONE (2 task 2 vòng); đóng H-39..H-42; H-43 hạ thấp; thêm H-49 |
 
 ## Mục tiêu và tiêu chí
-Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~65% (audit R7; supervisor ước ~68%). Ba điều (audit R7): máy tính ~72%, sổ ~82% code / ~60% chứng minh, nhắc hạn + xuất + Pages ~52% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
+Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~67% (audit R8–R9; supervisor ước ~68%). Ba điều (audit R8–R9): máy tính ~72%, sổ ~85% code / ~62% chứng minh, nhắc hạn + xuất + Pages ~55% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
 
 | Chỉ số | Lệnh | Ngưỡng | Hiện tại |
 |---|---|---|---|
@@ -99,6 +99,16 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-47 | low | "Chưa có kỳ thu năm N" hiện cả khi có kỳ thu tổng 0 đ |
 | H-48 | low | R8: `overview.ts` đọc thuế suất qua `["rate","Bps"].join("")` để lách quét `rateBps` (`tests/ui/calculator.test.ts`); dòng "cách tính" tự dựng cơ sở × thuế suất (chữ; số tiền vẫn từ engine); `h1` cứng "2026"; lỗi ngày trống ở `src/ledger/ops.ts:48` còn "AAAA-MM-DD" |
 | H-49 | low | R9: ghi `last-backup` lỗi (kho đầy/chặn) thì sau "Xuất JSON" vẫn nhắc; ảnh chụp ô gõ dở giữ khoá form đã mất, giá trị cũ có thể hiện lại; chưa quét chung lỗi gộp selector CSS |
+| H-50 | medium | Khôi phục ô trả trước không phát `change`: khối ô con ẩn, máy tính bấm "Tính" không ra gì (đã chạy), sổ nộp `years`/`mode` ẩn |
+| H-51 | medium | "Cách tính" tự dựng cơ sở × thuế suất, lệch 1 đ (2 × 600.000.010 đ → GTGT 60.000.001 vs 60.000.000), không test chữ `.how` |
+| H-52 | medium | Remount do đổi ngày chép ảnh chụp đè dữ liệu tươi; tab bỏ lỡ `storage` không stale (chưa xác nhận) |
+| H-53 | medium | ≤ 760 px ẩn bảng thuế theo hợp đồng, tiêu đề mồ côi; `due.test.ts:207` khẳng định việc ẩn |
+| H-54 | low | Hai `h1` sau khi JS chạy (`index.html:42`, `form.ts:98,146`) |
+| H-55 | low | Ô ngày kết thúc `type="date"` mất giá trị dở không báo; ca ngày không thật đã đổi đầu vào |
+| H-56 | low | `last-backup` ghi vô điều kiện (khoá/stale/tải bị chặn/sổ mới/ngày tương lai); `persist()` bỏ kết quả (mở rộng H-49) |
+| H-57 | low | `.hero.owe/.safe` không quy tắc, `aria-current` chết, 761–1090 px, `scroll-margin`, `:has()`, `aria-live`, hai chỗ chọn khai |
+| H-58 | low | Tab hiện suốt đêm 31/01→01/02 không đổi; `main.ts:11` `localToday()` ngoài `try` |
+| H-59 | low | Test theo cấu tạo: token so bản sao mockup, quét `setSystemTime` kể cả comment, hai smoke lệch nhau, thẻ căn đếm kỳ thu theo `receivedOn` |
 | H-32 | medium | Chưa ai làm: đo người dùng thật (chỉ `pageview`), Lighthouse mobile ≥ 90, mốc 05/12/2026 |
 | H-33 | low | `today` chốt lúc mount; `endOn < startOn` được nhận; kỳ thu năm khác không báo |
 | H-34 | low | Stale `render()` xoá dữ liệu gõ, mất focus, radio lệch; sự kiện `storage` key/newValue null |
@@ -107,6 +117,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
 
 ## Quyết định gần đây
+- 2026-10-27: Audit R8–R9 (`docs/audits/2026-10-27-3.md`): thêm H-50..H-59 (4 vừa, 6 thấp), không đóng H-xx nào, không lỗ cao. H-50 đã chạy lại. % theo việc ~67%. H-32 (còn 39 ngày đến 05/12) chưa ai làm; luật 2027 còn 97 ngày. Đề xuất: mốc không kẹt/không mất (H-50, H-52, H-56, H-55, H-54, H-29, H-30, H-35), mốc điện thoại (H-53, H-57), tin cậy số (H-51, H-48, H-37), rồi H-32.
 - 2026-10-27: Supervisor duyệt R9 (#38; PR đã merge trước bước duyệt, duyệt lại trên 502114d): verify/smoke sạch, T4 389, T5 139, T6 61, T7 34, `tests/build` 73, gzip ~23 KB; 24 ca mới đỏ trên `src` trước R9 (supervisor tự chạy); phép đảo FAQ `<` → `<=` làm đỏ 2 ca; 3 ca biên ngoài repo xanh; 4/4 task DONE (dev-01, dev-02 hai vòng). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low; thêm H-49.
 - 2026-10-27: Supervisor duyệt và merge R8 (#35, 4d9b5e8): verify/smoke sạch, T4 331, T5 119, T6 61, T7 34, `tests/build` 66, gzip ~23 KB; Chrome headless 390 px (iframe) và 1280 px không tràn ngang; 3 ca biên ngoài repo xanh; 4/4 task PASS vòng 1. Quyết định (c): cách lách `rateBps` ở `overview.ts` không chặn merge; hướng sửa là `src/rules` xuất sẵn nhãn thuế suất (giữ guard chặt), ghi H-48. Đóng H-13.
 - 2026-10-27: Đóng H-38 (`docs/audits/2026-10-27-2.md`): leader sửa tay, ghim giờ `tests/main.test.ts` và `tests/build/build.test.ts`, thêm ca `main` ở 2027-03-01; dưới đồng hồ giả 2027 mã cũ 3 failed, mã mới 276 passed. Không còn lỗ cao mở.
