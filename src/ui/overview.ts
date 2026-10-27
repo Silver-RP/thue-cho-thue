@@ -27,19 +27,16 @@ function dmy(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
-/** Điểm cơ bản sang phần trăm kiểu Việt Nam, ví dụ 850 thành 8,5 phần trăm. */
-function percent(bps: number): string {
-  return `${String(bps / 100).replace(".", ",")}%`;
-}
-
 /**
- * Thuế suất (điểm cơ bản) của một khối luật, lấy từ `TaxRules`. Đọc qua kiểu của khối
- * để `src/ui` không chứa tên trường luật (tests/ui/calculator.test.ts cấm chuỗi đó).
+ * Chữ "cách tính" từ cơ sở và nhãn thuế suất do engine trả. Một hợp đồng có cơ sở thì
+ * `cơ sở × %`; nhiều hợp đồng thì in từng hợp đồng (engine làm tròn riêng từng hợp đồng).
  */
-function rateOf(block: TaxRules["pit"] | TaxRules["vat"]): number {
-  return Number((block as unknown as Record<string, unknown>)[RATE_KEY]);
+function howText(parts: { base: number }[], label: string): string {
+  const live = parts.filter((p) => p.base > 0);
+  const [only] = live;
+  if (live.length === 1 && only) return `${formatVnd(only.base)} × ${label}`;
+  return live.map((p, i) => `Hợp đồng ${i + 1}: ${formatVnd(p.base)} × ${label}`).join("; ");
 }
-const RATE_KEY = ["rate", "Bps"].join("");
 
 function money(amount: number): HTMLElement {
   return el("span", { class: "tnum" }, formatVnd(amount));
@@ -158,13 +155,10 @@ export function renderOverview(root: HTMLElement, outcome: YearSummaryOutcome | 
     const excess = s.totalRevenue - s.totalDeduction;
     row(`Trừ ngưỡng năm ${year}`, "Trừ một lần cho tổng các hợp đồng", `− ${formatVnd(s.totalDeduction)}`);
     row("Phần vượt ngưỡng", null, formatVnd(excess));
-    if (rules) row("Thuế TNCN", `${formatVnd(excess)} × ${percent(rateOf(rules.pit))}`, formatVnd(s.totalPit));
-    else row("Thuế TNCN", null, formatVnd(s.totalPit));
-    if (rules) {
-      const base = rules.vat.base === "full" ? s.totalRevenue : excess;
-      const how = `${formatVnd(base)} × ${percent(rateOf(rules.vat))}${rules.vat.unconfirmed ? ", cơ sở tính chưa xác nhận" : ""}`;
-      row("Thuế GTGT", how, formatVnd(s.totalVat), s.vatEstimated);
-    } else row("Thuế GTGT", null, formatVnd(s.totalVat), s.vatEstimated);
+    row("Thuế TNCN", howText(s.contracts.map((c) => ({ base: c.pitBase })), s.pitRateLabel) || null, formatVnd(s.totalPit));
+    const vatHow = howText(s.contracts.map((c) => ({ base: c.vatBase })), s.vatRateLabel);
+    const note = s.vatEstimated ? "cơ sở tính chưa xác nhận" : "";
+    row("Thuế GTGT", [vatHow, note].filter(Boolean).join(", ") || null, formatVnd(s.totalVat), s.vatEstimated);
   } else {
     row("Doanh thu chưa vượt ngưỡng", "Chưa phát sinh thuế TNCN và GTGT", formatVnd(0));
   }
