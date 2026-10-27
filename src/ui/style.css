@@ -1242,3 +1242,9 @@ button.danger:hover {
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+.receipt .amt {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
