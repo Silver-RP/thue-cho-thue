@@ -286,6 +286,118 @@
       "summary": "Reflow 320 px chữ 200% tràn 1 px, 360 px chữ 300% tràn 95 px",
       "text": "Reflow WCAG 1.4.10: 320 px chữ 200% tràn 1 px, 360 px chữ 300% tràn 95 px; e2e chỉ đo 360 px 200% (báo cáo R11, ghi chú reviewer dev-01)",
       "milestone": null
+    },
+    {
+      "id": "H-61",
+      "severity": "medium",
+      "summary": "Điện thoại 390 px: thẻ hạn cuối trang, hero không nêu ngày",
+      "text": "Điện thoại 390 px: thẻ hạn cuối trang, hero không nêu ngày (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-62",
+      "severity": "medium",
+      "summary": "Từ 01/02 năm mặc định 2027 che thuế 2026 quá hạn",
+      "text": "Từ 01/02 năm mặc định 2027 che thuế 2026 quá hạn (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-63",
+      "severity": "medium",
+      "summary": "pitBase/vatBase/nhãn chỉ ở biên lai; máy tính, tờ khai, CSV, chép, thẻ không có cơ sở",
+      "text": "pitBase/vatBase/nhãn chỉ ở biên lai; máy tính, tờ khai, CSV, chép, thẻ không có cơ sở (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-64",
+      "severity": "medium",
+      "summary": "setItem-only ném: sổ không giữ, không nhắc Xuất JSON (mở rộng H-29)",
+      "text": "setItem-only ném: sổ không giữ, không nhắc Xuất JSON (mở rộng H-29) (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-65",
+      "severity": "medium",
+      "summary": "Deploy chạy e2e nhưng không test giữ; e2e build khác bản deploy; reuseExistingServer",
+      "text": "Deploy chạy e2e nhưng không test giữ; e2e build khác bản deploy; reuseExistingServer (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-66",
+      "severity": "medium",
+      "summary": "e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn, múi giờ trùng, Chromium Desktop); 9 mã S chưa có ca",
+      "text": "e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn, múi giờ trùng, Chromium Desktop); 9 mã S chưa có ca (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-67",
+      "severity": "medium",
+      "summary": "ui_check 11/20 (min 16); nút khối xuất ≈21 px (< 44)",
+      "text": "ui_check 11/20 (min 16); nút khối xuất ≈21 px (< 44) (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-68",
+      "severity": "medium",
+      "summary": "Qua 00:00 mất năm đang xem nếu năm chỉ có nhờ sổ (start.ts:317)",
+      "text": "Qua 00:00 mất năm đang xem nếu năm chỉ có nhờ sổ (start.ts:317) (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-69",
+      "severity": "medium",
+      "summary": "Giả định chưa xác nhận nói như chắc chắn: phân bổ năm dương lịch, Quá hạn Chủ nhật, thông báo doanh thu, khai 2 lần",
+      "text": "Giả định chưa xác nhận nói như chắc chắn: phân bổ năm dương lịch, Quá hạn Chủ nhật, thông báo doanh thu, khai 2 lần (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-70",
+      "severity": "medium",
+      "summary": "Ô số tiền/ngày nhận không nhắc ngày nhận tiền, cọc, điện nước",
+      "text": "Ô số tiền/ngày nhận không nhắc ngày nhận tiền, cọc, điện nước (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-71",
+      "severity": "low",
+      "summary": "a11y/khung: không main, nav trùng, focus mất sau lưu, aria-live, scroll-padding, forced-colors, persist() lúc mount",
+      "text": "a11y/khung: không main, nav trùng, focus mất sau lưu, aria-live, scroll-padding, forced-colors, persist() lúc mount (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-72",
+      "severity": "low",
+      "summary": "carried giữ khoá ma theo chỉ số form",
+      "text": "carried giữ khoá ma theo chỉ số form (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-73",
+      "severity": "low",
+      "summary": "Câu không đổi tổng sai mức đồng",
+      "text": "Câu không đổi tổng sai mức đồng (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-74",
+      "severity": "low",
+      "summary": "Kỳ thu 0 từ file không sửa được; máy tính vượt safe integer hiện chuỗi kỹ thuật",
+      "text": "Kỳ thu 0 từ file không sửa được; máy tính vượt safe integer hiện chuỗi kỹ thuật (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-75",
+      "severity": "low",
+      "summary": "Gắn lại lúc 00:00 đếm pageview lặp, mất focus/IME",
+      "text": "Gắn lại lúc 00:00 đếm pageview lặp, mất focus/IME (docs/audits/2026-10-28.md)",
+      "milestone": null
+    },
+    {
+      "id": "H-76",
+      "severity": "low",
+      "summary": "Nhập đè không preserveRaw; confirm bị chặn nuốt im; select không hoàn lại khi lưu lỗi; tên file xuất",
+      "text": "Nhập đè không preserveRaw; confirm bị chặn nuốt im; select không hoàn lại khi lưu lỗi; tên file xuất (docs/audits/2026-10-28.md)",
+      "milestone": null
     }
   ],
   "milestones": {
@@ -377,6 +489,12 @@
       "goal": "src/rules/2027.ts khi có văn bản (H-31 phần người)",
       "needs_team": true,
       "status": "chờ leader"
+    },
+    {
+      "id": "mốc sau audit R10–R11",
+      "goal": "R12 điện thoại/đúng ngày (H-61,62,67,68,75,60); R13 e2e đo thật (H-65,66); R14 cơ sở tính + giả định (H-63,69,70,73); R15 không mất sổ (H-64,76,72,74,71)",
+      "needs_team": false,
+      "status": "chờ /autodev:propose-next"
     }
   ],
   "decisions": [
@@ -451,6 +569,10 @@
     {
       "date": "2026-10-28",
       "text": "Supervisor duyệt và merge R11 (#50, 6d56929): verify/smoke sạch, T10 37 passed (lặp 3 lần 111), 0 test.fail, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, tests/build 73, gzip ~26 KB; H-58: 9 ca đỏ trên src trước R11 (supervisor tự chạy); 4/4 task PASS vòng 1. Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60."
+    },
+    {
+      "date": "2026-10-28",
+      "text": "Audit R10–R11 (docs/audits/2026-10-28.md): thêm H-61..H-76 (10 vừa, 6 thấp), không đóng H-xx, không lỗ cao; số tiền khớp tính tay S1–S17. % theo việc ~67%. Đề xuất R12..R15; H-32 còn 38 ngày, luật 2027 còn 96 ngày."
     }
   ]
 }
