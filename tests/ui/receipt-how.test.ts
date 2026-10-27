@@ -108,6 +108,15 @@ describe("biên lai: cách tính khớp tiền (H-51, H-48)", () => {
     expect(clauses(line("Thuế TNCN").how)).toEqual([{ base: 100_000_000, pct: "5" }]);
   });
 
+  it("B1: hợp đồng cơ sở 0 đứng trước hai hợp đồng chịu thuế, không có nhãn 'Hợp đồng N' sai", () => {
+    const ledger = book([200_000_000, 600_000_000, 600_000_000, 600_000_000]);
+    start(ledger);
+    const { how, amt } = line("Thuế TNCN");
+    expect(how).not.toMatch(/Hợp đồng \d/);
+    expect(clauses(how).length).toBeGreaterThanOrEqual(2);
+    expect(formatVnd(sumRounded(how))).toBe(amt);
+  });
+
   it("luật giả vat.base excess: cơ sở GTGT là phần vượt; vat.unconfirmed false thì không chữ chưa xác nhận", () => {
     const fake: TaxRules = { ...rules2026, vat: { ...rules2026.vat, base: "excess", unconfirmed: false } };
     start(book([600_000_010, 600_000_010]), fake);

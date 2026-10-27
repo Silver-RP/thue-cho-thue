@@ -29,13 +29,13 @@ function dmy(iso: string): string {
 
 /**
  * Chữ "cách tính" từ cơ sở và nhãn thuế suất do engine trả. Một hợp đồng có cơ sở thì
- * `cơ sở × %`; nhiều hợp đồng thì in từng hợp đồng (engine làm tròn riêng từng hợp đồng).
+ * `cơ sở × %`; nhiều hợp đồng thì in từng cụm nối bằng "+", không đánh số (số sau khi lọc không khớp hợp đồng thật; engine làm tròn riêng từng hợp đồng).
  */
 function howText(parts: { base: number }[], label: string): string {
   const live = parts.filter((p) => p.base > 0);
   const [only] = live;
   if (live.length === 1 && only) return `${formatVnd(only.base)} × ${label}`;
-  return live.map((p, i) => `Hợp đồng ${i + 1}: ${formatVnd(p.base)} × ${label}`).join("; ");
+  return live.map((p) => `${formatVnd(p.base)} × ${label}`).join(" + ");
 }
 
 function money(amount: number): HTMLElement {
