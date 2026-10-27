@@ -45,5 +45,11 @@
     "run": null,
     "url": null,
     "note": ""
+  },
+  "ui_check": {
+    "cmd": "yarn -s e2e:screens",
+    "dir": "docs/screens",
+    "rubric": "docs/design/RUBRIC.md",
+    "min_score": 16
   }
 }
