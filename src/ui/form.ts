@@ -259,7 +259,12 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       li.append(el("br"), el("small", { class: "citation" }, `Căn cứ: ${s.citation}`));
       steps.append(li);
     }
-    results.append(mini, el("h2", {}, "Kết quả"), wrap, el("h2", {}, "Giải thích từng bước"), steps);
+    // Bước và căn cứ gập lại: người dùng cần kết luận trước, ai muốn kiểm thì mở.
+    const explain = el("details", { class: "calc-steps" });
+    const head = el("summary");
+    head.append(el("h2", {}, "Giải thích từng bước và căn cứ"));
+    explain.append(head, steps);
+    results.append(mini, el("h2", {}, "Kết quả"), wrap, explain);
   };
 
   form.addEventListener("submit", (e) => {

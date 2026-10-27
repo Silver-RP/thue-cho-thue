@@ -86,3 +86,18 @@ test("S28: 360px, chữ 200% và font rộng (giống CI Linux) vẫn không cu�
   await page.addStyleTag({ content: "html{font-size:200% !important} *{font-family:Verdana,'DejaVu Sans',sans-serif !important}" });
   expect(await overflow(page)).toBeLessThanOrEqual(0);
 });
+
+test("v2: ở 390px ô chọn năm hiện đủ chữ năm chưa có quy định, thanh trên một hàng", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await open(page, "2027-02-01", S2);
+  const sel = page.locator("#tax-year");
+  const fits = await sel.evaluate((s: HTMLSelectElement) => {
+    const c = document.createElement("canvas").getContext("2d")!;
+    const st = getComputedStyle(s);
+    c.font = `${st.fontWeight} ${st.fontSize} ${st.fontFamily}`;
+    return c.measureText(s.selectedOptions[0]!.text).width + 24 <= s.clientWidth;
+  });
+  expect(fits).toBe(true);
+  const bar = await page.locator(".topbar").boundingBox();
+  expect(bar!.height).toBeLessThanOrEqual(80);
+});

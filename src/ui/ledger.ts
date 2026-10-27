@@ -644,8 +644,8 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       );
     }
 
-    // Doanh thu theo căn
-    box.append(el("h3", {}, "Doanh thu theo căn"));
+    // Doanh thu theo căn (sổ chưa có căn thì bỏ tiêu đề, không để tiêu đề trống)
+    if (s.revenueByProperty.length) box.append(el("h3", {}, "Doanh thu theo căn"));
     const pt = el("table", { class: "result-table lg-by-property" });
     const pb = el("tbody");
     for (const p of s.revenueByProperty) {
@@ -728,7 +728,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     const cs = el("div", { class: "table-scroll" });
     cs.append(ct);
     cw.append(el("h3", {}, "Thuế theo hợp đồng"), cs);
-    box.append(cw);
+    if (s.contracts.length) box.append(cw);
     return box;
   };
 
@@ -870,7 +870,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       root.append(box);
     }
     if (locked && lockedRaw !== undefined) root.append(lockBlock());
-    root.append(el("h2", {}, "Các căn cho thuê"));
+    root.append(el("h3", { class: "lg-section" }, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
     const addP = addPropertyForm();
     root.append(ledger.properties.length ? fold("lg-add", "+ Thêm căn khác", addP) : addP);
