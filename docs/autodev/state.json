@@ -15,7 +15,8 @@
         "T6",
         "T7",
         "T8",
-        "T9"
+        "T9",
+        "T10"
       ]
     }
   ],
@@ -100,8 +101,8 @@
     {
       "id": "H-21",
       "severity": "medium",
-      "summary": "Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn",
-      "text": "Đạt trên giấy: smoke/T9 chỉ grep chuỗi tĩnh, chưa có smoke trình duyệt thật, dữ liệu thử toàn số tròn (audit R4-R5 2026-10-26-2)",
+      "summary": "R11 có e2e Chromium trong verify; còn smoke Pages chỉ grep chuỗi tĩnh, số tròn",
+      "text": "R11: verify chạy e2e Chromium (37 ca, CI trước deploy); còn: smoke/T9 chỉ grep chuỗi tĩnh trên Pages, URL cứng, dữ liệu thử phần lớn số tròn (audit R4-R5 2026-10-26-2)",
       "milestone": null
     },
     {
@@ -142,8 +143,8 @@
     {
       "id": "H-29",
       "severity": "medium",
-      "summary": "Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới, kho bị chặn)",
-      "text": "Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới, kho bị chặn) (audit R6 2026-10-26-4)",
+      "summary": "Thông báo khoá phiên bản mới chưa nói nên cập nhật (kho bị chặn đã báo đúng ở R11)",
+      "text": "R11 (S24): kho ném khi đọc báo 'Không lưu được trên trình duyệt này' + 'Xuất JSON'; còn: thông báo khoá phiên bản mới (nên cập nhật) (audit R6 2026-10-26-4)",
       "milestone": null
     },
     {
@@ -184,8 +185,8 @@
     {
       "id": "H-35",
       "severity": "low",
-      "summary": "Xuất JSON khi khoá ra sổ rỗng; Bắt đầu sổ mới khi getItem ném bỏ giữ chuỗi cũ",
-      "text": "Xuất JSON khi khoá ra sổ rỗng; Bắt đầu sổ mới khi getItem ném bỏ giữ chuỗi cũ (audit R6 2026-10-26-4)",
+      "summary": "Xuất JSON khi khoá ra sổ rỗng",
+      "text": "Xuất JSON khi khoá ra sổ rỗng; R11 bỏ nút 'Bắt đầu sổ mới' khi getItem ném (audit R6 2026-10-26-4)",
       "milestone": null
     },
     {
@@ -273,17 +274,17 @@
       "milestone": null
     },
     {
-      "id": "H-58",
-      "severity": "low",
-      "summary": "Tab hiện suốt đêm 31/01→01/02 không đổi; main.ts localToday ngoài try",
-      "text": "Tab hiện suốt đêm 31/01→01/02 không đổi; main.ts localToday ngoài try (start.ts:280; main.ts:11)",
-      "milestone": null
-    },
-    {
       "id": "H-59",
       "severity": "low",
       "summary": "Test theo cấu tạo: token so bản sao mockup, quét setSystemTime kể cả comment, hai smoke lệch nhau, thẻ căn đếm kỳ thu theo receivedOn",
       "text": "Test theo cấu tạo: token so bản sao mockup, quét setSystemTime kể cả comment, hai smoke lệch nhau, thẻ căn đếm kỳ thu theo receivedOn (shell.test.ts; start-date.test.ts:229; deploy.yml)",
+      "milestone": null
+    },
+    {
+      "id": "H-60",
+      "severity": "low",
+      "summary": "Reflow 320 px chữ 200% tràn 1 px, 360 px chữ 300% tràn 95 px",
+      "text": "Reflow WCAG 1.4.10: 320 px chữ 200% tràn 1 px, 360 px chữ 300% tràn 95 px; e2e chỉ đo 360 px 200% (báo cáo R11, ghi chú reviewer dev-01)",
       "milestone": null
     }
   ],
@@ -348,6 +349,12 @@
         "status": "merged",
         "pr": 44,
         "merge_commit": "3d576a9"
+      },
+      {
+        "id": "R11",
+        "status": "merged",
+        "pr": 50,
+        "merge_commit": "6d56929"
       }
     ],
     "plugin": []
@@ -440,6 +447,10 @@
     {
       "date": "2026-10-28",
       "text": "Supervisor duyệt và merge R10 (#44, 3d576a9): verify/smoke sạch, T4 429, T5 168, T6 61, T7 34, tests/build 73, gzip ~24,9 KB; 31 ca mới đỏ trên src trước R10; Chrome headless 390 (iframe)/820/1280 không tràn, thẻ 390 có TNCN/GTGT, .side 820 nằm trên sổ; 4/4 task DONE (dev-02 hai vòng). Không quyết định (c). Đóng H-50..H-54; thu hẹp H-48, H-57."
+    },
+    {
+      "date": "2026-10-28",
+      "text": "Supervisor duyệt và merge R11 (#50, 6d56929): verify/smoke sạch, T10 37 passed (lặp 3 lần 111), 0 test.fail, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, tests/build 73, gzip ~26 KB; H-58: 9 ca đỏ trên src trước R11 (supervisor tự chạy); 4/4 task PASS vòng 1. Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60."
     }
   ]
 }
