@@ -325,8 +325,33 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     if (now !== today) run(doc, { ...options, today: now }, true);
   };
   if (options.clock) doc.addEventListener("visibilitychange", onVisible);
+
+  // Mục đang chọn ở menu bên và thanh dưới: aria-current="page" cho đúng một liên kết mỗi khối.
+  const navLinks = Array.from(doc.querySelectorAll<HTMLAnchorElement>(".nav a[href^='#'], .tabbar a[href^='#']"));
+  const markCurrent = (target: string): void => {
+    const known = navLinks.some((a) => a.getAttribute("href") === target);
+    const want = known ? target : "#overview";
+    for (const a of navLinks) {
+      if (a.getAttribute("href") === want) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    }
+  };
+  const fromHash = (): void => markCurrent(doc.location?.hash ?? "");
+  const clickHandlers = navLinks.map((a) => {
+    const h = (): void => markCurrent(a.getAttribute("href") ?? "");
+    a.addEventListener("click", h);
+    return h;
+  });
+  const win = doc.defaultView;
+  win?.addEventListener("hashchange", fromHash);
+  doc.addEventListener("hashchange", fromHash);
+  fromHash();
+
   const teardown = (): void => {
     doc.removeEventListener("visibilitychange", onVisible);
+    navLinks.forEach((a, i) => a.removeEventListener("click", clickHandlers[i]));
+    win?.removeEventListener("hashchange", fromHash);
+    doc.removeEventListener("hashchange", fromHash);
     for (const [s, t] of original) {
       s.textContent = t;
       s.removeAttribute("data-past");
