@@ -386,3 +386,47 @@ Phút lệch do 2 task phải vòng 2 (reviewer tự probe ra lỗi radio `filin
 Từ báo cáo mốc: ghi `last-backup` lỗi thì sau xuất vẫn nhắc; ảnh chụp ô gõ dở giữ khoá form đã mất; chưa quét chung lỗi gộp selector CSS.
 
 Quyết định: đạt 8/8 tiêu chí cấp mốc (PR đã merge trước, không cần merge lại; main không có check bắt buộc). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low (còn thử Safari/iOS thật); thêm H-49. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R9 `done`.
+
+## R10: duyệt của supervisor (2026-10-28, PR #44, merge 3d576a9)
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên `origin/milestone/R10` 53bf22b)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify + smoke sạch | `verify.py`; `verify.py --smoke` | "sạch (không có lỗi mới so với baseline)"; smoke `pages` ok |
+| 2 | T4 > 389 | `yarn -s test` | 43 file, 429 passed, 0 failed |
+| 3 | T5 tăng | `yarn -s test tests/ui` | 17 file, 168 passed (trước 139) |
+| 4 | T6 không giảm | `yarn -s test tests/ledger` | 5 file, 61 passed |
+| 5 | T7 không giảm | `yarn -s test tests/export` | 5 file, 34 passed |
+| 6 | T8: build + tests/build, gzip ≤ 100 KB, không `fetch`/XHR | `yarn -s build && yarn -s test tests/build`; `gzip -c dist/assets/*`; `grep -rlE "fetch\(\|XMLHttpRequest" dist/assets` | build 0; 73 passed; JS 22.035 B + CSS 2.878 B gzip (~24,9 KB, +0,9 KB so R9); grep không ra |
+| 7 | H-50/51/53/54 có ca đỏ trước khi sửa; H-52 ca đỏ hoặc "không tái hiện" | `git checkout 5cde5fd -- src` rồi chạy 6 file test R10 (`tests/start-r10`, `tests/tax/annual`, `tests/ui/{receipt-how,contract-cards,page-shell,due}`), trả lại `src` | 31 failed: H-50 (2 ca: máy tính bấm Tính ra TNCN; sổ `years`/`mode`), H-52 (3 ca: tên mới sau đổi ngày, ca audit tab B, đúng một thông báo stale → tái hiện được), H-51 (5 ca `.how` + 4 ca engine), H-53 (6 ca thẻ = bảng = `summarizeYear` + 1 ca `due`), H-54 (2 ca `h1`), H-57 (8 ca hero/aria-current/CSS) |
+| 8 | Chrome headless 390/820/1280: không tràn; 390 thẻ có TNCN/GTGT; 820 `.side` không rơi dưới toàn sổ | Chrome headless trên `dist` (phục vụ dưới `/thue-cho-thue/`), sổ seed 2 căn 3 hợp đồng số lẻ (412.345.678; 398.765.431; 250.000.007 đ); trang đo bằng iframe (390 px qua iframe vì headless tối thiểu 500 px) | 390: `scrollWidth` 390 = khổ, 3 thẻ hợp đồng hiện, mỗi thẻ có revenue/deduction/pit/vat (vd. "pit=3.055.555 đ; vat=12.500.000 đ (ước tính)"), bảng ẩn cùng tiêu đề; 820: không tràn, `.side` nằm **trên** `#ledger` cùng cột, bảng hợp đồng hiện; 1280: không tràn, `.side` cột phải. Cả ba: đúng 1 `h1`, `aria-current` theo `#ledger` ở cả `.nav` và `.tabbar` |
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 22 | 29 | 1,32× |
+| USD | 4,5 | 3,18 + ~1,64 (metrics.py, supervisor tạm tính) | ~1,07× |
+| Vòng review | 4–7 | 5 (1+2+1+1) | trong khoảng |
+
+### Pre-mortem
+1. Công thức lệch tiền mà test xanh → chặn: `tests/ui/receipt-how.test.ts` tách cụm `X đ × P%`, Σ làm tròn = `.amt` (600.000.010 × 2, 3 hợp đồng lẻ, `excess`); đỏ trên src cũ.
+2. Thẻ lấy nguồn khác bảng → chặn: `tests/ui/contract-cards.test.ts` thẻ = bảng = `summarizeYear`; Chrome 390 px thấy đủ cột.
+3. Ca trả trước chỉ kiểm `hidden` → chặn: `tests/start-r10.test.ts` bấm "Tính thuế" ra TNCN; nộp form lưu `years: 3, lump`.
+4. Phát `change` làm lưu sổ/hiện lỗi → chặn: ca `setItem` = 0, không `.form-error` (start-r10).
+5. So sai mặc định → chặn: ca tên căn mới + `amount` gõ dở giữ; `tests/start-h41`, `tests/start-date` xanh. Mặc định ô sổ đặt bằng thuộc tính HTML ở `buildForm`; sổ không có `textarea` (đã grep).
+6. H-52 sửa không ca đỏ → chặn: 3 ca đỏ trên src cũ.
+7. Hỏng xuất/CSV → chặn: `tests/export` 34, `tests/ledger` 61 không đổi.
+8. Bố cục 761–1090 → test cấu trúc CSS + supervisor đo Chrome 820 px (tiêu chí 8).
+9. `h1` ở nhánh chưa có luật → chặn: `page-shell` ca năm chưa có luật.
+10. Tiêu đề xoá khỏi màn rộng → chặn: `contract-cards` ca ngoài media; Chrome 820/1280 bảng hiện.
+
+### Kiểm độc lập (vite-node, file ngoài repo `/tmp/sv-r10/edge.ts`)
+- `percentLabel`: 0, 5, 50, 100, 150, 500, 850, 1000, 1234 bps → `0%`, `0,05%`, `0,5%`, `1%`, `1,5%`, `5%`, `8,5%`, `10%`, `12,34%`.
+- `computeAnnual` 3 hợp đồng lẻ (1.000.001; 700.000.003; 333.333.337 đ) với 3 thứ tự trừ ngưỡng (mặc định, `c1` trước, `c3` trước): không cơ sở âm; Σ `applyRateBps(pitBase)` = `totalPit`, Σ `applyRateBps(vatBase)` = `totalVat`; Σ `pitBase` = "Phần vượt ngưỡng".
+- Chrome thật (tiêu chí 8).
+
+### Ghi chú (không chặn) → H-49, H-57
+Từ báo cáo mốc: form vẽ lại sau khi lưu mà gõ dở cùng ô với tab khác thì lần gắn lại sau có thể đè giá trị cũ (hiếm, gộp H-49); `scroll-margin-top` 5rem là hằng, không gắn chiều cao `.topbar` (H-57); `src/ui/form.ts:98` thiếu khoảng trắng sau dấu phẩy. Ở 390 px `.side` nằm dưới sổ (thiết kế điện thoại; ngoài tiêu chí).
+
+Quyết định: đạt 8/8 tiêu chí cấp mốc; merge #44 (merge commit, không xoá nhánh; main không có check bắt buộc). Không quyết định (c). Đóng H-50, H-51, H-52, H-53, H-54; thu hẹp H-48, H-57. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R10 `done`.
