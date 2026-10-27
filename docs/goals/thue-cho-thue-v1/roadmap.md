@@ -98,6 +98,16 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 - **Pre-mortem:** (a) thẻ điện thoại lấy số từ nguồn khác bảng: ca so ba nơi; (b) test trả trước chỉ kiểm `hidden`: ca bấm tính có `.results`; (c) bố cục giữa không đo bằng happy-dom: supervisor chụp Chrome headless 390/820/1280.
 - **Phản biện:** `proposals/R10.md` (A → A1 → A1.1).
 
+## R11: Test trình duyệt thật T10 (thêm 2026-10-28, leader chọn)
+- **Mục tiêu:** các tình huống trong `docs/autodev/CRITICS.md` chạy trên Chromium thật trong CI, chặn deploy khi số lệch, bố cục tràn hay nút bấm không ra gì.
+- **Phạm vi (4 task):** (1) sửa 2 lỗi khung e2e bắt được (`.year-picker` tràn khi chữ 200%, nhãn `#tax-year` bị ẩn trên điện thoại), bỏ `test.fail`; (2) ca thao tác qua giao diện: một luồng thêm căn → hợp đồng → kỳ thu, S9 chọn hợp đồng trừ ngưỡng, S25 chín cách gõ số tiền; (3) ca thời gian và năm: S18, S20, S21 (`page.clock` chạy qua 00:00 khi tab đang hiện, H-58), S22; ca trả trước và hợp đồng: S15, S16; (4) ca dữ liệu và xuất: S23 nhập đè, S24 `localStorage` bị chặn, S27 CSV (UTF-8 BOM, số là số) và nút chép.
+- **Chỉ số:** T10, T4, T5, T6, T7, T8.
+- **Ước tính:** 5,5 USD, 1,5 giờ máy.
+- **Xong khi:** `yarn -s e2e` 0 failed, ≥ 25 passed; mỗi `test.fail` còn lại ghi mã H-xx; ca đỏ đầu tiên được ghi trong báo cáo mốc kèm lỗi thật đã sửa.
+- **Phụ thuộc:** R10.
+- **Pre-mortem:** (a) bộ chọn bắt nhầm vùng: đọc trong vùng có id và kiểm cả số sai không xuất hiện; (b) `test.fail` giấu lỗi: T10 yêu cầu 0; (c) worktree thiếu Chromium: `npx playwright install chromium`.
+- **Phản biện:** `proposals/R11.md` (A → A1 → A1.1).
+
 ## Tổng
 
 | # | Mốc | Phụ thuộc | Chỉ số | USD | Giờ máy |
@@ -112,7 +122,8 @@ Hướng đã chọn: **lõi đúng luật trước, giao diện sau, triển kh
 | 8 | R8 | R7 | T4, T5, T6, T7, T8 | 5,0 | 1,2 |
 | 9 | R9 | R8 | T4, T5, T6, T7, T8 | 4,0 | 1,0 |
 | 10 | R10 | R9 | T4, T5, T6, T7, T8 | 4,5 | 1,0 |
-| | | | | **36,5** | **9,3** |
+| 11 | R11 | R10 | T10, T4, T5, T6, T7, T8 | 5,5 | 1,5 |
+| | | | | **42,0** | **10,8** |
 
 ## Thứ tự cắt
 R4 phần `.ics` → R3 phần nhiều căn (giữ một căn) → R4 phần xuất CSV (giữ bảng số trên màn hình).

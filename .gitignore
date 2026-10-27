@@ -3,3 +3,5 @@ dist/
 .autodev/runs/
 .autodev/env.local.json
 .claude/settings.local.json
+test-results/
+playwright-report/

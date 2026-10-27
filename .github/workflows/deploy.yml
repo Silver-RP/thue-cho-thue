@@ -26,6 +26,8 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn -s lint
       - run: yarn -s test
+      - run: npx playwright install --with-deps chromium
+      - run: yarn -s e2e
       - run: yarn -s build
         env:
           VITE_ANALYTICS_URL: ${{ vars.VITE_ANALYTICS_URL }}

@@ -15,6 +15,10 @@
     {
       "name": "test",
       "cmd": "yarn -s test"
+    },
+    {
+      "name": "e2e",
+      "cmd": "yarn -s e2e"
     }
   ],
   "smoke": [
