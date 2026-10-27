@@ -430,3 +430,58 @@ Quyết định: đạt 8/8 tiêu chí cấp mốc (PR đã merge trước, khô
 Từ báo cáo mốc: form vẽ lại sau khi lưu mà gõ dở cùng ô với tab khác thì lần gắn lại sau có thể đè giá trị cũ (hiếm, gộp H-49); `scroll-margin-top` 5rem là hằng, không gắn chiều cao `.topbar` (H-57); `src/ui/form.ts:98` thiếu khoảng trắng sau dấu phẩy. Ở 390 px `.side` nằm dưới sổ (thiết kế điện thoại; ngoài tiêu chí).
 
 Quyết định: đạt 8/8 tiêu chí cấp mốc; merge #44 (merge commit, không xoá nhánh; main không có check bắt buộc). Không quyết định (c). Đóng H-50, H-51, H-52, H-53, H-54; thu hẹp H-48, H-57. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R10 `done`.
+
+## R11: duyệt của supervisor (2026-10-28, PR #50, merge 6d56929)
+
+Supervisor tự chạy trên `de79918` (đầu nhánh `milestone/R11`), worktree supervisor, chế độ B `--review-only`.
+
+### Tiêu chí cấp mốc
+| # | Tiêu chí | Lệnh supervisor tự chạy | Kết quả |
+|---|---|---|---|
+| 1 | verify + smoke sạch | `verify.py`; `verify.py --smoke` | "verify: sạch"; `[smoke] ok pages`, "smoke: sạch" |
+| 2 | T10 0 failed, ≥ 25 passed | `yarn -s e2e`; thêm `--repeat-each=3 --workers=4` | 37 passed; 111 passed (không flaky) |
+| 3 | 0 `test.fail/fixme/skip/.only` | `grep -rnE "test\.(fail\|fixme\|skip)\|\.only\(" e2e/` | không in gì (exit 1) |
+| 4 | mỗi mã S có ca e2e | `yarn -s e2e --list` rồi `grep -cE "S<n>[^0-9]"` | S9 2, S15 1, S16 1, S18 1, S20 1, S21 1, S22 1, S23 1, S24 1, S25 9, S27 2 |
+| 5 | T4 > 429 | `yarn -s test` | 48 file, 459 passed |
+| 6 | T5 ≥ 168 | `yarn -s test tests/ui` | 188 passed |
+| 7 | T6 ≥ 61 | `yarn -s test tests/ledger` | 61 passed |
+| 8 | T7 ≥ 34 | `yarn -s test tests/export` | 34 passed |
+| 9 | T8 | `yarn -s build && yarn -s test tests/build`; gzip `dist/assets/*.{js,css}` | exit 0, 73 passed; 26.052 byte (~26 KB ≤ 100 KB) |
+| 10 | `plan/PROGRESS.md` có ca đỏ đầu tiên + sửa ở file nào | đọc `plan/PROGRESS.md` mục R11 | có cho dev-01..dev-04 (lệnh, dòng đỏ, file sửa; "xanh ngay" cho luồng sổ, S15, S18, S27) |
+
+### H-xx đóng: test tái hiện
+- H-58 (tab hiện qua 00:00; `localToday` ngoài `try`): lấy `src/start.ts` + `src/main.ts` của `50997a8` (trước R11), chạy `yarn -s vitest run tests/start-timer.test.ts tests/main-clock.test.ts` → 9 failed (vd "tab vẫn hiện, không có visibilitychange: qua 00:00 gắn lại theo ngày mới", "vẫn có máy tính và sổ, không ném ra ngoài"); trả src R11 → 10 passed. Đóng H-58.
+- Thu hẹp (không đóng): H-21 (e2e Chromium trong verify/CI; smoke Pages vẫn grep tĩnh), H-29 (S24 kho bị chặn báo đúng; còn khoá phiên bản mới), H-35 (bỏ nút "Bắt đầu sổ mới" khi `getItem` ném; còn Xuất JSON khi khoá).
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 35 | 47 | 1,33× |
+| USD | 5,5 | 3,94 + ~1,73 (metrics.py, supervisor tạm tính) | ~1,03× |
+| Vòng review | 5–8 | 4 (1+1+1+1) | dưới khoảng (tốt) |
+
+### Pre-mortem
+1. Bộ chọn bắt nhầm vùng → chặn: ca đọc trong `#ledger`, `.lg-summary`, `td[data-col=pit]`, `#overview`, `#app .results`; S9 kiểm vắng `20.000.000 đ`.
+2. `test.fail` giấu lỗi → chặn: tiêu chí 3 (grep sạch).
+3. Ẩn ô năm / `overflow:hidden` → chặn: ca S28 360 px 200% kiểm `#tax-year` hiện, nằm trong khung, `overflowX` khác `hidden`, `selectOption("2026")`.
+4. Tên ô năm lệch → chặn: `getByRole("combobox", { name: "Năm tính thuế" })` + axe 390/1280.
+5. S21 xanh vì đồng hồ đứng → chặn: `page.clock.install` + phép đảo bỏ `arm()` làm đỏ (worker ghi); supervisor tái hiện 9 ca đỏ trên src cũ.
+6. Hẹn giờ chồng/ghi kho → chặn: `tests/start-timer.test.ts` (một hẹn giờ sau N lần gắn, không `setItem`).
+7. S23 chỉ kiểm có `confirm` → chặn: ca đòi "2 kỳ thu" + "Xuất JSON", Huỷ giữ sổ.
+8. S27 chuỗi trong bộ nhớ → chặn: `waitForEvent("download")`, BOM `EF BB BF`.
+9. S25 chỉ máy tính nhanh → chặn: 9 ca, mỗi ca gõ vào cả hai chỗ.
+10. Luồng sổ bằng nạp sổ → chặn: ca "luồng sổ" chỉ `fill/click`, `reload`.
+11. Thiếu Chromium → không xảy ra (worktree supervisor có Chromium; e2e xanh).
+
+### Kiểm độc lập
+- Lặp e2e 3 lần song song 4 worker: 111 passed (ca đồng hồ S20/S21 không flaky).
+- Đọc `src/ui/due.ts:77-95`: "Quá hạn N ngày" chỉ khi không còn hạn ≥ hôm nay và `status === "taxable"`; N = `daysUntil(hạn khai cuối, hôm nay)` > 0; không tính phạt (đúng CRITICS "Soát").
+- Đọc `src/start.ts`: hẹn giờ 30 giây gỡ ở teardown (`dead` + `clearTimeout`), gắn lại qua `run` mới nên không chồng.
+
+### Ghi chú (không chặn)
+- H-60 mới: 320 px chữ 200% tràn 1 px, 360 px chữ 300% tràn 95 px (ngoài tiêu chí; đề xuất (c) của worker → mốc sau).
+- `main.ts` dùng ngày UTC tạm khi `localToday` lỗi (07:00 VN trở về trước có thể lệch một ngày, hẹn giờ đọc lại); `replaceMessage` đếm kỳ thu theo mã, không theo nội dung.
+- Lỗi plugin: `.autodev/reviews/dev-0N-r1.json` trùng tên giữa các mốc nên bị ghi đè (bản cũ còn trong git) → việc của plugin.
+
+Quyết định: đạt 10/10 tiêu chí cấp mốc; merge #50 (merge commit, không xoá nhánh; main không có check bắt buộc). Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R11 `done`, T10 đạt.

@@ -12,5 +12,6 @@
 | R8 | Giao diện theo mockup: tổng quan năm, biên lai, thẻ hạn, thẻ căn, tính nhanh (H-13; T4–T8) | merged (#35, 2026-10-27) |
 | R9 | Không mất sổ, đúng ngày (H-39..H-43; T4–T8) | merged (#38, 2026-10-27) |
 | R10 | Số khớp, điện thoại đủ thuế, không ngõ cụt (H-50..H-54, H-57, H-48; T4–T8) | merged (#44, 2026-10-28) |
+| R11 | Test trình duyệt thật T10 (e2e Chromium S9–S27; T10, T4–T8) | merged (#50, 2026-10-28) |
 
 Chi tiết: `docs/goals/thue-cho-thue-v1/roadmap.md`.
