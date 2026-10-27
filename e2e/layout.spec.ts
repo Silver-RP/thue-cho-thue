@@ -30,7 +30,8 @@ test("S28: 360px, chữ 200% vẫn không cuộn ngang", async ({ page }) => {
   // Đỏ thì nêu phần tử tràn (font Linux của CI rộng hơn máy dev, khó tái hiện tại chỗ).
   const wide = await page.evaluate(() =>
     Array.from(document.querySelectorAll("body *"))
-      .filter((e) => e.getBoundingClientRect().right > innerWidth + 0.5 && !e.closest(".table-scroll"))
+      .filter((e) => !e.parentElement?.closest(".table-scroll") && (e.getBoundingClientRect().right > innerWidth + 0.5 || (e.scrollWidth > e.clientWidth + 1 && getComputedStyle(e).overflowX === "visible")))
+      .reverse()
       .slice(0, 5)
       .map((e) => `${e.tagName.toLowerCase()}.${e.getAttribute("class") ?? ""} "${(e.textContent ?? "").trim().slice(0, 30)}"`),
   );
@@ -77,4 +78,11 @@ test("H-61: ở 390px màn hình đầu có số phải nộp và hạn còn bao
   await expect(due).toContainText("còn 21 ngày");
   const box = await due.boundingBox();
   expect(box!.y + box!.height).toBeLessThanOrEqual(800);
+});
+
+test("S28: 360px, chữ 200% và font rộng (giống CI Linux) vẫn không cuộn ngang", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 900 });
+  await open(page, "2027-01-10", S2);
+  await page.addStyleTag({ content: "html{font-size:200% !important} *{font-family:Verdana,'DejaVu Sans',sans-serif !important}" });
+  expect(await overflow(page)).toBeLessThanOrEqual(0);
 });
