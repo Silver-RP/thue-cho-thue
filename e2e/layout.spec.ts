@@ -24,20 +24,26 @@ for (const width of [360, 390, 820, 1280]) {
 }
 
 test("S28: 360px, chữ 200% vẫn không cuộn ngang", async ({ page }) => {
-  // Lỗi thật lúc dựng khung (27/10): ô chọn năm ở thanh trên tràn 151 px. R11 sửa rồi bỏ dòng này.
-  test.fail(true, "R11: .year-picker tràn ngang khi chữ 200%");
   await page.setViewportSize({ width: 360, height: 900 });
   await open(page, "2027-01-10", S2);
   await page.addStyleTag({ content: "html{font-size:200% !important}" });
   expect(await overflow(page)).toBeLessThanOrEqual(0);
+  const sel = page.locator("#tax-year");
+  await expect(sel).toBeVisible();
+  const box = await sel.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(360);
+  const ox = await page.evaluate(() => [document.documentElement, document.body].map((e) => getComputedStyle(e).overflowX));
+  expect(ox).not.toContain("hidden");
+  await sel.selectOption("2026");
+  await expect(page.locator("#overview")).toContainText("năm 2026");
 });
 
 for (const width of [390, 1280]) {
   test(`S28: không lỗi tiếp cận mức nghiêm trọng ở ${width}px`, async ({ page }) => {
-    // Lỗi thật lúc dựng khung (27/10): ≤ 760 px nhãn của #tax-year bị display:none nên ô chọn năm không có tên.
-    test.fail(width === 390, "R11: select-name, nhãn ô chọn năm bị ẩn hẳn trên điện thoại");
     await page.setViewportSize({ width, height: 900 });
     await open(page, "2027-01-10", S2);
+    await expect(page.getByRole("combobox", { name: "Năm tính thuế" })).toHaveCount(1);
     const { violations } = await new AxeBuilder({ page }).analyze();
     const bad = violations.filter((v) => v.impact === "critical" || v.impact === "serious");
     expect(bad.map((v) => `${v.id}: ${v.nodes.length} chỗ`)).toEqual([]);

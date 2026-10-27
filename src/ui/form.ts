@@ -188,6 +188,10 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       if (amountV === null || yearsV === null) bad = true;
       else prepaid = { amount: amountV, years: yearsV, mode: modeSel.value as PrepaidForm["mode"], receivedOn: date };
     }
+    if (rentV === 0 && periodsV !== null && periodsV > 0) {
+      setError(rent, "Tiền thuê mỗi kỳ phải lớn hơn 0. Nếu chỉ có tiền trả trước thì nhập 0 ở số kỳ nhận tiền.");
+      bad = true;
+    }
     if (bad || rentV === null || periodsV === null) return;
 
     const input: CalcForm = {

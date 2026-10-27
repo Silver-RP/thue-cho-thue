@@ -484,6 +484,12 @@ button.primary {
 @media (max-width: 760px) {
   .topbar {
     padding: 10px 16px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .year-slot {
+    max-width: 100%;
   }
 
   .shell {
@@ -509,11 +515,20 @@ button.primary {
   }
 
   .year-picker label {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 
   .year-picker select {
     width: 5.5rem;
+    max-width: 100%;
   }
 
   .tabbar {
@@ -567,6 +582,12 @@ button.primary {
   font-size: clamp(1.75rem, 4.5vw, 2.5rem);
   line-height: 1.2;
   font-weight: 800;
+}
+
+.hero .answer .tnum,
+.total .amt {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .hero .sub {
@@ -651,6 +672,7 @@ button.primary {
 
 .meter-legend {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
   font-size: 0.875rem;
@@ -667,6 +689,7 @@ button.primary {
 
 .receipt li {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: baseline;
   padding: 12px 0;
@@ -697,6 +720,7 @@ button.primary {
 
 .total {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
@@ -750,6 +774,7 @@ button.primary {
 @media (max-width: 760px) {
   .lg-cards {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--gap);
   }
 
@@ -778,9 +803,14 @@ button.primary {
 
 .lg-card-cols {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 0.15rem 0.75rem;
   margin: 0;
+}
+
+.lg-card-cols dd.tnum {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .lg-card-cols dt {

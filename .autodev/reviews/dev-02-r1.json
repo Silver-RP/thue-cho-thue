@@ -1,35 +1,30 @@
 {
-  "task_id": "R10/dev-02",
-  "status": "FAIL",
+  "task_id": "R11/dev-02",
+  "status": "PASS",
   "criteria": [
-    {"criterion": "1. Engine: pitBase/vatBase, nhãn %, pit/vat/tổng không đổi", "met": true, "evidence": "src/tax/annual.ts:11-14,65-78; src/tax/money.ts percentLabel; tests/tax/annual.test.ts (+4 ca); ca cũ không bị bớt"},
-    {"criterion": "2. tests/export, tests/ledger không đổi", "met": true, "evidence": "diff không đụng hai thư mục; yarn -s test 409 passed"},
-    {"criterion": "3. H-51: Σ round(X×P) từng cụm .how = .amt (2 HĐ 600.000.010)", "met": true, "evidence": "tests/ui/receipt-how.test.ts; src/ui/overview.ts howText"},
-    {"criterion": "4. 3 HĐ số lẻ; một HĐ chịu thuế một cụm", "met": true, "evidence": "tests/ui/receipt-how.test.ts"},
-    {"criterion": "5. vat.base excess và unconfirmed false", "met": true, "evidence": "tests/ui/receipt-how.test.ts; cờ vatEstimated ở overview.ts"},
-    {"criterion": "6. Quét overview.ts không chứa Bps/join(\"\")/rateOf/vat.base; ghi phép đảo", "met": true, "evidence": "grep overview.ts sạch RATE_KEY/rateOf; PROGRESS ghi 2 phép đảo"},
-    {"criterion": "7. yarn -s test 0 failed", "met": true, "evidence": "409 passed, 0 failed (tôi tự chạy)"}
+    {"criterion": "1. E2E luồng sổ chỉ dùng fill/click, không nạp sổ; .lg-summary có 8.000.000 đ; reload vẫn còn", "met": true, "evidence": "e2e/ui-flow.spec.ts:7-33 (open với sổ trống, fill/click, đọc .lg-summary, kiểm localStorage receipts=1 trước và sau reload); chạy yarn -s e2e xanh"},
+    {"criterion": "2. S9 đổi B sang A: TNCN A/B 10tr/0 rồi 0/10tr, tổng 10tr ở .lg-summary và #overview, không có 20.000.000 đ", "met": true, "evidence": "e2e/ui-flow.spec.ts:36-63 (đọc td[data-col=pit] theo data-contract, .lg-total-row, not.toContainText 20.000.000 đ ở cả hai vùng)"},
+    {"criterion": "3. S9: khu chọn trừ ngưỡng có câu nói lựa chọn không đổi tổng tiền phải nộp", "met": true, "evidence": "src/ui/ledger.ts (p.lg-choice-note 'không làm đổi tổng tiền thuế phải nộp'); e2e ui-flow.spec.ts:65-68; tests/ui/r11-input.test.ts"},
+    {"criterion": "4. S25: 9 chuỗi vào cả máy tính nhanh và ô kỳ thu cho cùng kết quả; ok ra 25.000.000 đ; 25tr/1,2 tỷ ra số đúng hoặc lỗi cụ thể; âm, 0, 9007199254740993 bị từ chối kèm giải thích, sổ không thêm kỳ thu; không có 25 đ/25.000 đ", "met": true, "evidence": "e2e/ui-flow.spec.ts:70-136 (9 ca, so led.ok với calc.ok, storedReceipts, regex chặn 25 đ/25.000 đ); sửa src/ui/ledger.ts (số tiền 0) và src/ui/form.ts (tiền thuê 0 với kỳ ≥ 1)"},
+    {"criterion": "5. PROGRESS ghi đỏ trước khi sửa hoặc xanh ngay", "met": true, "evidence": "plan/PROGRESS.md dòng dev-02: lệnh yarn -s e2e e2e/ui-flow.spec.ts, 2 failed với dòng đỏ (S9 câu giải thích, S25 '0'); Vitest 4 failed; các ca còn lại ghi xanh ngay"}
   ],
-  "blocking_issues": [
-    {"id": "B1", "file": "src/ui/overview.ts", "description": "howText đánh số 'Hợp đồng N' theo chỉ số sau khi lọc các hợp đồng có cơ sở > 0, nên nhãn không khớp hợp đồng thật. Probe engine với 4 hợp đồng A=200M, B=600M, C=600M, D=600M, deductionOrder A cho pitBase = [A:0, B:0, C:400M, D:600M]. UI sẽ in 'Hợp đồng 1: 400.000.000 đ × 5%; Hợp đồng 2: 600.000.000 đ × 5%'. Hai hợp đồng đó thực ra là thứ 3 và thứ 4, và biên lai không có tên hợp đồng nào khớp. Đây là nhãn sai mà người dùng thấy được.", "required_action": "Đánh số theo vị trí gốc trong s.contracts (map trước rồi mới lọc) hoặc bỏ số thứ tự và dùng nhãn trung lập. Tốt hơn là cho engine hoặc summary trả tên/id hợp đồng. Thêm ca test có hợp đồng cơ sở 0 đứng trước hai hợp đồng chịu thuế."}
-  ],
+  "blocking_issues": [],
   "non_blocking": [
-    "Chữ 'Hợp đồng N' vốn không có trong bảng 'Thuế theo hợp đồng', dù đánh số đúng thì người dùng vẫn khó đối chiếu. Nên dùng tên hợp đồng khi YearSummary mang tên.",
-    "import TaxRules ở overview.ts vẫn dùng cho tham số rules?; chưa kiểm tra có còn dùng thật không (lint vẫn sạch)."
+    "Ca S25 chỉ kiểm 'either' cho 25tr/1,2 tỷ nên chấp nhận cả báo lỗi lẫn parse đúng; hợp lệ theo tiêu chí.",
+    "Số kỳ nhận để trống ở máy tính chặn không hiện kết quả nhưng .field-error không thấy ngay trong probe happy-dom (không thuộc phạm vi task, hành vi cũ)."
   ],
-  "tests_rerun": {"command": "yarn -s test (và python3 verify.py)", "passed": 409, "failed": 0},
+  "tests_rerun": {"command": "python3 verify.py (lint, build, yarn test, yarn e2e) + yarn -s test + yarn -s e2e + verify.py --smoke", "passed": 461, "failed": 0},
   "risk_checks": {
-    "kill_between_writes": "Không áp dụng: diff chỉ là tính toán thuần và render, không ghi DB, file hay checkpoint.",
-    "met_by_construction": "Các ca dùng số lẻ 600.000.010 và 3 HĐ lẻ, đảo full/excess làm ca đỏ (PROGRESS ghi lại). Tuy vậy không có ca nào có hợp đồng cơ sở 0 đứng trước hai hợp đồng chịu thuế, nên lỗi đánh số B1 lọt qua.",
-    "mock_only": "Test đi qua renderOverview/startApp với happy-dom. Tiêu chí chỉ nói về nội dung chữ trên DOM nên chấp nhận được; smoke trang chưa chạy vì task không đổi lệnh hay trang người dùng gõ.",
-    "cross_file_state": "pitBase/vatBase/pitRateLabel/vatRateLabel ghi ở annual.ts và đọc ở overview.ts qua YearSummary (kế thừa AnnualResult); còn thiếu contract name nên UI tự đánh số, gây B1."
+    "kill_between_writes": "Không áp dụng: task chỉ thêm kiểm tra đầu vào trước khi ghi và một đoạn chữ; không thêm lần ghi nào, kỳ thu bị từ chối thì return trước khi gọi ops/persist (e2e kiểm saved=0).",
+    "met_by_construction": "Số so là hằng tính tay (10.000.000, 25.000.000, 8.000.000), e2e không import src; S9 dùng hai hợp đồng 700tr/500tr và kiểm cả hai chiều B->A đổi số, nên không đạt sẵn; đọc theo vùng .lg-summary/#overview và kiểm 20.000.000 đ vắng mặt.",
+    "mock_only": "Có e2e Playwright/Chromium thật (27 passed) cho mọi tiêu chí hành vi; Vitest chỉ bổ sung. Smoke pages sạch.",
+    "cross_file_state": "Không thêm trường state/DB mới. Chỉ ledger.ts đọc money.value (kết quả parseVnd, không đổi) và form.ts đọc rentV/periodsV cùng file; parseVnd('0') giữ nguyên nên tests/ui/money.test.ts không đổi."
   },
   "probes": [
-    {"aim": "criterion", "cmd": "node_modules/.bin/vite-node /tmp/pr.ts (computeAnnual 4 HĐ 200M/600M/600M/600M, deductionOrder [A], rules2026)", "result": "pitBase = [A:0, B:0, C:400000000, D:600000000]; howText lọc base>0 rồi đánh số 1,2 nên C, D bị gọi 'Hợp đồng 1','Hợp đồng 2'"},
-    {"aim": "goal", "cmd": "node_modules/.bin/vite-node /tmp/pr.ts (computeAnnual 3 HĐ 100M/700M/700M, deductionOrder [A])", "result": "pitBase = [A:0, B:0, C:500000000]; chỉ một cụm nên không gắn nhãn. Kết hợp với probe trước: người dùng có nhiều HĐ, nhãn số thứ tự trên biên lai không khớp HĐ thật."},
-    {"aim": "criterion", "cmd": "yarn -s test", "result": "41 files, 409 passed, 0 failed"},
-    {"aim": "criterion", "cmd": "python3 /Users/ishopjapan/dev/autodev/scripts/verify.py", "result": "verify: sạch (không có lỗi mới so với baseline)"}
+    {"aim": "criterion", "cmd": "vitest tạm (happy-dom, đã xoá) mountCalculator rent/periods = (0,0),(0,12),('',12),(0,'')", "result": "(0,0): ra 'Chưa phải nộp thuế, Doanh thu 0 đ' (đường trả trước còn hợp lệ); (0,12): lỗi 'Tiền thuê mỗi kỳ phải lớn hơn 0...' và không có kết quả; ('',12): 'Hãy nhập số tiền.'; (0,''): không có kết quả"},
+    {"aim": "goal", "cmd": "yarn -s e2e (ui-flow.spec.ts: S25 9 chuỗi vào cả máy tính và ô kỳ thu, kiểm localStorage receipts)", "result": "27 passed, 0 failed; chuỗi '0', '-5000000', '9007199254740993' bị từ chối ở cả hai chỗ, sổ không thêm kỳ thu"},
+    {"aim": "goal", "cmd": "grep -rnE \"test\\.(fail|fixme|skip)|\\.only\\(\" e2e/ ; git diff ef35bb1..HEAD -- tests | grep '^-'", "result": "grep không in gì; không dòng test nào bị xoá hay nới (chỉ thêm file mới)"}
   ],
   "plan_suggestions": [],
-  "summary": "Tiêu chí 1-7 đều đạt, test 409 xanh, verify sạch. Tuy vậy nhãn 'Hợp đồng N' trên biên lai đánh số sau khi lọc hợp đồng cơ sở 0 nên in sai hợp đồng khi có hợp đồng cơ sở 0 đứng trước (probe 4 hợp đồng), và chưa có ca test nào bắt lỗi này. Đây là điều gây hiểu nhầm người dùng thấy được nên FAIL."
+  "summary": "Cả 5 tiêu chí đạt với e2e thật: verify sạch, smoke sạch, yarn test 434 passed, e2e 27 passed, 0 test.fail. Hai sửa nhỏ (từ chối số 0, câu giải thích chọn trừ ngưỡng) có Vitest và ghi đỏ-trước-khi-sửa."
 }

@@ -1,4 +1,4 @@
-import type { TaxRules } from "../rules";
+import { availableYears, type TaxRules } from "../rules";
 import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
@@ -30,6 +30,8 @@ export interface LedgerMountOptions {
   events?: EventTarget;
   /** Gọi sau mỗi lần vẽ với đúng kết quả khối tổng năm dùng (null khi sổ khoá). */
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
+  /** Gọi sau mỗi lần vẽ với các năm mà doanh thu trong sổ rơi vào (kể cả phần trả trước phân bổ), để ô chọn năm có đủ lựa chọn. */
+  onYears?: (years: number[]) => void;
   /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
   stale?: boolean;
   /** Chuỗi khoá chính lần gắn trước đã đọc/ghi; khác kho hiện tại thì bật stale. Mount cập nhật chính đối tượng này. */
@@ -39,6 +41,9 @@ export interface LedgerMountOptions {
   /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
   persist?: () => Promise<boolean>;
 }
+
+/** Chặn vòng lặp khi số năm trả trước lớn bất thường. */
+const MAX_ALLOC_YEARS = 50;
 
 /** Số ngày từ `from` đến `to` (YYYY-MM-DD, tính theo UTC nên không lệch múi giờ). */
 function daysBetween(from: string, to: string): number {
@@ -83,6 +88,22 @@ function defaultNewId(): string {
 
 const LOCKED_MESSAGE =
   "Sổ cũ chưa đọc được (dữ liệu hỏng hoặc do phiên bản khác lưu), nên ứng dụng không ghi đè lên nó. Bạn có thể tải bản sổ cũ về, hoặc bắt đầu sổ mới.";
+
+/** Kho của trình duyệt ném lỗi khi đọc (chế độ riêng tư, chặn lưu): khác với sổ cũ hỏng. */
+const UNREADABLE_MESSAGE =
+  "Không lưu được trên trình duyệt này: trình duyệt đang chặn bộ nhớ của trang (chế độ riêng tư hoặc cài đặt quyền riêng tư), nên sổ không đọc và không ghi được. " +
+  "Máy tính thuế ở trên vẫn dùng bình thường. Muốn giữ số liệu, hãy bấm \"Xuất JSON\" ở phần Sao lưu để tải bản sao lưu về máy.";
+
+/** Câu hỏi trước khi nhập file đè sổ: nói số kỳ thu của sổ hiện tại không có trong file (theo mã kỳ thu) và gợi ý Xuất JSON. */
+export function replaceMessage(current: Ledger, incoming: Ledger): string {
+  const inFile = new Set(incoming.receipts.map((r) => r.id));
+  const lost = current.receipts.filter((r) => !inFile.has(r.id)).length;
+  const base = "Nhập file sẽ thay toàn bộ sổ hiện tại.";
+  if (lost === 0) return `${base} Bạn có chắc không?`;
+  return `${base} Sổ hiện tại có ${lost} kỳ thu không có trong file này, các kỳ thu đó sẽ mất. Hãy bấm Huỷ rồi bấm "Xuất JSON" để sao lưu sổ hiện tại trước. Bạn có chắc không?`;
+}
+
+const lockedMessage = (raw: string | undefined): string => (raw === undefined ? UNREADABLE_MESSAGE : LOCKED_MESSAGE);
 
 const STALE_MESSAGE = "Sổ đã được đổi ở tab khác. Hãy tải lại sổ để thấy bản mới nhất; ứng dụng chưa ghi gì để tránh mất dữ liệu.";
 
@@ -232,7 +253,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   const loaded = loadLedger(storage);
   let ledger: Ledger = loaded.ledger;
   /** Lỗi cấp trang (đọc hỏng, ghi lỗi, nhập lỗi) */
-  let pageError: string | null = loaded.locked ? LOCKED_MESSAGE : (loaded.error ?? null);
+  let pageError: string | null = loaded.locked ? lockedMessage(loaded.raw) : (loaded.error ?? null);
   /** Khoá chính có dữ liệu cũ không đọc được: không ghi khoá chính cho tới khi người dùng chọn rõ. */
   let locked = loaded.locked === true;
   let lockedRaw = loaded.raw;
@@ -283,7 +304,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     ledger = again.ledger;
     locked = again.locked === true;
     lockedRaw = again.raw;
-    pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
+    pageError = locked ? lockedMessage(again.raw) : (again.error ?? null);
     setSeen(readRaw());
     stale = false;
     options.onStale?.(false);
@@ -292,7 +313,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
 
   /** Áp một phép sửa sổ; hợp lệ thì lưu và vẽ lại. Trả lỗi nếu có. */
   const apply = (result: LedgerResult): string | null => {
-    if (locked) return LOCKED_MESSAGE;
+    if (locked) return lockedMessage(lockedRaw);
     if (isLedgerError(result)) return result.error;
     if (stale || readRaw() !== lastSeen) {
       if (!stale) {
@@ -323,6 +344,16 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   const summaryOf = (): { summary?: YearSummary; error?: string; noRules?: boolean } => {
     const out = summarizeYearSafe(ledger, year, rules);
     options.onSummary?.(locked ? null : out);
+    if (options.onYears && !locked) {
+      const years = new Set<number>();
+      for (const r of ledger.receipts) {
+        const start = Number(r.receivedOn.slice(0, 4));
+        if (!Number.isInteger(start)) continue;
+        const span = r.prepaid?.mode === "allocate" ? Math.min(Math.max(r.prepaid.years, 1), MAX_ALLOC_YEARS) : 1;
+        for (let k = 0; k < span; k++) years.add(start + k);
+      }
+      options.onYears([...years].sort((a, b) => a - b));
+    }
     return "summary" in out ? { summary: out.summary } : { error: out.error, noRules: out.kind === "no-rules" };
   };
 
@@ -469,6 +500,10 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
         f.setFieldError("amount", money.error);
         return;
       }
+      if (money.value === 0) {
+        f.setFieldError("amount", "Số tiền kỳ thu phải lớn hơn 0. Chưa nhận tiền thì chưa cần thêm kỳ thu.");
+        return;
+      }
       let prepaid: Receipt["prepaid"];
       if (toggle.checked) {
         const raw = val(f, "years");
@@ -510,7 +545,12 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       slot.textContent = err ?? "";
       slot.hidden = err === null;
     });
-    box.append(el("label", { for: "lg-choice-select" }, "Chọn hợp đồng"), sel, slot);
+    box.append(
+      el("p", { class: "sub lg-choice-note" }, "Lựa chọn này chỉ đổi hợp đồng nào chịu thuế TNCN trước, không làm đổi tổng tiền thuế phải nộp."),
+      el("label", { for: "lg-choice-select" }, "Chọn hợp đồng"),
+      sel,
+      slot,
+    );
     return box;
   };
 
@@ -564,6 +604,18 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(wrap);
     if (s.totalRevenue === 0) {
       box.append(el("p", { class: "export-note", role: "status" }, `Chưa có kỳ thu năm ${year}. Hạn khai sẽ hiện khi có doanh thu.`));
+    }
+
+    // Kỳ thu trước năm đầu có quy định không được cộng vào năm nào: nói rõ để người dùng không tưởng bị bỏ sót.
+    const first = availableYears()[0];
+    if (first !== undefined && ledger.receipts.some((r) => Number(r.receivedOn.slice(0, 4)) < first)) {
+      box.append(
+        el(
+          "p",
+          { class: "export-note since-note", role: "status" },
+          `Ứng dụng chỉ tính từ năm ${first}. Kỳ thu nhận trước năm ${first} vẫn nằm trong sổ nhưng không được cộng vào tổng năm nào.`,
+        ),
+      );
     }
 
     // Doanh thu theo căn
@@ -713,7 +765,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
               slot.hidden = false;
               return;
             }
-          } else if (nonEmpty && !confirmFn("Nhập file sẽ thay toàn bộ sổ hiện tại. Bạn có chắc không?")) return;
+          } else if (nonEmpty && !confirmFn(replaceMessage(ledger, parsed.ledger))) return;
           const err = apply(parsed.ledger);
           if (err) {
             slot.textContent = err;
@@ -791,7 +843,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       box.append(el("p", { class: "form-error", role: "alert" }, STALE_MESSAGE), reloadBtn);
       root.append(box);
     }
-    if (locked) root.append(lockBlock());
+    if (locked && lockedRaw !== undefined) root.append(lockBlock());
     root.append(el("h2", {}, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
     root.append(addPropertyForm());
