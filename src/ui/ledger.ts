@@ -469,6 +469,10 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
         f.setFieldError("amount", money.error);
         return;
       }
+      if (money.value === 0) {
+        f.setFieldError("amount", "Số tiền kỳ thu phải lớn hơn 0. Chưa nhận tiền thì chưa cần thêm kỳ thu.");
+        return;
+      }
       let prepaid: Receipt["prepaid"];
       if (toggle.checked) {
         const raw = val(f, "years");
@@ -510,7 +514,12 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       slot.textContent = err ?? "";
       slot.hidden = err === null;
     });
-    box.append(el("label", { for: "lg-choice-select" }, "Chọn hợp đồng"), sel, slot);
+    box.append(
+      el("p", { class: "sub lg-choice-note" }, "Lựa chọn này chỉ đổi hợp đồng nào chịu thuế TNCN trước, không làm đổi tổng tiền thuế phải nộp."),
+      el("label", { for: "lg-choice-select" }, "Chọn hợp đồng"),
+      sel,
+      slot,
+    );
     return box;
   };
 
