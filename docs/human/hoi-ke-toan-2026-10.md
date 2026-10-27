@@ -45,4 +45,28 @@ Ví dụ dùng chung: một người cho thuê 3 căn, tổng tiền thuê năm 
 
 **10. Nhà đứng tên hai vợ chồng hoặc nhiều người đồng sở hữu thì ngưỡng 1 tỷ tính cho từng người hay cho cả căn?**
 
+## Phát sinh từ các tình huống thực tế (bộ phản biện S9–S28)
+
+**11. Thuế làm tròn theo từng hợp đồng hay trên tổng doanh thu năm?**
+- Ví dụ 3 hợp đồng, mỗi hợp đồng 333.333.334 đồng: làm tròn theo từng hợp đồng thì GTGT ra 49.999.998, làm tròn trên tổng thì ra 50.000.000.
+
+**12. Doanh thu tính theo ngày nhận tiền hay theo kỳ thuê?**
+- Ví dụ tiền thuê tháng 12/2026 nhận ngày 03/01/2027 thì tính vào năm nào?
+- Một căn 85 triệu/tháng: tính theo ngày nhận thì năm 2026 dưới ngưỡng; tính theo kỳ thuê thì phải nộp khoảng 52 triệu.
+
+**13. Tiền cọc có tính vào doanh thu không?**
+- Nếu cọc bị giữ lại khi người thuê vi phạm hợp đồng thì phần đó tính vào năm nào?
+
+**14. Tiền điện, nước, phí dịch vụ thu của người thuê có tính vào doanh thu cho thuê không?**
+- Nếu có hoá đơn điện nước đứng tên chủ nhà và chủ nhà thu lại đúng số trên hoá đơn thì có khác không?
+
+**15. Tiền trả trước nhiều năm phân bổ theo năm dương lịch hay theo từng 12 tháng của hợp đồng?**
+- Ví dụ nhận ngày 15/06/2026 cho 3 năm.
+- Phần lẻ khi chia không đều được dồn vào năm nào?
+
+**16. Khai và nộp muộn thì bị gì?**
+- Tiền chậm nộp có phải 0,03% mỗi ngày không?
+- Phạt chậm nộp hồ sơ theo văn bản nào, mức bao nhiêu?
+- App có nên tự tính các khoản này không?
+
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.
