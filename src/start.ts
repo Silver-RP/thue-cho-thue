@@ -106,8 +106,23 @@ function eachField(root: HTMLElement | null, region: string, fn: (key: string, f
   }
 }
 
+/** Giá trị mặc định lúc dựng ô (thuộc tính HTML), để biết người dùng đã sửa ô chưa. */
+function defaultOf(f: HTMLInputElement): string | boolean {
+  if (f.type === "checkbox" || f.type === "radio") return f.defaultChecked;
+  if (f.tagName === "SELECT") {
+    const opts = Array.from((f as unknown as HTMLSelectElement).options);
+    return (opts.find((o) => o.defaultSelected) ?? opts[0])?.value ?? "";
+  }
+  return f.defaultValue;
+}
+
+/** Chỉ ghi ô đã sửa; ô trở về mặc định thì bỏ khỏi ảnh chụp để dữ liệu tươi của kho không bị đè. */
 function capture(root: HTMLElement | null, region: string, into: Snapshot): void {
-  eachField(root, region, (key, f) => into.set(key, f.type === "checkbox" || f.type === "radio" ? f.checked : f.value));
+  eachField(root, region, (key, f) => {
+    const v = f.type === "checkbox" || f.type === "radio" ? f.checked : f.value;
+    if (v === defaultOf(f)) into.delete(key);
+    else into.set(key, v);
+  });
 }
 
 function restore(root: HTMLElement | null, region: string, from: Snapshot): void {
@@ -115,10 +130,21 @@ function restore(root: HTMLElement | null, region: string, from: Snapshot): void
   eachField(root, region, (key, f) => {
     if (!from.has(key)) return;
     const v = from.get(key)!;
-    if (typeof v === "boolean") f.checked = v;
-    else if (f.tagName === "SELECT") {
-      if (Array.from((f as unknown as HTMLSelectElement).options).some((o) => o.value === v)) f.value = v;
-    } else f.value = v;
+    let changed = false;
+    if (typeof v === "boolean") {
+      changed = f.checked !== v;
+      f.checked = v;
+    } else if (f.tagName === "SELECT") {
+      if (Array.from((f as unknown as HTMLSelectElement).options).some((o) => o.value === v)) {
+        changed = f.value !== v;
+        f.value = v;
+      }
+    } else {
+      changed = f.value !== v;
+      f.value = v;
+    }
+    // Các phụ thuộc (khối trả trước...) chạy lại theo ô vừa khôi phục; chỉ đổi giao diện, không lưu.
+    if (changed) f.dispatchEvent(new Event("change", { bubbles: true }));
   });
 }
 
@@ -129,6 +155,14 @@ interface Previous {
   stale: () => boolean;
   /** Năm đang chọn và năm mặc định của lần gắn đó. */
   year: () => { chosen: number; dflt: number };
+  /** Chuỗi khoá chính lần cuối sổ đọc hoặc ghi. */
+  seen: SeenRaw;
+}
+
+/** Chuỗi khoá chính lần cuối tab này đọc hoặc ghi; sống qua các lần gắn lại do đổi ngày. */
+export interface SeenRaw {
+  known: boolean;
+  raw: string | null | undefined;
 }
 
 /** Gỡ lần gắn trước (listener `storage`) khi `startApp` được gọi lại. */
@@ -145,6 +179,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   /** Sổ đã đổi ở tab khác: sống qua các lần gắn lại. */
   let stale = false;
   let keptYear: number | null = null;
+  let seen: SeenRaw = { known: false, raw: undefined };
   if (
     previous &&
     previous.roots[0] === doc.querySelector<HTMLElement>("#app") &&
@@ -152,6 +187,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   ) {
     previous.capture(carried);
     if (fromClock) {
+      seen = previous.seen;
       stale = previous.stale();
       const y = previous.year();
       if (y.chosen !== y.dflt) keptYear = y.chosen;
@@ -238,6 +274,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
           ...(rules ? { rules } : {}),
           ...common,
           stale,
+          seen,
           onStale: (v: boolean) => {
             stale = v;
           },
@@ -288,8 +325,33 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     if (now !== today) run(doc, { ...options, today: now }, true);
   };
   if (options.clock) doc.addEventListener("visibilitychange", onVisible);
+
+  // Mục đang chọn ở menu bên và thanh dưới: aria-current="page" cho đúng một liên kết mỗi khối.
+  const navLinks = Array.from(doc.querySelectorAll<HTMLAnchorElement>(".nav a[href^='#'], .tabbar a[href^='#']"));
+  const markCurrent = (target: string): void => {
+    const known = navLinks.some((a) => a.getAttribute("href") === target);
+    const want = known ? target : "#overview";
+    for (const a of navLinks) {
+      if (a.getAttribute("href") === want) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    }
+  };
+  const fromHash = (): void => markCurrent(doc.location?.hash ?? "");
+  const clickHandlers = navLinks.map((a) => {
+    const h = (): void => markCurrent(a.getAttribute("href") ?? "");
+    a.addEventListener("click", h);
+    return h;
+  });
+  const win = doc.defaultView;
+  win?.addEventListener("hashchange", fromHash);
+  doc.addEventListener("hashchange", fromHash);
+  fromHash();
+
   const teardown = (): void => {
     doc.removeEventListener("visibilitychange", onVisible);
+    navLinks.forEach((a, i) => a.removeEventListener("click", clickHandlers[i]));
+    win?.removeEventListener("hashchange", fromHash);
+    doc.removeEventListener("hashchange", fromHash);
     for (const [s, t] of original) {
       s.textContent = t;
       s.removeAttribute("data-past");
@@ -306,6 +368,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     roots: [appRoot, ledgerRoot],
     stale: () => stale,
     year: () => ({ chosen: Number(select.value), dflt: current }),
+    seen,
   };
 
   try {

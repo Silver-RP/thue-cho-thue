@@ -95,7 +95,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
       go.addEventListener("click", () => onSwitchYear(fallbackYear));
       note.append(go);
     }
-    root.append(el("h1", {}, "Thuế cho thuê nhà"), note, el("p", { class: "disclaimer" }, DISCLAIMER));
+    root.append(note,el("p", { class: "disclaimer" }, DISCLAIMER));
     return unmount;
   }
 
@@ -129,6 +129,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   for (const [value, text] of [["once", "Khai 1 lần"], ["twice", "Khai 2 lần"]] as const) {
     const lab = el("label");
     const r = el("input", { type: "radio", name: "filing", value });
+    if (value === "once") r.setAttribute("checked", "");
     r.checked = value === "once";
     radios.push(r);
     lab.append(r, text);
@@ -143,7 +144,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   const disclaimer = el("p", { class: "disclaimer" }, DISCLAIMER);
   const card = el("section", { class: "card calc-card", "aria-labelledby": `${prefix}-title` });
   card.append(el("h2", { id: `${prefix}-title` }, "Tính nhanh một hợp đồng"), form, results);
-  root.append(el("h1", {}, "Thuế cho thuê nhà"), card, disclaimer);
+  root.append(card, disclaimer);
 
   const readInt = (f: Field, min: number, max: number, what: string): number | null => {
     const raw = (f.el as HTMLInputElement).value.trim();

@@ -574,6 +574,56 @@ button.primary {
   color: var(--muted);
 }
 
+.hero.owe {
+  border-color: var(--due);
+  background: var(--due-soft);
+}
+
+.hero.safe {
+  border-color: var(--ok);
+  background: var(--ok-soft);
+}
+
+/* Mục neo không bị thanh trên che khi nhảy tới */
+#overview,
+#ledger,
+#deadlines,
+#app {
+  scroll-margin-top: 5rem;
+}
+
+/* 761-1090 px: cột phụ nằm thành hàng trên sổ, không rơi xuống cuối trang */
+@media (min-width: 761px) and (max-width: 1090px) {
+  .shell {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-areas:
+      "nav side"
+      "nav main";
+    align-items: start;
+  }
+
+  .nav {
+    grid-area: nav;
+  }
+
+  .side {
+    grid-area: side;
+    max-width: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .side > * {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  .main {
+    grid-area: main;
+  }
+}
+
 .meter {
   margin: 20px 0 6px;
 }
@@ -714,6 +764,32 @@ button.primary {
 
 .lg-card p {
   margin: 0.2rem 0;
+}
+
+.lg-card-contract {
+  margin: 0.4rem 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.lg-card-tenant {
+  font-weight: 600;
+}
+
+.lg-card-cols {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0;
+}
+
+.lg-card-cols dt {
+  color: var(--muted);
+}
+
+.lg-card-cols dd {
+  margin: 0;
+  text-align: right;
 }
 
 .lg-card-revenue {

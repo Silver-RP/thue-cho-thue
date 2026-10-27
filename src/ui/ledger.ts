@@ -32,6 +32,8 @@ export interface LedgerMountOptions {
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
   /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
   stale?: boolean;
+  /** Chuỗi khoá chính lần gắn trước đã đọc/ghi; khác kho hiện tại thì bật stale. Mount cập nhật chính đối tượng này. */
+  seen?: { known: boolean; raw: string | null | undefined };
   /** Báo khi cờ stale đổi (true khi tab khác ghi, false khi người dùng tải lại sổ). */
   onStale?: (stale: boolean) => void;
   /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
@@ -139,6 +141,12 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
       });
       (control as HTMLInputElement).value = s.value ?? "";
     }
+    // Giá trị lúc dựng là mặc định của ô (thuộc tính HTML) để startApp biết ô nào người dùng đã sửa.
+    if (control instanceof HTMLSelectElement) {
+      for (const o of Array.from(control.options)) if (o.value === control.value) o.setAttribute("selected", "");
+    } else if (s.kind === "check") {
+      if ((control as HTMLInputElement).checked) control.setAttribute("checked", "");
+    } else control.setAttribute("value", control.value);
     control.id = id;
     const wrap = el("div", { class: s.kind === "check" ? "field field-check" : "field" });
     const label = el("label", { for: id }, s.label);
@@ -240,6 +248,19 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   let lastSeen = readRaw();
   /** Tab khác đã đổi khoá chính. */
   let stale = options.stale === true;
+  if (options.seen?.known && options.seen.raw !== lastSeen) {
+    // Gắn lại mà kho đã khác lần trước tab này đọc/ghi (tab khác sửa không phát sự kiện): bật cờ stale.
+    stale = true;
+    options.onStale?.(true);
+  }
+  if (options.seen) {
+    options.seen.known = true;
+    options.seen.raw = lastSeen;
+  }
+  const setSeen = (raw: string | null | undefined): void => {
+    lastSeen = raw;
+    if (options.seen) options.seen.raw = raw;
+  };
   /** Đã gỡ: các việc đến muộn (đọc file) không được ghi hay vẽ nữa. */
   let disposed = false;
   /** Đã xin giữ dữ liệu trong lần gắn này (chỉ xin một lần). */
@@ -263,7 +284,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     locked = again.locked === true;
     lockedRaw = again.raw;
     pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
-    lastSeen = readRaw();
+    setSeen(readRaw());
     stale = false;
     options.onStale?.(false);
     render();
@@ -283,7 +304,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     }
     const saved = saveLedger(storage, result);
     if (!saved.ok) return saved.error;
-    lastSeen = readRaw();
+    setSeen(readRaw());
     ledger = result;
     pageError = null;
     render();
@@ -570,7 +591,22 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       card.append(el("p", { class: "lg-card-revenue tnum", "data-col": "revenue" }, formatVnd(p.revenue)));
       for (const m of mine) {
         const row = s.contracts.find((x) => x.contractId === m.id);
-        card.append(el("p", { class: "lg-card-contract", "data-contract": m.id }, `${m.tenant}: ${formatVnd(row?.revenue ?? 0)}`));
+        const cc = el("div", { class: "lg-card-contract", "data-contract": m.id });
+        cc.append(el("p", { class: "lg-card-tenant" }, m.tenant));
+        const dl = el("dl", { class: "lg-card-cols" });
+        const cols: [string, string, number][] = [
+          ["revenue", "Doanh thu", row?.revenue ?? 0],
+          ["deduction", "Được trừ", row?.deduction ?? 0],
+          ["pit", "TNCN", row?.pit ?? 0],
+          ["vat", "GTGT", row?.vat ?? 0],
+        ];
+        for (const [k, label, v] of cols) {
+          const dd = el("dd", { class: "tnum", "data-col": k }, formatVnd(v));
+          if (k === "vat" && s.vatEstimated) dd.append(" ", el("span", { class: "badge" }, "(ước tính)"));
+          dl.append(el("dt", {}, label), dd);
+        }
+        cc.append(dl);
+        card.append(cc);
       }
       card.append(el("p", { class: "sub lg-card-periods" }, `${periods} kỳ thu trong năm ${year}`));
       cards.append(card);
@@ -578,7 +614,6 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(cards);
 
     // Theo hợp đồng
-    box.append(el("h3", {}, "Thuế theo hợp đồng"));
     const ct = el("table", { class: "result-table lg-by-contract" });
     const head = el("thead");
     const hr = el("tr");
@@ -611,8 +646,10 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     }
     foot.append(fr);
     ct.append(head, cb, foot);
-    const cw = el("div", { class: "table-scroll lg-contract-wrap" });
-    cw.append(ct);
+    const cw = el("div", { class: "lg-contract-wrap" });
+    const cs = el("div", { class: "table-scroll" });
+    cs.append(ct);
+    cw.append(el("h3", {}, "Thuế theo hợp đồng"), cs);
     box.append(cw);
     return box;
   };

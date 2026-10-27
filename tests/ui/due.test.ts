@@ -205,6 +205,10 @@ describe("thẻ căn và bảng hợp đồng (A1.1, A1.3)", () => {
     expect(css).toMatch(/@media \(max-width: 760px\)\s*{\s*\.lg-cards\s*{\s*display:\s*grid/);
     expect(media.length).toBeGreaterThan(0);
     expect(css).toMatch(/\.lg-contract-wrap\s*{\s*display:\s*none/);
+    // H-53: tiêu đề ẩn cùng bảng, không mồ côi
+    start("2026-10-26", book([100_000_000]));
+    const h3 = Array.from(ledgerRoot().querySelectorAll("h3")).find((h) => h.textContent === "Thuế theo hợp đồng")!;
+    expect(h3.closest(".lg-contract-wrap")!.contains(ledgerRoot().querySelector(".lg-by-contract"))).toBe(true);
   });
 });
 
