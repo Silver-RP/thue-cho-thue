@@ -89,6 +89,22 @@ function defaultNewId(): string {
 const LOCKED_MESSAGE =
   "Sổ cũ chưa đọc được (dữ liệu hỏng hoặc do phiên bản khác lưu), nên ứng dụng không ghi đè lên nó. Bạn có thể tải bản sổ cũ về, hoặc bắt đầu sổ mới.";
 
+/** Kho của trình duyệt ném lỗi khi đọc (chế độ riêng tư, chặn lưu): khác với sổ cũ hỏng. */
+const UNREADABLE_MESSAGE =
+  "Không lưu được trên trình duyệt này: trình duyệt đang chặn bộ nhớ của trang (chế độ riêng tư hoặc cài đặt quyền riêng tư), nên sổ không đọc và không ghi được. " +
+  "Máy tính thuế ở trên vẫn dùng bình thường. Muốn giữ số liệu, hãy bấm \"Xuất JSON\" ở phần Sao lưu để tải bản sao lưu về máy.";
+
+/** Câu hỏi trước khi nhập file đè sổ: nói số kỳ thu của sổ hiện tại không có trong file (theo mã kỳ thu) và gợi ý Xuất JSON. */
+export function replaceMessage(current: Ledger, incoming: Ledger): string {
+  const inFile = new Set(incoming.receipts.map((r) => r.id));
+  const lost = current.receipts.filter((r) => !inFile.has(r.id)).length;
+  const base = "Nhập file sẽ thay toàn bộ sổ hiện tại.";
+  if (lost === 0) return `${base} Bạn có chắc không?`;
+  return `${base} Sổ hiện tại có ${lost} kỳ thu không có trong file này, các kỳ thu đó sẽ mất. Hãy bấm Huỷ rồi bấm "Xuất JSON" để sao lưu sổ hiện tại trước. Bạn có chắc không?`;
+}
+
+const lockedMessage = (raw: string | undefined): string => (raw === undefined ? UNREADABLE_MESSAGE : LOCKED_MESSAGE);
+
 const STALE_MESSAGE = "Sổ đã được đổi ở tab khác. Hãy tải lại sổ để thấy bản mới nhất; ứng dụng chưa ghi gì để tránh mất dữ liệu.";
 
 const plainMoney =(n: number): string => formatVnd(n).replace(/ đ$/u, "");
@@ -237,7 +253,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   const loaded = loadLedger(storage);
   let ledger: Ledger = loaded.ledger;
   /** Lỗi cấp trang (đọc hỏng, ghi lỗi, nhập lỗi) */
-  let pageError: string | null = loaded.locked ? LOCKED_MESSAGE : (loaded.error ?? null);
+  let pageError: string | null = loaded.locked ? lockedMessage(loaded.raw) : (loaded.error ?? null);
   /** Khoá chính có dữ liệu cũ không đọc được: không ghi khoá chính cho tới khi người dùng chọn rõ. */
   let locked = loaded.locked === true;
   let lockedRaw = loaded.raw;
@@ -288,7 +304,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     ledger = again.ledger;
     locked = again.locked === true;
     lockedRaw = again.raw;
-    pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
+    pageError = locked ? lockedMessage(again.raw) : (again.error ?? null);
     setSeen(readRaw());
     stale = false;
     options.onStale?.(false);
@@ -297,7 +313,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
 
   /** Áp một phép sửa sổ; hợp lệ thì lưu và vẽ lại. Trả lỗi nếu có. */
   const apply = (result: LedgerResult): string | null => {
-    if (locked) return LOCKED_MESSAGE;
+    if (locked) return lockedMessage(lockedRaw);
     if (isLedgerError(result)) return result.error;
     if (stale || readRaw() !== lastSeen) {
       if (!stale) {
@@ -749,7 +765,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
               slot.hidden = false;
               return;
             }
-          } else if (nonEmpty && !confirmFn("Nhập file sẽ thay toàn bộ sổ hiện tại. Bạn có chắc không?")) return;
+          } else if (nonEmpty && !confirmFn(replaceMessage(ledger, parsed.ledger))) return;
           const err = apply(parsed.ledger);
           if (err) {
             slot.textContent = err;
@@ -827,7 +843,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       box.append(el("p", { class: "form-error", role: "alert" }, STALE_MESSAGE), reloadBtn);
       root.append(box);
     }
-    if (locked) root.append(lockBlock());
+    if (locked && lockedRaw !== undefined) root.append(lockBlock());
     root.append(el("h2", {}, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
     root.append(addPropertyForm());
