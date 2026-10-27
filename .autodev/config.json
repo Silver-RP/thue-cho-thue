@@ -33,7 +33,8 @@
     "audits_dir": "docs/audits",
     "goals_dir": "docs/goals",
     "tasks_file": "",
-    "criteria_file": ""
+    "criteria_file": "",
+    "critics_file": "docs/autodev/CRITICS.md"
   },
   "supervisor_allowed": [],
   "app": {
