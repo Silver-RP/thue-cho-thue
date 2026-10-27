@@ -162,6 +162,17 @@ describe("R10 dev-04: CSS cấu trúc (A1.3)", () => {
     }
   });
 
+  it("R11 dev-01: khối ≤ 760px không display:none cho .year-picker label; nhãn for=tax-year có trong DOM", () => {
+    const hit = mediaBlocks().find((b) => /max-width:\s*760px/.test(b.query));
+    expect(hit).toBeDefined();
+    const rule = /\.year-picker label\s*\{([^}]*)\}/.exec(hit!.body);
+    expect(rule).not.toBeNull();
+    expect(rule![1]).not.toMatch(/display:\s*none/);
+    start();
+    const label = document.querySelector('label[for="tax-year"]');
+    expect(label?.textContent).toBe("Năm tính thuế");
+  });
+
   it("khối .lg-backup* không có màu cứng", () => {
     const re = /([^{}]*\.lg-backup[^{}]*)\{([^}]*)\}/g;
     let m: RegExpExecArray | null;
