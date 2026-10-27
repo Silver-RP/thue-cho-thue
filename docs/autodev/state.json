@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-27",
+  "updated": "2026-10-28",
   "goals": [
     {
       "id": "thue-cho-thue-v1",
@@ -240,50 +240,15 @@
     {
       "id": "H-48",
       "severity": "low",
-      "summary": "R8: lách quét rateBps ở overview.ts; cách tính dựng trong UI",
-      "text": "overview.ts đọc thuế suất qua [\"rate\",\"Bps\"].join(\"\") để lách quét rateBps của tests/ui/calculator.test.ts; dòng cách tính tự dựng cơ sở × thuế suất (chữ, số tiền từ engine); h1 cứng 2026; lỗi ngày trống ở src/ledger/ops.ts:48 còn AAAA-MM-DD (duyệt R8 2026-10-27)",
+      "summary": "h1 tĩnh cứng 2026; ops.ts:48 còn AAAA-MM-DD",
+      "text": "R10 đã bỏ rateOf/RATE_KEY (biên lai lấy cơ sở và nhãn thuế suất từ engine); còn: h1 tĩnh index.html:42 cứng \"2026\" (việc người duyệt chữ), câu \"AAAA-MM-DD\" ở src/ledger/ops.ts:48",
       "milestone": null
     },
     {
       "id": "H-49",
       "severity": "low",
       "summary": "R9: ghi last-backup lỗi vẫn nhắc; ô gõ dở giữ khoá form đã mất; CSS gộp selector chưa quét chung",
-      "text": "Ghi chú báo cáo R9: ghi last-backup thất bại (kho đầy/chặn) thì sau Xuất JSON vẫn nhắc; ảnh chụp ô gõ dở giữ khoá của form đã biến mất, giá trị cũ có thể hiện lại ở năm sau; test chưa quét chung lỗi gộp selector CSS (chỉ ca dev-02) (duyệt R9 2026-10-27)",
-      "milestone": null
-    },
-    {
-      "id": "H-50",
-      "severity": "medium",
-      "summary": "Khôi phục ô trả trước không phát change: khối ô con ẩn, máy tính bấm Tính không ra gì, sổ nộp years/mode ẩn",
-      "text": "Khôi phục ô trả trước không phát change: khối ô con ẩn, máy tính bấm Tính không ra gì, sổ nộp years/mode ẩn (src/start.ts:113-123; form.ts:121; ledger.ts:432 (audit 2026-10-27-3))",
-      "milestone": null
-    },
-    {
-      "id": "H-51",
-      "severity": "medium",
-      "summary": "Dòng Cách tính tự dựng cơ sở × thuế suất, lệch 1 đ với số engine, không test chữ .how",
-      "text": "Dòng Cách tính tự dựng cơ sở × thuế suất, lệch 1 đ với số engine, không test chữ .how (src/ui/overview.ts:156-167)",
-      "milestone": null
-    },
-    {
-      "id": "H-52",
-      "severity": "medium",
-      "summary": "Remount do đổi ngày chép ảnh chụp đè dữ liệu tươi, tab bỏ lỡ storage không stale (chưa xác nhận)",
-      "text": "Remount do đổi ngày chép ảnh chụp đè dữ liệu tươi, tab bỏ lỡ storage không stale (chưa xác nhận) (src/start.ts:98-155)",
-      "milestone": null
-    },
-    {
-      "id": "H-53",
-      "severity": "medium",
-      "summary": "≤760px ẩn bảng thuế theo hợp đồng, tiêu đề mồ côi; test khẳng định việc ẩn",
-      "text": "≤760px ẩn bảng thuế theo hợp đồng, tiêu đề mồ côi; test khẳng định việc ẩn (style.css:706; ledger.ts:581; due.test.ts:207)",
-      "milestone": null
-    },
-    {
-      "id": "H-54",
-      "severity": "low",
-      "summary": "Hai h1 sau khi JS chạy",
-      "text": "Hai h1 sau khi JS chạy (index.html:42; form.ts:98,146)",
+      "text": "Ghi chú báo cáo R9: ghi last-backup thất bại (kho đầy/chặn) thì sau Xuất JSON vẫn nhắc; ảnh chụp ô gõ dở giữ khoá của form đã biến mất, giá trị cũ có thể hiện lại ở năm sau; test chưa quét chung lỗi gộp selector CSS (chỉ ca dev-02) (duyệt R9 2026-10-27); R10: form vẽ lại sau khi lưu mà gõ dở cùng ô với tab khác thì lần gắn lại sau có thể đè giá trị cũ (hiếm)",
       "milestone": null
     },
     {
@@ -303,8 +268,8 @@
     {
       "id": "H-57",
       "severity": "low",
-      "summary": "CSS/hiển thị rời rạc: .hero.owe/.safe không quy tắc, aria-current chết, 761-1090px, scroll-margin, :has(), aria-live, hai chỗ chọn khai",
-      "text": "CSS/hiển thị rời rạc: .hero.owe/.safe không quy tắc, aria-current chết, 761-1090px, scroll-margin, :has(), aria-live, hai chỗ chọn khai (style.css; overview.ts:87)",
+      "summary": "Phần còn lại: :has(), aria-live dựng lại, hai chỗ chọn khai, hai nút .ics",
+      "text": "R10 đã làm .hero.owe/.safe, aria-current, 761-1090 px, scroll-margin-top, khu Sao lưu theo token; còn: .seg báo chọn chỉ nhờ :has(), .lg-summary[aria-live] bị dựng lại, hai chỗ chọn khai 1/2 lần (form.ts, export.ts), hai nút .ics lệch nhau; scroll-margin-top 5rem là hằng, không theo chiều cao .topbar",
       "milestone": null
     },
     {
@@ -377,6 +342,12 @@
         "status": "merged",
         "pr": 38,
         "merge_commit": "502114d"
+      },
+      {
+        "id": "R10",
+        "status": "merged",
+        "pr": 44,
+        "merge_commit": "3d576a9"
       }
     ],
     "plugin": []
@@ -465,6 +436,10 @@
     {
       "date": "2026-10-27",
       "text": "Audit R8–R9 (docs/audits/2026-10-27-3.md): thêm H-50..H-59 (4 vừa, 6 thấp), không đóng H-xx nào; không lỗ cao. H-50 đã chạy lại (ngõ cụt tick trả trước sau đổi năm). % theo việc ~67%: sổ ~85% code/~62% chứng minh, hạn+xuất+Pages ~55%. H-32 (đo người dùng, Lighthouse, mốc 05/12: còn 39 ngày) chưa ai làm; luật 2027 còn 97 ngày. Đề xuất: mốc không kẹt/không mất (H-50, H-52, H-56, H-55, H-54, H-29, H-30, H-35), mốc điện thoại (H-53, H-57), tin cậy số (H-51, H-48, H-37), rồi H-32."
+    },
+    {
+      "date": "2026-10-28",
+      "text": "Supervisor duyệt và merge R10 (#44, 3d576a9): verify/smoke sạch, T4 429, T5 168, T6 61, T7 34, tests/build 73, gzip ~24,9 KB; 31 ca mới đỏ trên src trước R10; Chrome headless 390 (iframe)/820/1280 không tràn, thẻ 390 có TNCN/GTGT, .side 820 nằm trên sổ; 4/4 task DONE (dev-02 hai vòng). Không quyết định (c). Đóng H-50..H-54; thu hẹp H-48, H-57."
     }
   ]
 }

@@ -11,5 +11,6 @@
 | R7 | Dùng được qua mùa khai 2027 (H-31, H-20, H-27, H-28; T4–T8) | merged (#29, 2026-10-27) |
 | R8 | Giao diện theo mockup: tổng quan năm, biên lai, thẻ hạn, thẻ căn, tính nhanh (H-13; T4–T8) | merged (#35, 2026-10-27) |
 | R9 | Không mất sổ, đúng ngày (H-39..H-43; T4–T8) | merged (#38, 2026-10-27) |
+| R10 | Số khớp, điện thoại đủ thuế, không ngõ cụt (H-50..H-54, H-57, H-48; T4–T8) | merged (#44, 2026-10-28) |
 
 Chi tiết: `docs/goals/thue-cho-thue-v1/roadmap.md`.
