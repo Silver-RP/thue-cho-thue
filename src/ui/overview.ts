@@ -65,6 +65,11 @@ export function renderOverview(root: HTMLElement, outcome: YearSummaryOutcome | 
     if (outcome.kind === "no-rules") {
       hero.append(el("p", { class: "answer" }, `Chưa có quy định thuế cho năm ${year}`));
       hero.append(el("p", { class: "sub", role: "status" }, outcome.error));
+      if (outcome.allocated !== undefined) {
+        const alloc = el("p", { class: "sub allocated" }, `Doanh thu sổ đã phân bổ cho năm ${year}: `);
+        alloc.append(money(outcome.allocated), ". Đây chỉ là doanh thu, chưa phải số thuế.");
+        hero.append(alloc);
+      }
       const { fallbackYear, onSwitchYear } = options;
       if (fallbackYear !== undefined && onSwitchYear) {
         const go = el("button", { type: "button", name: "switch-year", class: "btn" }, `Xem năm ${fallbackYear}`);

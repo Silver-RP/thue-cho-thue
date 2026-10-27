@@ -1,4 +1,4 @@
-import type { TaxRules } from "../rules";
+import { availableYears, type TaxRules } from "../rules";
 import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
@@ -30,6 +30,8 @@ export interface LedgerMountOptions {
   events?: EventTarget;
   /** Gọi sau mỗi lần vẽ với đúng kết quả khối tổng năm dùng (null khi sổ khoá). */
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
+  /** Gọi sau mỗi lần vẽ với các năm mà doanh thu trong sổ rơi vào (kể cả phần trả trước phân bổ), để ô chọn năm có đủ lựa chọn. */
+  onYears?: (years: number[]) => void;
   /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
   stale?: boolean;
   /** Chuỗi khoá chính lần gắn trước đã đọc/ghi; khác kho hiện tại thì bật stale. Mount cập nhật chính đối tượng này. */
@@ -39,6 +41,9 @@ export interface LedgerMountOptions {
   /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
   persist?: () => Promise<boolean>;
 }
+
+/** Chặn vòng lặp khi số năm trả trước lớn bất thường. */
+const MAX_ALLOC_YEARS = 50;
 
 /** Số ngày từ `from` đến `to` (YYYY-MM-DD, tính theo UTC nên không lệch múi giờ). */
 function daysBetween(from: string, to: string): number {
@@ -323,6 +328,16 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   const summaryOf = (): { summary?: YearSummary; error?: string; noRules?: boolean } => {
     const out = summarizeYearSafe(ledger, year, rules);
     options.onSummary?.(locked ? null : out);
+    if (options.onYears && !locked) {
+      const years = new Set<number>();
+      for (const r of ledger.receipts) {
+        const start = Number(r.receivedOn.slice(0, 4));
+        if (!Number.isInteger(start)) continue;
+        const span = r.prepaid?.mode === "allocate" ? Math.min(Math.max(r.prepaid.years, 1), MAX_ALLOC_YEARS) : 1;
+        for (let k = 0; k < span; k++) years.add(start + k);
+      }
+      options.onYears([...years].sort((a, b) => a - b));
+    }
     return "summary" in out ? { summary: out.summary } : { error: out.error, noRules: out.kind === "no-rules" };
   };
 
@@ -573,6 +588,18 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(wrap);
     if (s.totalRevenue === 0) {
       box.append(el("p", { class: "export-note", role: "status" }, `Chưa có kỳ thu năm ${year}. Hạn khai sẽ hiện khi có doanh thu.`));
+    }
+
+    // Kỳ thu trước năm đầu có quy định không được cộng vào năm nào: nói rõ để người dùng không tưởng bị bỏ sót.
+    const first = availableYears()[0];
+    if (first !== undefined && ledger.receipts.some((r) => Number(r.receivedOn.slice(0, 4)) < first)) {
+      box.append(
+        el(
+          "p",
+          { class: "export-note since-note", role: "status" },
+          `Ứng dụng chỉ tính từ năm ${first}. Kỳ thu nhận trước năm ${first} vẫn nằm trong sổ nhưng không được cộng vào tổng năm nào.`,
+        ),
+      );
     }
 
     // Doanh thu theo căn

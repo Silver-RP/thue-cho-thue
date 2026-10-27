@@ -7,6 +7,7 @@ export interface SeedContract {
   property: string;
   receipts: [string, number][];
   prepaid?: { years: number; mode: "allocate" | "lump" };
+  endOn?: string;
 }
 
 /** Sổ đúng schema v1 từ danh sách hợp đồng (một căn mỗi hợp đồng, trừ khi trùng tên căn). */
@@ -20,7 +21,7 @@ export function ledger(contracts: SeedContract[]) {
       properties.push(prop);
     }
     const id = `c${i + 1}`;
-    out.contracts.push({ id, propertyId: prop.id, tenant: `Người thuê ${i + 1}`, signedOn: "2026-01-01", startOn: "2026-01-01" });
+    out.contracts.push({ id, propertyId: prop.id, tenant: `Người thuê ${i + 1}`, signedOn: "2026-01-01", startOn: "2026-01-01", ...(c.endOn ? { endOn: c.endOn } : {}) });
     c.receipts.forEach(([receivedOn, amount], j) =>
       out.receipts.push({ id: `${id}-r${j + 1}`, contractId: id, receivedOn, amount, ...(c.prepaid ? { prepaid: c.prepaid } : {}) }),
     );
@@ -36,6 +37,13 @@ export function monthly(amount: number, year = 2026, day = 5): [string, number][
 /** Mở trang với đồng hồ giả (giờ Việt Nam) và sổ đã nạp sẵn. */
 export async function open(page: Page, today: string, book?: object) {
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+07:00`));
+  if (book) await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [LEDGER_KEY, JSON.stringify(book)]);
+  await page.goto("");
+}
+
+/** Mở trang với đồng hồ CHẠY từ `at` (ISO có +07:00): hẹn giờ trong trang tiến được bằng `page.clock.fastForward`. */
+export async function openRunning(page: Page, at: string, book?: object) {
+  await page.clock.install({ time: new Date(at) });
   if (book) await page.addInitScript(([k, v]) => localStorage.setItem(k, v), [LEDGER_KEY, JSON.stringify(book)]);
   await page.goto("");
 }

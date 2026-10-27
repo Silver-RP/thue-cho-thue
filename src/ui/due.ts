@@ -81,6 +81,19 @@ export function renderDue(root: HTMLElement, outcome: YearSummaryOutcome | null,
     big.append(el("p", { class: "due-date" }, dmy(next.date)));
     big.append(el("p", { class: "due-left" }, n === 0 ? "Hôm nay là hạn" : `Còn ${n} ngày`));
     big.append(el("p", { class: "sub" }, kindText(next.kind)));
+  } else if (s.status === "taxable") {
+    // Hạn khai cả năm = hạn khai và nộp muộn nhất. Không tính tiền phạt: cấu hình luật chưa có căn cứ (K16).
+    const last = s.deadlines.filter((d) => d.kind === "filing").sort((a, b) => b.date.localeCompare(a.date))[0] ?? s.deadlines[s.deadlines.length - 1];
+    big.append(el("p", { class: "due-date" }, dmy(last.date)));
+    big.append(el("p", { class: "due-left" }, `Quá hạn ${daysUntil(last.date, today)} ngày`));
+    big.append(el("p", { class: "sub" }, `Mọi hạn của năm ${year} đã qua.`));
+    big.append(
+      el(
+        "p",
+        { class: "due-todo", role: "status" },
+        "Việc cần làm ngay: nộp tờ khai và số thuế phải nộp. Hỏi cơ quan thuế quản lý bạn nếu cần biết cách xử lý nộp muộn.",
+      ),
+    );
   } else {
     big.append(el("p", { class: "due-left" }, `Mọi hạn của năm ${year} đã qua`));
   }

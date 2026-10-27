@@ -7,6 +7,8 @@ import { renderDue } from "./ui/due";
 import { renderOverview } from "./ui/overview";
 
 const NEAREST_SCAN_YEARS = 50;
+/** Chu kỳ hỏi lại đồng hồ khi tab đang hiện (mili giây); qua 00:00 trễ nhất chừng này. */
+const CLOCK_CHECK_MS = 30_000;
 
 interface Due {
   month: number;
@@ -223,6 +225,19 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     select.append(o);
   }
   picker.append(label, select);
+  /** Thêm vào ô chọn năm các năm sổ có doanh thu mà chưa có trong danh sách (giữ thứ tự tăng dần, không nhân đôi). */
+  const addYears = (more: number[]): void => {
+    for (const y of more) {
+      const have = Array.from(select.options);
+      if (have.some((o) => o.value === String(y))) continue;
+      const o = doc.createElement("option");
+      o.value = String(y);
+      o.textContent = withRules.includes(y) ? String(y) : `${y} (chưa có quy định)`;
+      const after = have.find((x) => Number(x.value) > y);
+      if (after) after.before(o);
+      else select.append(o);
+    }
+  };
   const slot = doc.querySelector<HTMLElement>("[data-year-slot]");
   if (slot) slot.replaceChildren(picker);
   else if (appRoot) appRoot.before(picker);
@@ -279,6 +294,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
             stale = v;
           },
           ...(onSummary ? { onSummary } : {}),
+          onYears: addYears,
           ...(options.events ? { events: options.events } : {}),
           ...(options.newId ? { newId: options.newId } : {}),
           ...(options.confirm ? { confirm: options.confirm } : {}),
@@ -325,6 +341,18 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     if (now !== today) run(doc, { ...options, today: now }, true);
   };
   if (options.clock) doc.addEventListener("visibilitychange", onVisible);
+  // Tab vẫn hiện qua nửa đêm thì không có visibilitychange: hỏi lại đồng hồ định kỳ. Luôn chỉ một hẹn giờ đang chờ.
+  let dead = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const arm = (): void => {
+    if (dead || !options.clock) return;
+    timer = setTimeout(() => {
+      timer = undefined;
+      onVisible();
+      arm();
+    }, CLOCK_CHECK_MS);
+  };
+  arm();
 
   // Mục đang chọn ở menu bên và thanh dưới: aria-current="page" cho đúng một liên kết mỗi khối.
   const navLinks = Array.from(doc.querySelectorAll<HTMLAnchorElement>(".nav a[href^='#'], .tabbar a[href^='#']"));
@@ -348,6 +376,9 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   fromHash();
 
   const teardown = (): void => {
+    dead = true;
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
     doc.removeEventListener("visibilitychange", onVisible);
     navLinks.forEach((a, i) => a.removeEventListener("click", clickHandlers[i]));
     win?.removeEventListener("hashchange", fromHash);
