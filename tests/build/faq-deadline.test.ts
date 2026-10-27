@@ -43,6 +43,30 @@ describe("FAQ hạn khai thuế (H-20)", () => {
     expect(info.textContent).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/);
   });
 
+  it("<head> (title, meta, og) không có ngày dd/mm/yyyy nào", () => {
+    const head = new DOMParser().parseFromString(built, "text/html").head;
+    const texts = [head.querySelector("title")?.textContent ?? ""];
+    head.querySelectorAll("meta").forEach((m) => texts.push(m.getAttribute("content") ?? ""));
+    expect(texts.filter((t) => t.length > 0).length).toBeGreaterThan(3);
+    for (const t of texts) expect(t).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/);
+    expect(head.innerHTML).not.toMatch(/\d{1,2}\/\d{1,2}\/\d{4}/);
+  });
+
+  it.each([
+    ["2026-07-31", "31/07/2026", false],
+    ["2026-08-01", "31/07/2026", true],
+    ["2027-01-31", "31/01/2027", false],
+    ["2027-02-01", "31/01/2027", true],
+  ])("biên: today %s -> span %s đã qua = %s", (today, label, past) => {
+    startApp(document, { today, storage: new FakeStorage() });
+    const found = span(label);
+    expect(found.length).toBeGreaterThan(0);
+    for (const s of found) {
+      expect(s.textContent!.includes("đã qua")).toBe(past);
+      expect(s.hasAttribute("data-past")).toBe(past);
+    }
+  });
+
   it("today 2027-01-15: span 31/07/2026 đã qua, span 31/01/2027 chưa", () => {
     startApp(document, { today: "2027-01-15", storage: new FakeStorage() });
     const past = span("31/07/2026");

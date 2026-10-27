@@ -1,7 +1,10 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from "vitest";
-import type { StorageLike } from "../../src/ledger/storage";
+import { summarizeYear } from "../../src/ledger/summary";
+import { loadLedger, type StorageLike } from "../../src/ledger/storage";
+import { getRules } from "../../src/rules";
 import { mountLedger } from "../../src/ui/ledger";
+import { formatVnd } from "../../src/ui/money";
 
 class FakeStorage implements StorageLike {
   data = new Map<string, string>();
@@ -107,5 +110,52 @@ describe("tổng năm: năm không doanh thu không hiện hạn (H-27)", () => 
     expect(totalText()).toContain("Hạn");
     expect(summaryText()).not.toContain("Chưa có kỳ thu");
     expect(root.querySelector(".lg-total")).not.toBeNull();
+  });
+
+  it("trả trước allocate 2025-12-01: đúng một hàng hạn, đúng loại và ngày 31/01/2027", () => {
+    mount();
+    setup();
+    addReceipt("2025-12-01", "240.000.000", { years: 2, mode: "allocate" });
+    const deadlineRows = Array.from(root.querySelectorAll(".lg-total tr")).filter((r) =>
+      r.querySelector("th")?.textContent?.startsWith("Hạn"),
+    );
+    expect(deadlineRows).toHaveLength(1);
+    expect(deadlineRows[0]!.querySelector("th")!.textContent).toBe("Hạn thông báo doanh thu");
+    expect(deadlineRows[0]!.querySelector("td")!.textContent).toBe("31/01/2027");
+  });
+
+  it("doanh thu dưới ngưỡng, today 2027-02-01: hàng thông báo doanh thu có 'đã qua'; 2027-01-31 thì chưa", () => {
+    mount("2027-02-01");
+    setup();
+    addReceipt("2026-03-01", "10.000.000");
+    const row = Array.from(root.querySelectorAll(".lg-total tr")).find(
+      (r) => r.querySelector("th")?.textContent === "Hạn thông báo doanh thu",
+    )!;
+    expect(row.querySelector("td")!.textContent).toContain("31/01/2027");
+    expect(row.textContent).toContain("đã qua");
+    expect(totalText()).toContain("Chỉ thông báo doanh thu");
+
+    document.body.innerHTML = '<div id="ledger"></div>';
+    root = document.querySelector("#ledger")!;
+    mount("2027-01-31");
+    const again = Array.from(root.querySelectorAll(".lg-total tr")).find(
+      (r) => r.querySelector("th")?.textContent === "Hạn thông báo doanh thu",
+    )!;
+    expect(again.textContent).not.toContain("đã qua");
+  });
+
+  it("kỳ thu 1.000.000.001 đ: các số trong .lg-total khớp summarizeYear", () => {
+    mount();
+    setup();
+    addReceipt("2026-03-01", "1.000.000.001");
+    const s = summarizeYear(loadLedger(storage).ledger, 2026, getRules(2026));
+    expect(s.totalRevenue).toBe(1_000_000_001);
+    const cell = (name: string) =>
+      Array.from(root.querySelectorAll(".lg-total tr")).find((r) => r.querySelector("th")?.textContent === name)!.querySelector("td")!.textContent!;
+    expect(cell("Doanh thu cho thuê")).toContain(formatVnd(s.totalRevenue));
+    expect(cell("Thuế TNCN")).toContain(formatVnd(s.totalPit));
+    expect(cell("Thuế GTGT")).toContain(formatVnd(s.totalVat));
+    expect(cell("Tổng thuế")).toContain(formatVnd(s.totalTax));
+    expect(cell("Trạng thái")).toContain("Phải nộp thuế");
   });
 });

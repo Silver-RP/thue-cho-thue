@@ -2,7 +2,7 @@ import type { TaxRules } from "../rules";
 import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
-import { LEDGER_KEY, loadLedger, preserveRaw, saveLedger, type StorageLike } from "../ledger/storage";
+import { LEDGER_KEY, loadLedger, preserveRaw, readLastBackup, saveLedger, writeLastBackup, type StorageLike } from "../ledger/storage";
 import type { YearSummary } from "../ledger/summary";
 import { summarizeYearSafe, type YearSummaryOutcome } from "./year-summary";
 import { mountExport } from "./export";
@@ -30,7 +30,24 @@ export interface LedgerMountOptions {
   events?: EventTarget;
   /** Gọi sau mỗi lần vẽ với đúng kết quả khối tổng năm dùng (null khi sổ khoá). */
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
+  /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
+  stale?: boolean;
+  /** Báo khi cờ stale đổi (true khi tab khác ghi, false khi người dùng tải lại sổ). */
+  onStale?: (stale: boolean) => void;
+  /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
+  persist?: () => Promise<boolean>;
 }
+
+/** Số ngày từ `from` đến `to` (YYYY-MM-DD, tính theo UTC nên không lệch múi giờ). */
+function daysBetween(from: string, to: string): number {
+  const t = (s: string): number => {
+    const [y, m, d] = s.split("-").map(Number) as [number, number, number];
+    return Date.UTC(y, m - 1, d);
+  };
+  return Math.round((t(to) - t(from)) / 86_400_000);
+}
+
+const BACKUP_REMIND_DAYS = 30;
 
 type Props = Partial<Record<string, string>>;
 
@@ -222,7 +239,23 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   };
   let lastSeen = readRaw();
   /** Tab khác đã đổi khoá chính. */
-  let stale = false;
+  let stale = options.stale === true;
+  /** Đã gỡ: các việc đến muộn (đọc file) không được ghi hay vẽ nữa. */
+  let disposed = false;
+  /** Đã xin giữ dữ liệu trong lần gắn này (chỉ xin một lần). */
+  let persistAsked = false;
+
+  const askPersist = (): void => {
+    if (persistAsked || locked || disposed) return;
+    if (ledger.properties.length + ledger.contracts.length + ledger.receipts.length === 0) return;
+    persistAsked = true;
+    try {
+      const fn = options.persist ?? (() => (navigator as { storage?: { persist?: () => Promise<boolean> } }).storage!.persist!());
+      void Promise.resolve(fn()).catch(() => {});
+    } catch {
+      // API vắng hoặc ném: bỏ qua, sổ vẫn dùng bình thường.
+    }
+  };
 
   const reload = (): void => {
     const again = loadLedger(storage);
@@ -232,6 +265,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
     lastSeen = readRaw();
     stale = false;
+    options.onStale?.(false);
     render();
   };
 
@@ -242,6 +276,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (stale || readRaw() !== lastSeen) {
       if (!stale) {
         stale = true;
+        options.onStale?.(true);
         render();
       }
       return STALE_MESSAGE;
@@ -587,6 +622,18 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(el("h2", {}, "Sao lưu"));
     const slot = errorSlot();
 
+    const info = el("div", { class: "lg-backup-info" });
+    const refreshInfo = (): void => {
+      const last = readLastBackup(storage);
+      info.replaceChildren(el("p", { class: "lg-last-backup" }, last ? `Lần sao lưu cuối: ${dmy(last)}` : "Chưa sao lưu lần nào"));
+      const hasData = ledger.properties.length + ledger.contracts.length + ledger.receipts.length > 0;
+      if (hasData && (!last || daysBetween(last, today) >= BACKUP_REMIND_DAYS)) {
+        info.append(el("p", { class: "lg-backup-reminder", role: "status" }, "Dữ liệu sổ chỉ nằm trong trình duyệt này. Hãy bấm \"Xuất JSON\" để tải bản sao lưu về máy."));
+      }
+    };
+    refreshInfo();
+    box.append(info);
+
     const exportBtn = el("button", { type: "button", name: "export" }, "Xuất JSON");
     exportBtn.addEventListener("click", () => {
       try {
@@ -598,6 +645,8 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
         a.remove();
         URL.revokeObjectURL?.(url);
         slot.hidden = true;
+        writeLastBackup(storage, today);
+        refreshInfo();
       } catch {
         slot.textContent = "Không tạo được file để tải xuống.";
         slot.hidden = false;
@@ -611,6 +660,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       if (!f) return;
       void f.text().then(
         (text) => {
+          if (disposed) return;
           const parsed = importLedger(text);
           if (!parsed.ok) {
             slot.textContent = parsed.error;
@@ -634,6 +684,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
           }
         },
         () => {
+          if (disposed) return;
           slot.textContent = "Không đọc được file đã chọn.";
           slot.hidden = false;
         },
@@ -719,6 +770,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       setFilingMode: (mode) => apply(ops.setFilingMode(ledger, year, mode)),
       ...(rules ? { rules } : {}),
     });
+    askPersist();
   }
 
   const events = options.events ?? (typeof window !== "undefined" ? window : undefined);
@@ -727,6 +779,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (ev.key !== LEDGER_KEY || stale) return;
     if (ev.newValue !== null && ev.newValue === lastSeen) return;
     stale = true;
+    options.onStale?.(true);
     render();
   };
   events?.addEventListener("storage", onStorage);
@@ -735,6 +788,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   render();
 
   return () => {
+    disposed = true;
     events?.removeEventListener("storage", onStorage);
     root.replaceChildren();
   };

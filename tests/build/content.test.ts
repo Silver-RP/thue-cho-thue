@@ -66,6 +66,22 @@ describe.each(["source", "built"])("nội dung công khai (%s)", (which) => {
     expect(once).toBe("31/01/2027");
   });
 
+  it("mọi span deadline khớp một ngày của once ∪ twice, mọi span year bằng năm luật", () => {
+    const fmt = (d: { month: number; day: number; yearOffset: number }) =>
+      `${String(d.day).padStart(2, "0")}/${String(d.month).padStart(2, "0")}/${rules.year + d.yearOffset}`;
+    const allowed = new Set([...rules.deadlines.once, ...rules.deadlines.twice].map(fmt));
+    const d = doc();
+    const deadlines = Array.from(d.querySelectorAll('[data-rule="deadline"]')).map((s) => s.textContent?.trim() ?? "");
+    expect(deadlines.length).toBeGreaterThan(0);
+    for (const t of deadlines) expect(allowed.has(t), t).toBe(true);
+    expect(allowed.has("31/07/2026")).toBe(true);
+    expect(deadlines).toContain("31/07/2026");
+    expect(deadlines).toContain("31/01/2027");
+    const years = Array.from(d.querySelectorAll('[data-rule="year"]')).map((s) => s.textContent?.trim());
+    expect(years.length).toBeGreaterThan(0);
+    for (const y of years) expect(y).toBe(String(rules.year));
+  });
+
   it("FAQ không có số luật ngoài span data-rule", () => {
     const info = doc().querySelector("#info")!.cloneNode(true) as HTMLElement;
     info.querySelectorAll("[data-rule]").forEach((s) => s.remove());

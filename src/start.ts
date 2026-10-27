@@ -6,17 +6,63 @@ import { mountLedger } from "./ui/ledger";
 import { renderDue } from "./ui/due";
 import { renderOverview } from "./ui/overview";
 
-/** Năm đang khai: trước 01/02 vẫn là năm trước (hạn khai 31/01). */
-export function filingYear(today: string): number {
-  const y = Number(today.slice(0, 4));
-  return today < `${today.slice(0, 4)}-02-01` ? y - 1 : y;
+const NEAREST_SCAN_YEARS = 50;
+
+interface Due {
+  month: number;
+  day: number;
+  yearOffset: number;
 }
 
-/** Hàm duy nhất đọc đồng hồ; chỉ `src/main.ts` gọi. */
-export function localToday(): string {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+/** Hạn khai cả năm: phần tử `once` muộn nhất (yearOffset, rồi tháng, rồi ngày lớn nhất). */
+function latestOnce(rules: TaxRules): Due | null {
+  let best: Due | null = null;
+  for (const d of rules.deadlines.once) {
+    if (
+      !best ||
+      d.yearOffset > best.yearOffset ||
+      (d.yearOffset === best.yearOffset && (d.month > best.month || (d.month === best.month && d.day > best.day)))
+    )
+      best = d;
+  }
+  return best;
+}
+
+/**
+ * Năm đang khai: đến hết hạn khai cả năm (đọc từ `deadlines.once` của luật năm trước, hoặc luật gần nhất có)
+ * vẫn là năm trước. Không dời hạn vào ngày làm việc.
+ */
+export function filingYear(today: string, rulesOf?: (year: number) => TaxRules | undefined): number {
+  const y = Number(today.slice(0, 4));
+  const lookup = (year: number): TaxRules | undefined => {
+    try {
+      return (rulesOf ?? getRules)(year);
+    } catch {
+      return undefined;
+    }
+  };
+  let rules = lookup(y - 1);
+  for (let k = 2; !rules && k <= NEAREST_SCAN_YEARS; k++) rules = lookup(y - k);
+  const due = rules ? latestOnce(rules) : null;
+  if (due && due.yearOffset >= 1) {
+    const p = (n: number) => String(n).padStart(2, "0");
+    return today <= `${today.slice(0, 4)}-${p(due.month)}-${p(due.day)}` ? y - 1 : y;
+  }
+  // Không có luật nào (hoặc luật không có hạn sang năm sau): giữ quy tắc cũ, hạn khai là 31/01 nên hết ngày đó là năm mới.
+  return today <= `${today.slice(0, 4)}-01-31` ? y - 1 : y;
+}
+
+/** Hàm duy nhất đọc đồng hồ; chỉ `src/main.ts` gọi. Ngày theo giờ Việt Nam, không phụ thuộc múi giờ máy. */
+export function localToday(now?: Date): string {
+  const d = now ?? new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((x) => x.type === t)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 export interface StartOptions {
@@ -31,6 +77,8 @@ export interface StartOptions {
   confirm?: (message: string) => boolean;
   download?: (filename: string, mime: string, content: string) => void;
   copy?: (text: string) => Promise<void> | void;
+  /** Đọc ngày hôm nay; có thì khi quay lại tab mà ngày đã đổi, trang được gắn lại với ngày mới. */
+  clock?: () => string;
 }
 
 const BLOCKED_MESSAGE =
@@ -40,16 +88,80 @@ const BLOCKED_MESSAGE =
 
 const PAST_SUFFIX = / \(đã qua\)$/;
 
+type Snapshot = Map<string, string | boolean>;
+
+/** Duyệt các ô nhập trong form của một vùng, khoá = vùng + form (class, thứ tự cùng class) + name + type. */
+function eachField(root: HTMLElement | null, region: string, fn: (key: string, f: HTMLInputElement) => void): void {
+  if (!root) return;
+  const seen = new Map<string, number>();
+  for (const form of Array.from(root.querySelectorAll("form"))) {
+    const cls = form.className || form.getAttribute("name") || "form";
+    const idx = seen.get(cls) ?? 0;
+    seen.set(cls, idx + 1);
+    for (const f of Array.from(form.querySelectorAll<HTMLInputElement>("input, select, textarea"))) {
+      if (!f.name || f.type === "file" || f.closest("[data-year-picker]")) continue;
+      const val = f.type === "radio" ? `|${f.value}` : "";
+      fn(`${region}|${cls}#${idx}|${f.name}|${f.type}${val}`, f);
+    }
+  }
+}
+
+function capture(root: HTMLElement | null, region: string, into: Snapshot): void {
+  eachField(root, region, (key, f) => into.set(key, f.type === "checkbox" || f.type === "radio" ? f.checked : f.value));
+}
+
+function restore(root: HTMLElement | null, region: string, from: Snapshot): void {
+  if (from.size === 0) return;
+  eachField(root, region, (key, f) => {
+    if (!from.has(key)) return;
+    const v = from.get(key)!;
+    if (typeof v === "boolean") f.checked = v;
+    else if (f.tagName === "SELECT") {
+      if (Array.from((f as unknown as HTMLSelectElement).options).some((o) => o.value === v)) f.value = v;
+    } else f.value = v;
+  });
+}
+
+interface Previous {
+  teardown: () => void;
+  capture: (into: Snapshot) => void;
+  roots: [HTMLElement | null, HTMLElement | null];
+  stale: () => boolean;
+  /** Năm đang chọn và năm mặc định của lần gắn đó. */
+  year: () => { chosen: number; dflt: number };
+}
+
 /** Gỡ lần gắn trước (listener `storage`) khi `startApp` được gọi lại. */
-let previous: (() => void) | null = null;
+let previous: Previous | null = null;
 
 /** Gắn ô chọn năm, máy tính (#app) và sổ (#ledger). Gọi lại thì gắn lại từ đầu. */
 export function startApp(doc: Document, options: StartOptions): void {
-  previous?.();
+  run(doc, options, false);
+}
+
+/** `fromClock`: gắn lại do đổi ngày; giữ cờ stale và năm người dùng đã chọn khác mặc định. */
+function run(doc: Document, options: StartOptions, fromClock: boolean): void {
+  const carried: Snapshot = new Map();
+  /** Sổ đã đổi ở tab khác: sống qua các lần gắn lại. */
+  let stale = false;
+  let keptYear: number | null = null;
+  if (
+    previous &&
+    previous.roots[0] === doc.querySelector<HTMLElement>("#app") &&
+    previous.roots[1] === doc.querySelector<HTMLElement>("#ledger")
+  ) {
+    previous.capture(carried);
+    if (fromClock) {
+      stale = previous.stale();
+      const y = previous.year();
+      if (y.chosen !== y.dflt) keptYear = y.chosen;
+    }
+  }
+  previous?.teardown();
   const { today, storage } = options;
   const extra = new Map<number, TaxRules>((options.rules ?? []).map((r) => [r.year, r]));
   const withRules = [...new Set([...availableYears(), ...extra.keys()])].sort((a, b) => a - b);
-  const current = filingYear(today);
+  const current = filingYear(today, (y) => extra.get(y) ?? getRules(y));
   const years = withRules.includes(current) ? withRules : [...withRules, current].sort((a, b) => a - b);
   const fallbackYear = withRules.length > 0 ? withRules[withRules.length - 1] : undefined;
 
@@ -83,7 +195,13 @@ export function startApp(doc: Document, options: StartOptions): void {
   let unmountCalc: (() => void) | null = null;
   let unmountLedger: (() => void) | null = null;
 
+  const snapshot = (into: Snapshot): void => {
+    if (unmountCalc) capture(appRoot, "app", into);
+    if (unmountLedger) capture(ledgerRoot, "ledger", into);
+  };
+
   const show = (year: number): void => {
+    snapshot(carried);
     unmountCalc?.();
     unmountLedger?.();
     unmountCalc = null;
@@ -119,6 +237,10 @@ export function startApp(doc: Document, options: StartOptions): void {
           storage,
           ...(rules ? { rules } : {}),
           ...common,
+          stale,
+          onStale: (v: boolean) => {
+            stale = v;
+          },
           ...(onSummary ? { onSummary } : {}),
           ...(options.events ? { events: options.events } : {}),
           ...(options.newId ? { newId: options.newId } : {}),
@@ -135,9 +257,11 @@ export function startApp(doc: Document, options: StartOptions): void {
         unmountLedger = () => ledgerRoot.replaceChildren();
       }
     }
+    restore(appRoot, "app", carried);
+    restore(ledgerRoot, "ledger", carried);
   };
   select.addEventListener("change", () => show(Number(select.value)));
-  show(current);
+  show(keptYear !== null && years.includes(keptYear) ? keptYear : current);
 
   // FAQ: gắn "đã qua" vào span hạn có ngày < today (gỡ nhãn cũ trước để gọi lại không nhân đôi).
   const spans = Array.from(doc.querySelectorAll<HTMLElement>('[data-rule="deadline"]'));
@@ -153,7 +277,19 @@ export function startApp(doc: Document, options: StartOptions): void {
       s.setAttribute("data-past", "");
     }
   }
-  previous = () => {
+  const onVisible = (): void => {
+    if (doc.visibilityState !== "visible" || !options.clock) return;
+    let now: string;
+    try {
+      now = options.clock();
+    } catch {
+      return;
+    }
+    if (now !== today) run(doc, { ...options, today: now }, true);
+  };
+  if (options.clock) doc.addEventListener("visibilitychange", onVisible);
+  const teardown = (): void => {
+    doc.removeEventListener("visibilitychange", onVisible);
     for (const [s, t] of original) {
       s.textContent = t;
       s.removeAttribute("data-past");
@@ -163,6 +299,13 @@ export function startApp(doc: Document, options: StartOptions): void {
     overviewRoot?.replaceChildren();
     dueRoot?.replaceChildren();
     picker.remove();
+  };
+  previous = {
+    teardown,
+    capture: snapshot,
+    roots: [appRoot, ledgerRoot],
+    stale: () => stale,
+    year: () => ({ chosen: Number(select.value), dflt: current }),
   };
 
   try {

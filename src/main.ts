@@ -8,4 +8,4 @@ try {
   storage = null;
 }
 
-startApp(document, { today: localToday(), storage });
+startApp(document, { today: localToday(), storage, clock: localToday });

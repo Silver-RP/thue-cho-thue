@@ -82,3 +82,28 @@ export function saveLedger(storage: StorageLike, ledger: Ledger): SaveResult {
   }
   return { ok: true };
 }
+
+export const LAST_BACKUP_KEY = "thue-cho-thue:last-backup";
+
+/** Ngày sao lưu cuối (YYYY-MM-DD). Thiếu, hỏng hoặc đọc kho lỗi → null. */
+export function readLastBackup(storage: StorageLike): string | null {
+  try {
+    const raw = storage.getItem(LAST_BACKUP_KEY);
+    if (raw === null || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+    const [y, m, d] = raw.split("-").map(Number) as [number, number, number];
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Ghi ngày sao lưu cuối. Trả false nếu kho lỗi (không ném). */
+export function writeLastBackup(storage: StorageLike, day: string): boolean {
+  try {
+    storage.setItem(LAST_BACKUP_KEY, day);
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -411,6 +411,14 @@ button.primary {
   border-radius: 0.5rem;
 }
 
+.lg-backup-info p {
+  margin: 0 0 0.5rem;
+}
+
+.lg-backup-reminder {
+  font-weight: 600;
+}
+
 .lg-actions button.primary {
   width: auto;
 }
