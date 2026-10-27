@@ -716,6 +716,32 @@ button.primary {
   margin: 0.2rem 0;
 }
 
+.lg-card-contract {
+  margin: 0.4rem 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.lg-card-tenant {
+  font-weight: 600;
+}
+
+.lg-card-cols {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0;
+}
+
+.lg-card-cols dt {
+  color: var(--muted);
+}
+
+.lg-card-cols dd {
+  margin: 0;
+  text-align: right;
+}
+
 .lg-card-revenue {
   font-size: 1.25rem;
   font-weight: 700;

@@ -591,7 +591,22 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       card.append(el("p", { class: "lg-card-revenue tnum", "data-col": "revenue" }, formatVnd(p.revenue)));
       for (const m of mine) {
         const row = s.contracts.find((x) => x.contractId === m.id);
-        card.append(el("p", { class: "lg-card-contract", "data-contract": m.id }, `${m.tenant}: ${formatVnd(row?.revenue ?? 0)}`));
+        const cc = el("div", { class: "lg-card-contract", "data-contract": m.id });
+        cc.append(el("p", { class: "lg-card-tenant" }, m.tenant));
+        const dl = el("dl", { class: "lg-card-cols" });
+        const cols: [string, string, number][] = [
+          ["revenue", "Doanh thu", row?.revenue ?? 0],
+          ["deduction", "Được trừ", row?.deduction ?? 0],
+          ["pit", "TNCN", row?.pit ?? 0],
+          ["vat", "GTGT", row?.vat ?? 0],
+        ];
+        for (const [k, label, v] of cols) {
+          const dd = el("dd", { class: "tnum", "data-col": k }, formatVnd(v));
+          if (k === "vat" && s.vatEstimated) dd.append(" ", el("span", { class: "badge" }, "(ước tính)"));
+          dl.append(el("dt", {}, label), dd);
+        }
+        cc.append(dl);
+        card.append(cc);
       }
       card.append(el("p", { class: "sub lg-card-periods" }, `${periods} kỳ thu trong năm ${year}`));
       cards.append(card);
@@ -599,7 +614,6 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(cards);
 
     // Theo hợp đồng
-    box.append(el("h3", {}, "Thuế theo hợp đồng"));
     const ct = el("table", { class: "result-table lg-by-contract" });
     const head = el("thead");
     const hr = el("tr");
@@ -632,8 +646,10 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     }
     foot.append(fr);
     ct.append(head, cb, foot);
-    const cw = el("div", { class: "table-scroll lg-contract-wrap" });
-    cw.append(ct);
+    const cw = el("div", { class: "lg-contract-wrap" });
+    const cs = el("div", { class: "table-scroll" });
+    cs.append(ct);
+    cw.append(el("h3", {}, "Thuế theo hợp đồng"), cs);
     box.append(cw);
     return box;
   };
