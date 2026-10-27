@@ -338,3 +338,51 @@ Quyết định: đạt 7/7 tiêu chí cấp mốc. Merge #29 (main không có c
 `overview.ts` đọc thuế suất qua `["rate","Bps"].join("")` để lách quét `rateBps`; dòng "cách tính" tự dựng cơ sở × thuế suất (chữ); `h1` cứng "2026"; lỗi ngày trống ở `src/ledger/ops.ts:48` còn "AAAA-MM-DD". Ở 1280 px máy tính bên phải còn tiêu đề cũ "Thuế cho thuê nhà" trên thẻ "Tính nhanh một hợp đồng" (trùng tên trang).
 
 Quyết định: đạt 8/8 tiêu chí cấp mốc. Merge #35 (main không có check bắt buộc). Quyết định (c): lách `rateBps` không chặn merge (giá trị vẫn từ `TaxRules`); hướng sửa ở mốc sau là `src/rules` xuất nhãn thuế suất để guard giữ chặt, không allowlist. Đóng H-13 (ca `due.test.ts` "bốn ô ngày có type=date"; `main` trước đó không có `type="date"`). Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R8 `done`.
+
+## R9: duyệt của supervisor (2026-10-27, PR #38, merge 502114d)
+
+PR đã merge trước bước duyệt (runner, 00:02 UTC); supervisor duyệt lại trên `origin/main` 502114d (cây trùng `origin/milestone/R9`).
+
+### Tiêu chí cấp mốc (supervisor tự chạy trên 502114d)
+| # | Tiêu chí | Lệnh | Kết quả |
+|---|---|---|---|
+| 1 | verify + smoke sạch | `verify.py`; `verify.py --smoke` | "sạch (không có lỗi mới so với baseline)"; smoke `pages` ok |
+| 2 | T4 > 331 | `yarn -s test` | 39 file, 389 passed, 0 failed |
+| 3 | T5 tăng | `yarn -s test tests/ui` | 14 file, 139 passed (trước 119) |
+| 4 | T6 không giảm | `yarn -s test tests/ledger` | 5 file, 61 passed |
+| 5 | T7 không giảm | `yarn -s test tests/export` | 5 file, 34 passed |
+| 6 | T8: build + tests/build, gzip ≤ 100 KB, không `fetch`/XHR ngoài analytics | `yarn -s build && yarn -s test tests/build`; `gzip -c dist/assets/*`; `grep -rnE "fetch\(\|XMLHttpRequest" src` | build 0; 73 passed; JS 21.319 B + CSS 2.669 B gzip (~23 KB); grep chỉ ra `src/analytics.ts` |
+| 7 | H-39/40/41/43 có ca tái hiện đỏ trước khi sửa; H-42 có phép đảo | `git checkout d6a8684 -- src` rồi chạy 7 file test R9, trả lại `src` | 24 failed / 65 passed trên `src` trước R9: H-40 (7 ca `localToday` theo TZ), H-39 (`filingYear` luật giả hạn 01/02, `once` muộn nhất, quét `02-01`), H-40 tab qua nửa đêm (2 ca), H-41 (5 ca: chữ gõ dở, radio, stale, nhập file muộn), H-43 (7 ca `persist`/nhắc). H-42: supervisor tự đảo `<` → `<=` ở so ngày FAQ `src/start.ts:275` → `faq-deadline` 2 failed (biên 31/07/2026, 31/01/2027), trả lại xanh; các phép đảo khác ghi trong `plan/PROGRESS.md` |
+| 8 | Mọi test đọc đồng hồ ghim giờ | `tests/start-date.test.ts` nhóm "quét test đọc đồng hồ (mục 8)" | xanh trong T4 |
+
+### Ước tính ↔ thực tế
+| | Ước tính | Thực tế | Lệch |
+|---|---|---|---|
+| Task | 4 | 4 | 0 |
+| Phút worker | 20 | 29 | 1,43× |
+| USD | 4,0 | 4,50 (metrics.py) | 1,13× |
+| Vòng review | 4–7 | 6 (2+2+1+1) | trong khoảng |
+
+Phút lệch do 2 task phải vòng 2 (reviewer tự probe ra lỗi radio `filing` và khối CSS chen giữa selector).
+
+### Pre-mortem
+1. Test múi giờ đúng tình cờ → chặn: `start-date.test.ts` TZ UTC/Tokyo/New York, biên 16:59:59Z/17:00:00Z (đỏ trên src cũ); supervisor thử thêm `Pacific/Kiritimati` (UTC+14), `Pacific/Pago_Pago` (UTC−11): đúng biên.
+2. `persist()` không gọi trong happy-dom → chặn: `backup-reminder.test.ts` giả `navigator.storage`.
+3. Ca H-42 xanh vô nghĩa → chặn: phép đảo (supervisor tự làm 1, đỏ 2 ca).
+4. Mốc đổi năm vẫn cứng 02-01 → chặn: ca luật giả hạn 01/02 (đỏ trên src cũ), quét `02-01`.
+5. Trả nhầm ô → chặn: `start-h41.test.ts` "mỗi ô giữ đúng giá trị", ca radio.
+6. Mất cờ stale → chặn: `start-h41.test.ts` "cờ stale sống qua đổi năm".
+7. Nhập file muộn ghi đè → chặn: `start-h41.test.ts` "nhập file đến muộn".
+8. Nhắc ghi kho/sai biên → chặn: `backup-reminder.test.ts` biên 29/30 ngày, mount không `setItem`.
+9. Quay lại tab mất chữ/năm đã chọn → chặn: `start-date.test.ts` 2 ca `startApp`.
+10. Tự dời hạn Chủ Nhật → chặn: ca H-39 qua `startApp` `2027-02-01` → 2027.
+
+### Kiểm độc lập (vite-node, file ngoài repo `/tmp/r9probe/probe.ts`)
+- `localToday` ở UTC+14 và UTC−11: `2027-01-31T16:59:59.999Z` → `2027-01-31`, `17:00:00Z` → `2027-02-01`.
+- `filingYear` luật thật: `2026-12-31` → 2026, `2027-01-01` → 2026; `rulesOf` ném lỗi → không vỡ, `2027-02-01` → 2027. `2026-01-15` → 2025 (không có luật 2025; quá khứ, không ảnh hưởng).
+- Phép đảo FAQ (tiêu chí 7).
+
+### Ghi chú (không chặn) → H-49
+Từ báo cáo mốc: ghi `last-backup` lỗi thì sau xuất vẫn nhắc; ảnh chụp ô gõ dở giữ khoá form đã mất; chưa quét chung lỗi gộp selector CSS.
+
+Quyết định: đạt 8/8 tiêu chí cấp mốc (PR đã merge trước, không cần merge lại; main không có check bắt buộc). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low (còn thử Safari/iOS thật); thêm H-49. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R9 `done`.

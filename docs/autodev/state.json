@@ -203,38 +203,10 @@
       "milestone": null
     },
     {
-      "id": "H-39",
-      "severity": "medium",
-      "summary": "Từ 01/02/2027 mặc định năm 2027 không có máy tính; 01-02 cứng ngoài rules",
-      "text": "Từ 01/02/2027 mặc định năm 2027 không có máy tính; 01-02 cứng ngoài rules (audit R7 2026-10-27)",
-      "milestone": null
-    },
-    {
-      "id": "H-40",
-      "severity": "low",
-      "summary": "localToday theo múi giờ máy; tab qua nửa đêm; không test giá trị",
-      "text": "localToday theo múi giờ máy; tab qua nửa đêm; không test giá trị (audit R7 2026-10-27)",
-      "milestone": null
-    },
-    {
-      "id": "H-41",
-      "severity": "medium",
-      "summary": "Đổi năm mất dữ liệu gõ dở; nhập file async không huỷ khi gỡ mount",
-      "text": "Đổi năm mất dữ liệu gõ dở; nhập file async không huỷ khi gỡ mount (audit R7 2026-10-27)",
-      "milestone": null
-    },
-    {
-      "id": "H-42",
-      "severity": "medium",
-      "summary": "Ca R7 yếu: import-old dòng 87, FAQ thiếu biên/so getRules, ledger-total lỏng",
-      "text": "Ca R7 yếu: import-old dòng 87, FAQ thiếu biên/so getRules, ledger-total lỏng (audit R7 2026-10-27)",
-      "milestone": null
-    },
-    {
       "id": "H-43",
-      "severity": "medium",
-      "summary": "Không persist()/nhắc xuất; Safari/iOS xoá sau 7 ngày",
-      "text": "Không persist()/nhắc xuất; Safari/iOS xoá sau 7 ngày (audit R7 2026-10-27)",
+      "severity": "low",
+      "summary": "persist() + nhắc sao lưu có (R9); chưa thử Safari/iOS thật",
+      "text": "R9 thêm persist(), Lần sao lưu cuối, nhắc sau 30 ngày (tests/ui/backup-reminder.test.ts); còn: thử thật Safari/iOS xoá sau 7 ngày không dùng (việc người) (duyệt R9 2026-10-27)",
       "milestone": null
     },
     {
@@ -270,6 +242,13 @@
       "severity": "low",
       "summary": "R8: lách quét rateBps ở overview.ts; cách tính dựng trong UI",
       "text": "overview.ts đọc thuế suất qua [\"rate\",\"Bps\"].join(\"\") để lách quét rateBps của tests/ui/calculator.test.ts; dòng cách tính tự dựng cơ sở × thuế suất (chữ, số tiền từ engine); h1 cứng 2026; lỗi ngày trống ở src/ledger/ops.ts:48 còn AAAA-MM-DD (duyệt R8 2026-10-27)",
+      "milestone": null
+    },
+    {
+      "id": "H-49",
+      "severity": "low",
+      "summary": "R9: ghi last-backup lỗi vẫn nhắc; ô gõ dở giữ khoá form đã mất; CSS gộp selector chưa quét chung",
+      "text": "Ghi chú báo cáo R9: ghi last-backup thất bại (kho đầy/chặn) thì sau Xuất JSON vẫn nhắc; ảnh chụp ô gõ dở giữ khoá của form đã biến mất, giá trị cũ có thể hiện lại ở năm sau; test chưa quét chung lỗi gộp selector CSS (chỉ ca dev-02) (duyệt R9 2026-10-27)",
       "milestone": null
     }
   ],
@@ -322,6 +301,12 @@
         "status": "merged",
         "pr": 35,
         "merge_commit": "4d9b5e8"
+      },
+      {
+        "id": "R9",
+        "status": "merged",
+        "pr": 38,
+        "merge_commit": "502114d"
       }
     ],
     "plugin": []
@@ -402,6 +387,10 @@
     {
       "date": "2026-10-27",
       "text": "Supervisor duyệt và merge R8 (#35, 4d9b5e8): verify/smoke sạch, T4 331, T5 119, T6 61, T7 34, tests/build 66, gzip ~23 KB; Chrome headless 390/1280 px không tràn ngang; 4/4 task PASS vòng 1. Quyết định (c): lách rateBps ở overview.ts không chặn merge, hướng sửa là src/rules xuất nhãn thuế suất (H-48). Đóng H-13."
+    },
+    {
+      "date": "2026-10-27",
+      "text": "Supervisor duyệt R9 (#38; PR đã merge trước bước duyệt, duyệt lại trên 502114d): verify/smoke sạch, T4 389, T5 139, T6 61, T7 34, tests/build 73, gzip ~23 KB; 24 ca mới đỏ trên src trước R9 (supervisor tự chạy); phép đảo FAQ < thành <= làm đỏ 2 ca; 4/4 task DONE (dev-01, dev-02 hai vòng). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low (còn thử Safari/iOS thật); thêm H-49."
     }
   ]
 }

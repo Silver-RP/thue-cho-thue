@@ -31,7 +31,7 @@
     {"id": "R8", "title": "Giao diện mới theo docs/design/mockup-r8.html: token màu/chữ, khung app (thanh trên, chọn năm, menu bên/thanh dưới), khối tổng quan năm có thanh ngưỡng, biên lai cách tính, thẻ hạn đếm ngày, thẻ căn trên điện thoại, tính nhanh một hợp đồng; ô ngày trên điện thoại (H-13); số chỉ từ engine", "depends_on": ["R7"], "metrics": ["T4", "T5", "T6", "T7", "T8"],
      "est_usd": 5.0, "est_hours": 1.2, "status": "done", "plan_file": "plan/R8.md"},
     {"id": "R9", "title": "Không mất sổ, đúng ngày: đổi năm giữ dữ liệu gõ dở (H-41); persist() + lần sao lưu cuối + nhắc sao lưu (H-43); mốc đổi năm từ cấu hình luật, ngày theo giờ Việt Nam, đọc lại ngày khi quay lại tab (H-39, H-40); làm chặt ca R7 (H-42)", "depends_on": ["R8"], "metrics": ["T4", "T5", "T6", "T7", "T8"],
-     "est_usd": 4.0, "est_hours": 1.0, "status": "planned"}
+     "est_usd": 4.0, "est_hours": 1.0, "status": "done", "plan_file": "plan/R9.md"}
   ],
   "cut_order": ["R4", "R3"],
   "human_only": ["Xác nhận cơ sở tính GTGT (L5) và mẫu tờ khai hiện hành", "Chọn dịch vụ analytics/form", "Duyệt nội dung trang trước khi quảng bá"]

@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-27 · Nguồn: duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-10-27 · Nguồn: duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -13,6 +13,7 @@ Cập nhật: 2026-10-27 · Nguồn: duyệt R8 (#35), đóng H-38 (`2026-10-27-
 | R6 | merged (#24) | Vá trước khi quảng bá: kho hỏng khoá ghi, hai tab, `localStorage` bị chặn, nhãn "ước tính", lỗi tổng năm đúng nguyên nhân, hạn "đã qua", năm không kỳ thu; 4/4 task PASS vòng 1; đóng H-09..H-12, H-14, H-19 |
 | R7 | merged (#29) | Qua mùa khai 2027: năm mặc định `filingYear(today)`, ô chọn năm, báo rõ năm chưa có luật; "đã qua" ở máy tính và FAQ; tổng năm không hạn khi không doanh thu; nhập lại bản sổ cũ; 4/4 task PASS vòng 1; đóng H-20, H-27, H-28; H-31 còn luật 2027 |
 | R8 | merged (#35) | Giao diện theo mockup: token, khung (thanh trên + ô năm, menu bên, thanh dưới), tổng quan năm + thanh ngưỡng, biên lai "Cách tính", thẻ hạn đếm ngày, thẻ căn, tính nhanh; một nguồn số `onSummary`; ô ngày `type="date"`; 4/4 task PASS vòng 1; đóng H-13; thêm H-48 |
+| R9 | merged (#38) | Không mất sổ, đúng ngày: đổi năm giữ chữ gõ dở + cờ stale, huỷ nhập file khi gỡ; `persist()`, "Lần sao lưu cuối", nhắc 30 ngày; ngày theo giờ VN, mốc đổi năm từ `deadlines.once`, đọc lại ngày khi quay lại tab; làm chặt ca R7; 4/4 task DONE (2 task 2 vòng); đóng H-39..H-42; H-43 hạ thấp; thêm H-49 |
 
 ## Mục tiêu và tiêu chí
 Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh giúp người cho thuê 1–5 căn tự lo thuế cho thuê theo luật 2026. Đạt 100% theo chỉ số (9/9: T1–T9, 2026-10-26); theo khối lượng việc thật ~65% (audit R7; supervisor ước ~68%). Ba điều (audit R7): máy tính ~72%, sổ ~82% code / ~60% chứng minh, nhắc hạn + xuất + Pages ~52% gộp (`.ics` ~80%, xuất ~55%, Pages bật và kiểm tay một lần; mẫu tờ khai chưa xác nhận, H-04; đo người dùng/Lighthouse chưa làm, H-32).
@@ -22,11 +23,11 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | T1 | `yarn -s test tests/tax` | 0 failed, ≥ 15 passed | 25 passed |
 | T2 | `yarn -s test tests/rules` | 0 failed, ≥ 4 passed | 7 passed |
 | T3 | `yarn -s lint` | exit 0 | exit 0 |
-| T4 | `yarn -s test` | 0 failed | 331 passed |
-| T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 119 passed |
+| T4 | `yarn -s test` | 0 failed | 389 passed |
+| T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 139 passed |
 | T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 61 passed |
 | T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 34 passed |
-| T8 | `yarn -s build && yarn -s test tests/build` | build 0, 0 failed, gzip ≤ 100 KB | build 0, 66 passed, ~23 KB |
+| T8 | `yarn -s build && yarn -s test tests/build` | build 0, 0 failed, gzip ≤ 100 KB | build 0, 73 passed, ~23 KB |
 | T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` | exit 0 | exit 0 (Pages bật; smoke `scripts/smoke-pages.sh` sạch) |
 
 ## Kiến trúc hiện nay
@@ -36,6 +37,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 - `src/ledger/`: `model.ts` (kiểu sổ, `emptyLedger`), `ops.ts` (thêm/sửa/xoá thuần, `cascade`, `setDeductionChoice`), `summary.ts` (`ledgerToPayments`, `summarizeYear` gọi `computeAnnual`, ném lỗi khi `rules.year` khác `year`, `thresholdWarning`), `schema.ts` (`parseLedger` + `migrations`), `storage.ts` (khoá `thue-cho-thue:ledger`, dự phòng `thue-cho-thue:ledger:backup`), `backup.ts` (xuất/nhập JSON có `app: "thue-cho-thue"`).
 - `src/export/` (R4, thuần): `ics.ts` (`deadlinesToIcs`, sự kiện cả ngày, `VALARM` -7/-1 ngày, gấp 75 octet, `nextDay` không dùng `Date`), `forms.ts` (`form01TTS`: cấu hình trường 01/TTS + cột 01-1/BK-TTS, `confirmed: false`, `code: null`), `declaration.ts` (`buildDeclaration` chỉ đọc `YearSummary`), `csv.ts` (BOM, CRLF, RFC 4180, tiền tố `'` chặn công thức). `src/ui/export.ts`: `mountExport` (chọn khai 1/2 lần, hạn, tải `.ics`/CSV, chép, hướng dẫn eTax), gắn từ `ledger.ts`. Sổ có `filingMode?` theo năm, `summarizeYear` truyền vào `computeAnnual`.
 - R7: `src/main.ts` chỉ đọc `localStorage` trong `try` rồi gọi `startApp(document, { today: localToday(), storage })` (`src/start.ts`: `filingYear` — trước 01/02 là năm trước, `localToday` — nơi duy nhất đọc đồng hồ, ô chọn năm `select[name="tax-year"]` từ `availableYears()` của `src/rules/index.ts` cộng năm đang khai, gỡ rồi gắn lại máy tính/sổ khi đổi năm, gắn "đã qua" vào span `data-rule="deadline"` của FAQ); `mountCalculator`/`mountLedger` trả hàm gỡ, nhận `today`, `fallbackYear`, `onSwitchYear`. `startApp` gọi `analyticsFromEnv().track("pageview")` (`src/analytics.ts`, tắt khi không có `VITE_ANALYTICS_URL`; file duy nhất gọi mạng). Test UI dùng `happy-dom` (devDependency).
+- R9: `localToday(now?)` theo `Asia/Ho_Chi_Minh`; `filingYear(today, rulesOf?)` đọc phần tử `deadlines.once` muộn nhất của luật năm trước (hoặc gần nhất); `startApp` nhận `clock`, nghe `visibilitychange`, chụp/trả giá trị ô theo vùng + form + `name` khi gắn lại, giữ cờ stale qua `mountLedger({ stale, onStale })`; `mountLedger` có `disposed`, gọi `persist()` một lần, khối sao lưu đọc/ghi `thue-cho-thue:last-backup` (`src/ledger/storage.ts`).
 - R5: `vite.config.ts` `base: "/thue-cho-thue/"`, tắt polyfill modulepreload; `index.html` có h1/FAQ/nguồn/meta/OG tĩnh (số luật trong `data-rule`); `public/robots.txt`, `public/sitemap.xml`; `.github/workflows/deploy.yml` job `test` (lint, test, build, upload) → `deploy` + smoke.
 - Hàm thuần, không đọc giờ hệ thống; `src/tax` nhận `rules` làm tham số; `src/ledger` nhận `newId`, `Storage`.
 
@@ -64,6 +66,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | Hạn đã qua ở máy tính và FAQ; không `dd/mm/yyyy` ngoài `data-rule` (R7) | `tests/ui/calc-past.test.ts`, `tests/build/faq-deadline.test.ts` |
 | Tổng năm sổ không hạn khi không doanh thu; nhập bản sổ cũ không `app`, file lạ bị từ chối (R7) | `tests/ui/ledger-total.test.ts`, `tests/ui/import-old.test.ts` |
 | Một nguồn số: tổng quan, biên lai, thẻ căn, bảng hợp đồng = `summarizeYear`; không số mẫu mockup; đếm ngày thuần; token đúng mockup, tương phản AA; không font/URL ngoài (R8) | `tests/ui/overview.test.ts`, `tests/ui/due.test.ts`, `tests/ui/calc-card.test.ts`, `tests/build/shell.test.ts` |
+| Đổi năm/gọi lại `startApp` giữ chữ gõ dở, cờ stale; nhập file muộn sau gỡ không ghi; `persist()` một lần, nhắc sao lưu biên 30 ngày; ngày theo giờ VN, mốc đổi năm từ `deadlines.once`, đọc lại ngày khi tab hiện lại; test đọc đồng hồ phải ghim giờ (R9) | `tests/start-h41.test.ts`, `tests/start-date.test.ts`, `tests/ui/backup-reminder.test.ts` |
 | File mẫu schema v1 đóng băng luôn nạp được; đổi schema phải thêm di chuyển (R3) | `tests/ledger/fixtures/ledger-v1.json` + `tests/ledger/schema-storage.test.ts` |
 
 ## Lỗ hổng mở
@@ -89,16 +92,13 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-29 | medium | Thông báo khoá cố định, nuốt nguyên nhân (phiên bản mới → nên cập nhật; kho bị chặn) |
 | H-30 | medium | Nhập file khi khoá: `locked=false` trước `apply`; `apply` lỗi thì lệch trạng thái/màn hình |
 | H-31 | medium | R7 thêm năm mặc định, chọn năm, báo rõ năm chưa có luật; còn: luật 2027 (`src/rules/2027.ts`) cần leader/kế toán xác nhận (`human_only`) |
-| H-39 | medium | Từ 01/02/2027 trang mặc định mở năm 2027 không có máy tính; `01-02` cứng trong `filingYear`, không đọc `rules.deadlines`; 31/01/2027 là Chủ Nhật (H-04) |
-| H-40 | low | `localToday` theo múi giờ máy (hạn theo giờ VN), không test giá trị; tab qua nửa đêm giữ năm/nhãn cũ (cùng gốc H-33) |
-| H-41 | medium | Đổi năm gỡ cả máy tính lẫn sổ, mất dữ liệu gõ dở, xoá cờ stale; nhập file async không huỷ khi gỡ mount |
-| H-42 | medium | Ca R7 yếu: `import-old` dòng 87 vô nghĩa, ca chính một căn trống, không kiểm khoá dự phòng; FAQ thiếu biên ngày và so với `getRules`; `ledger-total` trả trước lỏng |
-| H-43 | medium | Chỉ `localStorage`, không `persist()`, không nhắc xuất; Safari/iOS xoá sau 7 ngày không dùng (chưa thử trên máy) |
+| H-43 | low | R9 thêm `persist()`, "Lần sao lưu cuối", nhắc sau 30 ngày; còn: thử thật Safari/iOS xoá sau 7 ngày không dùng (việc người) |
 | H-44 | low | FAQ hứa "đã qua" nhưng nhãn do JS; không-JS và ô chọn 2027 vẫn thấy ngày 2026 |
 | H-45 | low | `importLedger` không `app` nhận mọi object đủ 5 khoá, bỏ im khoá lạ; thiếu test vòng xuất→nhập đầy đủ |
 | H-46 | low | `BigInt`/`replaceChildren` không phát hiện: trình duyệt cũ chỉ thấy phần tĩnh |
 | H-47 | low | "Chưa có kỳ thu năm N" hiện cả khi có kỳ thu tổng 0 đ |
 | H-48 | low | R8: `overview.ts` đọc thuế suất qua `["rate","Bps"].join("")` để lách quét `rateBps` (`tests/ui/calculator.test.ts`); dòng "cách tính" tự dựng cơ sở × thuế suất (chữ; số tiền vẫn từ engine); `h1` cứng "2026"; lỗi ngày trống ở `src/ledger/ops.ts:48` còn "AAAA-MM-DD" |
+| H-49 | low | R9: ghi `last-backup` lỗi (kho đầy/chặn) thì sau "Xuất JSON" vẫn nhắc; ảnh chụp ô gõ dở giữ khoá form đã mất, giá trị cũ có thể hiện lại; chưa quét chung lỗi gộp selector CSS |
 | H-32 | medium | Chưa ai làm: đo người dùng thật (chỉ `pageview`), Lighthouse mobile ≥ 90, mốc 05/12/2026 |
 | H-33 | low | `today` chốt lúc mount; `endOn < startOn` được nhận; kỳ thu năm khác không báo |
 | H-34 | low | Stale `render()` xoá dữ liệu gõ, mất focus, radio lệch; sự kiện `storage` key/newValue null |
@@ -107,6 +107,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
 
 ## Quyết định gần đây
+- 2026-10-27: Supervisor duyệt R9 (#38; PR đã merge trước bước duyệt, duyệt lại trên 502114d): verify/smoke sạch, T4 389, T5 139, T6 61, T7 34, `tests/build` 73, gzip ~23 KB; 24 ca mới đỏ trên `src` trước R9 (supervisor tự chạy); phép đảo FAQ `<` → `<=` làm đỏ 2 ca; 3 ca biên ngoài repo xanh; 4/4 task DONE (dev-01, dev-02 hai vòng). Không quyết định (c). Đóng H-39, H-40, H-41, H-42; H-43 hạ low; thêm H-49.
 - 2026-10-27: Supervisor duyệt và merge R8 (#35, 4d9b5e8): verify/smoke sạch, T4 331, T5 119, T6 61, T7 34, `tests/build` 66, gzip ~23 KB; Chrome headless 390 px (iframe) và 1280 px không tràn ngang; 3 ca biên ngoài repo xanh; 4/4 task PASS vòng 1. Quyết định (c): cách lách `rateBps` ở `overview.ts` không chặn merge; hướng sửa là `src/rules` xuất sẵn nhãn thuế suất (giữ guard chặt), ghi H-48. Đóng H-13.
 - 2026-10-27: Đóng H-38 (`docs/audits/2026-10-27-2.md`): leader sửa tay, ghim giờ `tests/main.test.ts` và `tests/build/build.test.ts`, thêm ca `main` ở 2027-03-01; dưới đồng hồ giả 2027 mã cũ 3 failed, mã mới 276 passed. Không còn lỗ cao mở.
 - 2026-10-27: Audit R7 (`docs/audits/2026-10-27.md`): thêm H-38..H-47 (1 cao, 4 vừa, 5 thấp); đóng H-20, H-27, H-28 (auditor tự chạy 6 file test R7, 32 passed); H-31 còn luật 2027 và H-39. H-38 cao: test theo đồng hồ thật đỏ từ 01/02/2027. % theo việc ~65%. Đề xuất R8: H-38/H-39/H-40 trước 01/02/2027, rồi H-41/H-42/H-43 cùng H-13, H-29, H-30, H-35, rồi H-32.
