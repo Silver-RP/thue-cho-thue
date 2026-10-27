@@ -49,3 +49,25 @@ for (const width of [390, 1280]) {
     expect(bad.map((v) => `${v.id}: ${v.nodes.length} chỗ`)).toEqual([]);
   });
 }
+
+test("H-67: ở 390px mọi nút đang hiện cao từ 44px, kể cả nhãn chọn tệp", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await open(page, "2027-01-10", S2);
+  const short = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('button, summary, label[for="lg-import-file"]'))
+      .filter((e) => e.offsetParent !== null)
+      .map((e) => ({ t: (e.textContent ?? "").trim().slice(0, 30), h: Math.round(e.getBoundingClientRect().height) }))
+      .filter((x) => x.h < 44),
+  );
+  expect(short).toEqual([]);
+});
+
+test("H-61: ở 390px màn hình đầu có số phải nộp và hạn còn bao nhiêu ngày", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await open(page, "2027-01-10", S2);
+  const due = page.locator("#overview .hero-due");
+  await expect(due).toContainText("31/01/2027");
+  await expect(due).toContainText("còn 21 ngày");
+  const box = await due.boundingBox();
+  expect(box!.y + box!.height).toBeLessThanOrEqual(800);
+});

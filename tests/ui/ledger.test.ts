@@ -170,7 +170,7 @@ describe("sổ doanh thu trên giao diện", () => {
     addProperty("A");
     addContract("A", "T");
     addReceipt("T", "2026-01-05", "5.000.000");
-    const del = () => click(root.querySelector("section.lg-property > form .danger"));
+    const del = () => click(root.querySelector("section.lg-property > .lg-head .lg-edit-property form .danger"));
     del();
     expect(JSON.parse(storage.data.get(LEDGER_KEY)!).properties).toHaveLength(1);
     answer = true;

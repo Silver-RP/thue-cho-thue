@@ -4,6 +4,8 @@ import type { YearSummaryOutcome } from "./year-summary";
 
 export interface OverviewOptions {
   year: number;
+  /** Hôm nay (YYYY-MM-DD) để nói còn bao nhiêu ngày tới hạn; vắng thì chỉ nêu ngày hạn. */
+  today?: string;
   /** Luật của năm đang xem (chỉ cần khi có kết quả tính). */
   rules?: TaxRules;
   /** Năm gần nhất có luật; dùng cho nút "Xem năm Y" khi năm đang xem chưa có luật. */
@@ -36,6 +38,23 @@ function howText(parts: { base: number }[], label: string): string {
   const [only] = live;
   if (live.length === 1 && only) return `${formatVnd(only.base)} × ${label}`;
   return live.map((p) => `${formatVnd(p.base)} × ${label}`).join(" + ");
+}
+
+const dayNo = (iso: string): number => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10))) / 86_400_000;
+
+/** Dòng hạn trong khối tổng quan: hạn gần nhất chưa qua, hoặc hạn cuối nếu đã qua hết. */
+function dueLine(deadlines: { date: string; kind: string }[], today?: string): HTMLElement | null {
+  const next = deadlines.find((d) => !today || d.date >= today) ?? deadlines[deadlines.length - 1];
+  if (!next) return null;
+  const what = next.kind === "revenue_notice" ? "Thông báo doanh thu trước" : "Hạn khai và nộp";
+  const p = el("p", { class: "hero-due" });
+  p.append(`${what} `, el("b", { class: "tnum" }, dmy(next.date)));
+  if (today) {
+    const days = dayNo(next.date) - dayNo(today);
+    const left = days > 0 ? `còn ${days} ngày` : days === 0 ? "hôm nay là hạn cuối" : `đã quá hạn ${-days} ngày`;
+    p.append(", ", el("span", { class: days < 0 ? "late" : days <= 30 ? "soon" : "" }, left));
+  }
+  return p;
 }
 
 function money(amount: number): HTMLElement {
@@ -111,6 +130,8 @@ export function renderOverview(root: HTMLElement, outcome: YearSummaryOutcome | 
     sub.append(money(s.totalRevenue), " và chưa vượt ngưỡng. Bạn chỉ cần thông báo doanh thu.");
     hero.append(sub);
   }
+  const due = dueLine(s.deadlines, options.today);
+  if (due) hero.append(due);
 
   // Thanh ngưỡng
   if (rules) {
