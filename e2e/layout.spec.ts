@@ -27,7 +27,14 @@ test("S28: 360px, chữ 200% vẫn không cuộn ngang", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 900 });
   await open(page, "2027-01-10", S2);
   await page.addStyleTag({ content: "html{font-size:200% !important}" });
-  expect(await overflow(page)).toBeLessThanOrEqual(0);
+  // Đỏ thì nêu phần tử tràn (font Linux của CI rộng hơn máy dev, khó tái hiện tại chỗ).
+  const wide = await page.evaluate(() =>
+    Array.from(document.querySelectorAll("body *"))
+      .filter((e) => e.getBoundingClientRect().right > innerWidth + 0.5 && !e.closest(".table-scroll"))
+      .slice(0, 5)
+      .map((e) => `${e.tagName.toLowerCase()}.${e.getAttribute("class") ?? ""} "${(e.textContent ?? "").trim().slice(0, 30)}"`),
+  );
+  expect(await overflow(page), wide.join(" | ")).toBeLessThanOrEqual(0);
   const sel = page.locator("#tax-year");
   await expect(sel).toBeVisible();
   const box = await sel.boundingBox();
