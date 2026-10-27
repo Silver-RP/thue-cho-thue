@@ -7,7 +7,7 @@ import type { YearSummary } from "../ledger/summary";
 import { summarizeYearSafe, type YearSummaryOutcome } from "./year-summary";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
-import { formatVnd, parseVnd } from "./money";
+import { formatVnd, groupOnBlur, parseVnd } from "./money";
 
 export interface LedgerMountOptions {
   year: number;
@@ -378,6 +378,16 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     return p;
   };
 
+  /** Gập phần ít dùng (sửa, thêm khi đã có) để sổ nhiều kỳ thu không thành chuỗi form dài. */
+  const fold = (cls: string, summary: string | Node[], ...body: Node[]): HTMLDetailsElement => {
+    const d = el("details", { class: cls });
+    const s = el("summary");
+    if (typeof summary === "string") s.textContent = summary;
+    else s.append(...summary);
+    d.append(s, ...body);
+    return d;
+  };
+
   // ---- Từng khối ----
 
   const propertyBlock = (p: Ledger["properties"][number]): HTMLElement => {
@@ -401,11 +411,15 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
         return apply(ops.removeProperty(ledger, p.id, { cascade: ok === true }));
       }, slot),
     );
-    box.append(el("h3", {}, p.name), f.form, slot);
+    const head = el("div", { class: "lg-head" });
+    head.append(el("h3", {}, p.name), fold("lg-edit lg-edit-property", "Sửa căn", f.form, slot));
+    box.append(head);
 
-    box.append(el("h4", {}, "Hợp đồng"));
-    for (const c of ledger.contracts.filter((c) => c.propertyId === p.id)) box.append(contractBlock(c));
-    box.append(addContractForm(p.id));
+    const mine = ledger.contracts.filter((c) => c.propertyId === p.id);
+    box.append(el("h4", { class: "visually-hidden" }, "Hợp đồng"));
+    for (const c of mine) box.append(contractBlock(c));
+    const add = addContractForm(p.id);
+    box.append(mine.length ? fold("lg-add", "+ Thêm hợp đồng khác", add) : add);
     return box;
   };
 
@@ -460,9 +474,19 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
         return apply(ops.removeContract(ledger, c.id, { cascade: ok === true }));
       }, slot),
     );
-    box.append(el("h5", {}, `Hợp đồng: ${c.tenant}`), f.form, slot, el("h5", {}, "Kỳ thu"));
-    for (const r of ledger.receipts.filter((r) => r.contractId === c.id)) box.append(receiptForm(c.id, r));
-    box.append(receiptForm(c.id));
+    const head = el("div", { class: "lg-head" });
+    const title = el("div", { class: "lg-head-title" });
+    title.append(el("h5", {}, `Hợp đồng: ${c.tenant}`), el("p", { class: "sub" }, `Từ ${dmy(c.startOn)}${c.endOn ? ` đến ${dmy(c.endOn)}` : ""}`));
+    head.append(title, fold("lg-edit lg-edit-contract", "Sửa hợp đồng", f.form, slot));
+    box.append(head);
+    const mine = ledger.receipts.filter((r) => r.contractId === c.id).sort((a, b) => a.receivedOn.localeCompare(b.receivedOn));
+    const total = mine.reduce((n, r) => n + r.amount, 0);
+    const caption = el("h6", { class: "lg-receipts-title" }, "Kỳ thu");
+    if (mine.length) caption.append(el("span", { class: "sub tnum" }, ` ${mine.length} kỳ · ${formatVnd(total)}`));
+    box.append(caption);
+    const list = el("div", { class: "lg-receipts" });
+    for (const r of mine) list.append(receiptForm(c.id, r));
+    box.append(list, receiptForm(c.id));
     return box;
   };
 
@@ -491,6 +515,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     toggle.addEventListener("change", sync);
     sync();
     if (r) f.form.setAttribute("data-receipt", r.id);
+    if (f.controls.amount) groupOnBlur(f.controls.amount as HTMLInputElement);
 
     f.form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -524,9 +549,10 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (!r) return f.form;
     const slot = errorSlot();
     f.actions.append(removeButton("Xoá kỳ thu", () => apply(ops.removeReceipt(ledger, r.id)), slot));
-    const wrap = el("div", { class: "lg-receipt" });
-    wrap.append(f.form, slot);
-    return wrap;
+    const line: Node[] = [el("span", { class: "lg-r-date tnum" }, dmy(r.receivedOn)), el("span", { class: "lg-r-amt tnum" }, formatVnd(r.amount))];
+    if (r.prepaid) line.push(el("span", { class: "chip" }, `trả trước ${r.prepaid.years} năm`));
+    line.push(el("span", { class: "lg-r-edit" }, "Sửa"));
+    return fold("lg-receipt", line, f.form, slot);
   };
 
   const choiceBlock = (): HTMLElement => {
@@ -846,7 +872,8 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     if (locked && lockedRaw !== undefined) root.append(lockBlock());
     root.append(el("h2", {}, "Các căn cho thuê"));
     for (const p of ledger.properties) root.append(propertyBlock(p));
-    root.append(addPropertyForm());
+    const addP = addPropertyForm();
+    root.append(ledger.properties.length ? fold("lg-add", "+ Thêm căn khác", addP) : addP);
     if (ledger.contracts.length > 0) root.append(choiceBlock());
     const exportRoot = el("div", { class: "lg-export-root" });
     root.append(summaryBlock(), exportRoot, backupBlock(), el("p", { class: "disclaimer" }, DISCLAIMER));

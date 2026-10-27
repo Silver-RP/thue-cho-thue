@@ -28,3 +28,11 @@ export function formatVnd(n: number): string {
   const digits = String(Math.trunc(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `${digits} đ`;
 }
+
+/** Rời ô tiền: số đọc được thì viết lại có dấu chấm ngăn nghìn ("25000000" → "25.000.000"); chữ sai để nguyên cho thông báo lỗi. */
+export function groupOnBlur(input: HTMLInputElement): void {
+  input.addEventListener("blur", () => {
+    const r = parseVnd(input.value);
+    if (r.ok) input.value = formatVnd(r.value).replace(/ đ$/u, "");
+  });
+}

@@ -1,6 +1,6 @@
 import { availableYears, getRules, type TaxRules } from "../rules";
 import { calculate, type CalcForm, type PrepaidForm } from "./calculator";
-import { formatVnd, parseVnd } from "./money";
+import { formatVnd, groupOnBlur, parseVnd } from "./money";
 
 export interface MountOptions {
   year: number;
@@ -113,6 +113,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   prepaidBox.append(el("legend", {}, "Trả trước nhiều năm"));
   const pAmount = field(prepaidBox, prefix, "Số tiền trả trước (đồng)", el("input", { type: "text", name: "prepaidAmount", inputmode: "numeric", autocomplete: "off" }));
   const pYears = field(prepaidBox, prefix, "Số năm trả trước", el("input", { type: "text", name: "prepaidYears", inputmode: "numeric", autocomplete: "off", value: "2" }));
+  for (const f of [rent, pAmount]) groupOnBlur(f.el as HTMLInputElement);
   const modeSel = el("select", { name: "prepaidMode" });
   modeSel.append(el("option", { value: "allocate" }, "Phân bổ theo số năm"), el("option", { value: "lump" }, "Tính một lần khi nhận"));
   const pMode = field(prepaidBox, prefix, "Cách tính doanh thu trả trước", modeSel);

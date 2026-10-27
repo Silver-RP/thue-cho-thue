@@ -147,6 +147,9 @@ function restore(root: HTMLElement | null, region: string, from: Snapshot): void
     }
     // Các phụ thuộc (khối trả trước...) chạy lại theo ô vừa khôi phục; chỉ đổi giao diện, không lưu.
     if (changed) f.dispatchEvent(new Event("change", { bubbles: true }));
+    // Ô sửa dở nằm trong phần gập của sổ: mở ra để người dùng thấy giá trị mình đang gõ.
+    const fold = f.closest("details");
+    if (fold) fold.open = true;
   });
 }
 
@@ -257,6 +260,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     unmountLedger?.();
     unmountCalc = null;
     unmountLedger = null;
+    for (const t of Array.from(doc.querySelectorAll("[data-view-year]"))) t.textContent = String(year);
     select.value = String(year);
     const rules = extra.get(year);
     const common = { fallbackYear, onSwitchYear: show };
@@ -275,7 +279,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     const onSummary =
       overviewRoot || dueRoot
         ? (outcome: Parameters<typeof renderOverview>[1]): void => {
-            if (overviewRoot) renderOverview(overviewRoot, outcome, { year, rules: rulesOf(), ...common });
+            if (overviewRoot) renderOverview(overviewRoot, outcome, { year, today, rules: rulesOf(), ...common });
             if (dueRoot) renderDue(dueRoot, outcome, { year, today, ...(options.download ? { download: options.download } : {}) });
           }
         : undefined;

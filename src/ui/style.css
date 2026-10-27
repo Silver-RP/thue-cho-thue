@@ -482,6 +482,14 @@ button.primary {
 }
 
 @media (max-width: 760px) {
+  .site-intro .intro-long {
+    display: none;
+  }
+
+  .site-intro h1 {
+    font-size: 1.125rem;
+  }
+
   .topbar {
     padding: 10px 16px;
     flex-wrap: wrap;
@@ -923,4 +931,294 @@ button.primary {
   margin: 4px 0 0;
   color: var(--text);
   font-size: 0.9375rem;
+}
+
+/* Vòng làm đẹp v1 (docs/screens/v1/score.md) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Nút chung: không còn nút xám mặc định của trình duyệt */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--muted) 35%, var(--surface));
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--bg);
+}
+
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+button.primary:hover {
+  background: color-mix(in srgb, var(--primary) 85%, var(--text));
+}
+
+button.danger {
+  color: var(--due);
+  border-color: color-mix(in srgb, var(--due) 30%, var(--surface));
+}
+
+button.danger:hover {
+  background: var(--due-soft);
+}
+
+.lg-export button.copy {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+/* Ô chọn tệp: nhãn trông như nút, ô thật ẩn nhưng vẫn nhận bàn phím */
+.lg-backup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.lg-backup > h2,
+.lg-backup > .lg-backup-info,
+.lg-backup > .form-error {
+  flex-basis: 100%;
+  margin-top: 0;
+}
+
+.lg-backup label[for="lg-import-file"] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--muted) 35%, var(--surface));
+  border-radius: 0.5rem;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.lg-backup input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.lg-backup:has(input[type="file"]:focus-visible) label[for="lg-import-file"] {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Hạn trong khối tổng quan */
+.hero .hero-due {
+  margin: 10px 0 0;
+  font-weight: 600;
+}
+
+.hero-due .soon {
+  color: var(--warn);
+}
+
+.hero-due .late {
+  color: var(--due);
+}
+
+/* Sổ gọn: căn, hợp đồng, kỳ thu */
+.lg-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.lg-head h3,
+.lg-head h5 {
+  margin: 0;
+}
+
+.lg-head-title .sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.lg-head h5 {
+  font-size: 1rem;
+}
+
+.lg-edit > summary,
+.lg-add > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lg-edit > summary::-webkit-details-marker,
+.lg-add > summary::-webkit-details-marker,
+.lg-receipt > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lg-edit[open] {
+  flex-basis: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.lg-add {
+  margin: 8px 0 0;
+}
+
+.lg-add > summary {
+  width: 100%;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--muted) 35%, var(--surface));
+  border-radius: 0.5rem;
+}
+
+.lg-add[open] > summary {
+  margin-bottom: 12px;
+}
+
+.lg-property {
+  padding: 16px;
+}
+
+.lg-contract {
+  padding: 12px;
+  margin: 12px 0 0;
+}
+
+.lg-receipts-title {
+  margin: 12px 0 4px;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.lg-receipts-title .sub {
+  font-weight: 400;
+}
+
+.lg-receipts {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+}
+
+.lg-receipt {
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+}
+
+.lg-receipt:last-child {
+  border-bottom: 0;
+}
+
+.lg-receipt > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lg-receipt > summary:hover {
+  background: var(--bg);
+}
+
+.lg-r-amt {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.lg-r-edit {
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.lg-receipt[open] > summary .lg-r-edit {
+  visibility: hidden;
+}
+
+.lg-receipt[open] > .lg-form,
+.lg-receipt[open] > .form-error {
+  padding: 4px 12px 12px;
+}
+
+/* Form kỳ thu: ngày và số tiền cạnh nhau */
+.lg-receipt-add,
+.lg-receipt-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 12px;
+}
+
+.lg-receipt-add {
+  margin-top: 8px;
+}
+
+.lg-receipt-add > .field-check,
+.lg-receipt-form > .field-check,
+.lg-receipt-add > .lg-actions,
+.lg-receipt-form > .lg-actions,
+.lg-receipt-add > .form-error,
+.lg-receipt-form > .form-error {
+  grid-column: 1 / -1;
+}
+
+/* Chữ phóng to (S28): dòng kỳ thu xuống hàng thay vì tràn ngang */
+.lg-receipt > summary {
+  flex-wrap: wrap;
+  row-gap: 2px;
+  padding-block: 6px;
+}
+
+.lg-receipts-title .sub {
+  white-space: normal;
+}
+
+/* Form thêm căn là một khối như các căn; số trong bảng căn phải */
+.lg-property-add {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 16px;
+  margin-bottom: 1rem;
+}
+
+.result-table td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
