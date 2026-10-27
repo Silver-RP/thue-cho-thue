@@ -1222,3 +1222,23 @@ button.danger:hover {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* Chữ phóng to trên font rộng (CI Linux): tên trang cắt bằng dấu ba chấm, số kỳ thu được xuống dòng */
+.brand {
+  min-width: 0;
+}
+
+.brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lg-receipt > summary > *,
+.lg-head > * {
+  min-width: 0;
+}
+
+.lg-r-amt {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
