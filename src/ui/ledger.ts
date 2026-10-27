@@ -32,6 +32,8 @@ export interface LedgerMountOptions {
   onSummary?: (outcome: YearSummaryOutcome | null) => void;
   /** Cờ "sổ đã đổi ở tab khác" mang từ lần gắn trước (đổi năm gắn lại không xoá cờ). */
   stale?: boolean;
+  /** Chuỗi khoá chính lần gắn trước đã đọc/ghi; khác kho hiện tại thì bật stale. Mount cập nhật chính đối tượng này. */
+  seen?: { known: boolean; raw: string | null | undefined };
   /** Báo khi cờ stale đổi (true khi tab khác ghi, false khi người dùng tải lại sổ). */
   onStale?: (stale: boolean) => void;
   /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
@@ -139,6 +141,12 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
       });
       (control as HTMLInputElement).value = s.value ?? "";
     }
+    // Giá trị lúc dựng là mặc định của ô (thuộc tính HTML) để startApp biết ô nào người dùng đã sửa.
+    if (control instanceof HTMLSelectElement) {
+      for (const o of Array.from(control.options)) if (o.value === control.value) o.setAttribute("selected", "");
+    } else if (s.kind === "check") {
+      if ((control as HTMLInputElement).checked) control.setAttribute("checked", "");
+    } else control.setAttribute("value", control.value);
     control.id = id;
     const wrap = el("div", { class: s.kind === "check" ? "field field-check" : "field" });
     const label = el("label", { for: id }, s.label);
@@ -240,6 +248,19 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
   let lastSeen = readRaw();
   /** Tab khác đã đổi khoá chính. */
   let stale = options.stale === true;
+  if (options.seen?.known && options.seen.raw !== lastSeen) {
+    // Gắn lại mà kho đã khác lần trước tab này đọc/ghi (tab khác sửa không phát sự kiện): bật cờ stale.
+    stale = true;
+    options.onStale?.(true);
+  }
+  if (options.seen) {
+    options.seen.known = true;
+    options.seen.raw = lastSeen;
+  }
+  const setSeen = (raw: string | null | undefined): void => {
+    lastSeen = raw;
+    if (options.seen) options.seen.raw = raw;
+  };
   /** Đã gỡ: các việc đến muộn (đọc file) không được ghi hay vẽ nữa. */
   let disposed = false;
   /** Đã xin giữ dữ liệu trong lần gắn này (chỉ xin một lần). */
@@ -263,7 +284,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     locked = again.locked === true;
     lockedRaw = again.raw;
     pageError = locked ? LOCKED_MESSAGE : (again.error ?? null);
-    lastSeen = readRaw();
+    setSeen(readRaw());
     stale = false;
     options.onStale?.(false);
     render();
@@ -283,7 +304,7 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     }
     const saved = saveLedger(storage, result);
     if (!saved.ok) return saved.error;
-    lastSeen = readRaw();
+    setSeen(readRaw());
     ledger = result;
     pageError = null;
     render();

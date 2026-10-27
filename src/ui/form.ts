@@ -129,6 +129,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   for (const [value, text] of [["once", "Khai 1 lần"], ["twice", "Khai 2 lần"]] as const) {
     const lab = el("label");
     const r = el("input", { type: "radio", name: "filing", value });
+    if (value === "once") r.setAttribute("checked", "");
     r.checked = value === "once";
     radios.push(r);
     lab.append(r, text);
