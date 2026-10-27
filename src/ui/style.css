@@ -1248,3 +1248,9 @@ button.danger:hover {
   overflow-wrap: anywhere;
   min-width: 0;
 }
+
+.due .due-date,
+.lg-card-revenue {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
