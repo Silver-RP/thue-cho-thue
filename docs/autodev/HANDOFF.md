@@ -1,6 +1,7 @@
 # Bàn giao giữa các phiên
 
 ## Trạng thái (2026-10-28)
+- Sau R11: vòng làm đẹp v1–v3 (#53–#58), ui_check 19/20; T4 474, T10 41 passed.
 - R1–R10 đã merge (#5, #8, #11, #15, #18, #24, #29, #35, #38, #44). H-08, H-13, H-38..H-42, H-50..H-54 đã đóng.
 - R11 (test trình duyệt thật T10) đã duyệt và merge (#50, 6d56929): đạt 10/10, verify/smoke sạch, T10 `yarn -s e2e` 37 passed (lặp 3 lần 111), 0 `test.fail`, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, `tests/build` 73, gzip ~26 KB. Đóng H-58 (9 ca đỏ trên src trước R11); thu hẹp H-21, H-29, H-35; thêm H-60 (reflow 320 px).
 - Goal `thue-cho-thue-v1`: R1–R11 đều `done`; T1–T10 đạt (100% theo chỉ số). Không còn mốc `planned` trong goal.
@@ -14,8 +15,13 @@
 - Plugin: `.autodev/reviews/dev-0N-r1.json` trùng tên giữa các mốc nên bị ghi đè (báo cáo R11).
 - Chưa kiểm: điện thoại thật (bàn phím ô `type="date"`), đồng hồ thật tháng 1/2027, `.ics` vào Calendar thật, CSV bằng Excel thật.
 
-## Bước tiếp theo
-- `/autodev:propose-next` (dựa audit `2026-10-27-3` và đề xuất chờ duyệt của R10, R11) để thêm mốc sửa vào goal; hoặc `/autodev:audit R10 R11` trước nếu muốn đo lại % theo việc.
+## Bước tiếp theo (cập nhật 2026-10-28)
+- Đã xong trong phiên: R11 merge (#50, ~11,49 USD); audit R10–R11 (#52, thêm H-61..H-76, không lỗ cao); bộ phản biện `docs/autodev/CRITICS.md` (V1–V6, S1–S28); 16 câu hỏi kế toán; vòng làm đẹp 0 USD v1 16 (#53) → v2 17 (#57) → v3 19/20 (#58), sửa chữ 200% font Linux (#54–#56), ảnh + bảng điểm `docs/screens/v1..v3`; đóng H-61, H-67. Main e49a1de, CI test + deploy xanh. Nhánh đã merge (design/v1..v3, fix/v1-linux-200, -b, -c) chưa xoá (chờ duyệt).
+- Làm tiếp theo thứ tự:
+  1. **Chờ leader**: gửi 16 câu hỏi kế toán (gấp trước hạn 31/01/2027, Chủ Nhật); xác nhận cơ sở GTGT (L5) và mẫu tờ khai; chọn dịch vụ đo/biểu mẫu (H-32, mốc 05/12/2026); duyệt chữ trang (mục Việc mở).
+  2. v4 làm đẹp (0 USD): ô ngày dd/mm/yyyy tự viết (cần test logic), "Chưa có kỳ thu" lặp hai lần, nhãn bảng Kết quả xuống 3–4 dòng ở 1280 px (`docs/screens/v3/score.md`).
+  3. Runner sửa lỗ vừa H-62..H-76 bằng `/autodev:propose-next` (ước 6–8 USD, cần leader duyệt ngân sách).
+  4. Luật 2027 (H-31) trước 01/02/2027.
 
 ## Quyền và quy tắc
 - Theo bảng quyền trong `/autodev:supervise`: supervisor tự duyệt/merge mốc và PR hồ sơ; mọi thao tác xoá phải hỏi người dùng. Nội dung trang công khai (`index.html`) để leader duyệt.

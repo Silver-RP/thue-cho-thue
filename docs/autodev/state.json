@@ -288,13 +288,6 @@
       "milestone": null
     },
     {
-      "id": "H-61",
-      "severity": "medium",
-      "summary": "Điện thoại 390 px: thẻ hạn cuối trang, hero không nêu ngày",
-      "text": "Điện thoại 390 px: thẻ hạn cuối trang, hero không nêu ngày (docs/audits/2026-10-28.md)",
-      "milestone": null
-    },
-    {
       "id": "H-62",
       "severity": "medium",
       "summary": "Từ 01/02 năm mặc định 2027 che thuế 2026 quá hạn",
@@ -327,13 +320,6 @@
       "severity": "medium",
       "summary": "e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn, múi giờ trùng, Chromium Desktop); 9 mã S chưa có ca",
       "text": "e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn, múi giờ trùng, Chromium Desktop); 9 mã S chưa có ca (docs/audits/2026-10-28.md)",
-      "milestone": null
-    },
-    {
-      "id": "H-67",
-      "severity": "medium",
-      "summary": "ui_check 11/20 (min 16); nút khối xuất ≈21 px (< 44)",
-      "text": "ui_check 11/20 (min 16); nút khối xuất ≈21 px (< 44) (docs/audits/2026-10-28.md)",
       "milestone": null
     },
     {
@@ -573,6 +559,10 @@
     {
       "date": "2026-10-28",
       "text": "Audit R10–R11 (docs/audits/2026-10-28.md): thêm H-61..H-76 (10 vừa, 6 thấp), không đóng H-xx, không lỗ cao; số tiền khớp tính tay S1–S17. % theo việc ~67%. Đề xuất R12..R15; H-32 còn 38 ngày, luật 2027 còn 96 ngày."
+    },
+    {
+      "date": "2026-10-28",
+      "text": "Vòng làm đẹp leader-tự-làm (0 USD), chấm docs/design/RUBRIC.md: v0 11 → v1 16 (#53) → v2 17 (#57) → v3 19/20 (#58); sửa chữ 200% font Linux qua #54–#56. Đóng H-61 (e2e layout.spec.ts \"H-61\": hạn và \"còn N ngày\" trong 800 px đầu ở 390 px) và H-67 (e2e \"H-67\": mọi nút/summary/nhãn tệp ≥ 44 px; ui_check 19 ≥ 16). T4 474, T10 41 passed. Còn: ô ngày gốc trình duyệt (mm/dd/yyyy trong Chromium nền)."
     }
   ]
 }

@@ -25,13 +25,13 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | T1 | `yarn -s test tests/tax` | 0 failed, ≥ 15 passed | 25 passed |
 | T2 | `yarn -s test tests/rules` | 0 failed, ≥ 4 passed | 7 passed |
 | T3 | `yarn -s lint` | exit 0 | exit 0 |
-| T4 | `yarn -s test` | 0 failed | 459 passed |
+| T4 | `yarn -s test` | 0 failed | 474 passed |
 | T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 188 passed |
 | T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 61 passed |
 | T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 34 passed |
 | T8 | `yarn -s build && yarn -s test tests/build` | build 0, 0 failed, gzip ≤ 100 KB | build 0, 73 passed, ~26 KB |
 | T9 | `curl -fsS https://silver-rp.github.io/thue-cho-thue/ \| grep -q "Thuế cho thuê"` | exit 0 | exit 0 (Pages bật; smoke `scripts/smoke-pages.sh` sạch) |
-| T10 | `yarn -s e2e` | 0 failed, 0 `test.fail`, ≥ 25 passed | 37 passed (R11; lặp 3 lần 111 passed) |
+| T10 | `yarn -s e2e` | 0 failed, 0 `test.fail`, ≥ 25 passed | 41 passed (sau vòng làm đẹp v3; R11: 37, lặp 3 lần 111) |
 
 ## Kiến trúc hiện nay
 - `src/rules/`: `types.ts` (`TaxRules`), `2026.ts` (mọi số luật + căn cứ L1–L7), `index.ts` (`getRules(year)`, năm chưa có thì ném lỗi).
@@ -115,19 +115,18 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-35 | low | Xuất JSON khi khoá ra sổ rỗng (R11 bỏ nút "Bắt đầu sổ mới" khi `getItem` ném) |
 | H-36 | low | Test R6 rỗng (2 ca khoá), `events` mặc định `window` không test, `smoke-pages.sh` không test |
 | H-37 | low | Dữ liệu thử toàn số tròn, thiếu ca lẻ/5 căn; `lint` chỉ là `tsc --noEmit` |
-| H-61 | medium | 390 px: thẻ hạn cuối trang, hero không nêu ngày (`index.html:54`) |
 | H-62 | medium | Từ 01/02 năm mặc định 2027 che thuế 2026 quá hạn (hero/thẻ hạn chỉ nói chưa có luật) |
 | H-63 | medium | `pitBase`/`vatBase`/nhãn chỉ ở biên lai; máy tính, 01/TTS, CSV, Chép, thẻ không có cơ sở |
 | H-64 | medium | `setItem`-only ném: sổ không giữ, không nhắc "Xuất JSON" (mở rộng H-29) |
 | H-65 | medium | Deploy chạy e2e nhưng không test giữ; e2e build khác bản deploy; `reuseExistingServer` |
 | H-66 | medium | e2e khẳng định rỗng/điều kiện (S18, S20, S25, S10, thẻ căn ẩn ở 1280, múi giờ trùng); 9 mã S chưa có ca |
-| H-67 | medium | `ui_check` 11/20 (min 16); nút khối xuất ≈21 px (< 44) |
 | H-68 | medium | Qua 00:00 mất năm đang xem nếu năm chỉ có nhờ sổ (`start.ts:317`) |
 | H-69 | medium | Giả định chưa xác nhận nói như chắc chắn (phân bổ năm dương lịch, quá hạn Chủ nhật, thông báo, khai 2 lần) |
 | H-70 | medium | Ô số tiền/ngày nhận không nhắc ngày nhận tiền, cọc, điện nước |
 | H-71..76 | low | a11y/khung (main, focus sau lưu, aria-live); khoá ma `carried`; câu "không đổi tổng" lệch đồng; kỳ thu 0 từ file; pageview lặp lúc 00:00; nhập đè không `preserveRaw`: xem audit 2026-10-28 |
 
 ## Quyết định gần đây
+- 2026-10-28: Vòng làm đẹp leader-tự-làm (0 USD), chấm `docs/design/RUBRIC.md`: v0 11 → v1 16 (#53) → v2 17 (#57) → v3 19/20 (#58); sửa chữ 200% font Linux qua #54–#56. Đóng H-61 (e2e `layout.spec.ts` "H-61": hạn và "còn N ngày" trong 800 px đầu ở 390 px) và H-67 (e2e "H-67": mọi nút/summary/nhãn tệp ≥ 44 px; ui_check 19 ≥ 16). T4 474, T10 41 passed. Còn: ô ngày gốc trình duyệt (mm/dd/yyyy trong Chromium nền).
 - 2026-10-28: Audit R10–R11 (`docs/audits/2026-10-28.md`): thêm H-61..H-76 (10 vừa, 6 thấp), không đóng H-xx, không lỗ cao, số khớp tính tay S1–S17. % ~67%. Đề xuất R12 điện thoại/đúng ngày, R13 e2e đo thật, R14 cơ sở tính + giả định, R15 không mất sổ; H-32 còn 38 ngày, luật 2027 còn 96 ngày.
 - 2026-10-28: Supervisor duyệt và merge R11 (#50, 6d56929): verify/smoke sạch, T10 37 passed (lặp 3 lần 111), 0 `test.fail`, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, `tests/build` 73, gzip ~26 KB; H-58: 9 ca đỏ trên `src/start.ts`+`main.ts` trước R11 (supervisor tự chạy); 4/4 task PASS vòng 1. Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60.
 - 2026-10-28: Supervisor duyệt và merge R10 (#44, 3d576a9): verify/smoke sạch, T4 429, T5 168, T6 61, T7 34, `tests/build` 73, gzip ~24,9 KB; 31 ca mới đỏ trên `src` trước R10 (supervisor tự chạy); Chrome headless 390 (iframe)/820/1280 không tràn, thẻ 390 có TNCN/GTGT, `.side` 820 nằm trên sổ; 2 ca biên ngoài repo xanh; 4/4 task DONE (dev-02 hai vòng). Không quyết định (c). Đóng H-50..H-54; thu hẹp H-48, H-57.
