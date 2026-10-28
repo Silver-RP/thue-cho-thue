@@ -485,3 +485,40 @@ Supervisor tự chạy trên `de79918` (đầu nhánh `milestone/R11`), worktree
 - Lỗi plugin: `.autodev/reviews/dev-0N-r1.json` trùng tên giữa các mốc nên bị ghi đè (bản cũ còn trong git) → việc của plugin.
 
 Quyết định: đạt 10/10 tiêu chí cấp mốc; merge #50 (merge commit, không xoá nhánh; main không có check bắt buộc). Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60. Thí nghiệm superpowers: config không bật, bỏ qua. Goal `thue-cho-thue-v1`: R11 `done`, T10 đạt.
+
+<!-- metrics:start (tự sinh bởi .autodev/metrics.py, đừng sửa tay) -->
+## Số đo plugin B1–B5 (định nghĩa: ROADMAP bảng B)
+
+### B1 Lỗi lọt qua review (lỗ hổng mới mức cao + vừa / task trong phạm vi audit; ngưỡng ≤ 0,5)
+
+| Audit | Phạm vi | Lỗ hổng mới cao+vừa | Task | B1 |
+|---|---|---|---|---|
+| 2026-10-26.md | R1, R2, R3 | 8 | 12 | 0,67 |
+| 2026-10-26-2.md | R4, R5 | 4 | 8 | 0,50 |
+| 2026-10-26-3.md | – | 0 | 0 | – |
+| 2026-10-26-4.md | R6 | 6 | 4 | 1,50 |
+| 2026-10-27.md | R7 | 5 | 4 | 1,25 |
+| 2026-10-27-2.md | – | 0 | 0 | – |
+| 2026-10-27-3.md | R8, R9 | 4 | 8 | 0,50 |
+| 2026-10-28.md | R10, R11 | 10 | 8 | 1,25 |
+
+### B2 Độ chặt review: 3/44 task cần ≥ 2 vòng (7%). Đọc cùng B1: B2 thấp mà B1 cao là reviewer lỏng.
+
+### B3–B5 theo mốc (B3: thực tế / ước tính, 1,0 = trong khoảng, ngưỡng 0,5–2; B4: số lần runner dừng, ngưỡng 0; B5: chi phí trên task)
+
+| Mốc | Task | Phút worker | USD | Phút/task | USD/task | Lượt | B3 phút | B3 USD | B4 dừng |
+|---|---|---|---|---|---|---|---|---|---|
+| R1 | 4 | 8 | 2,23 | 2,1 | 0,56 | 75 | 0,14 | 0,56 | 0 |
+| R10 | 4 | 29 | 5,75 | 7,2 | 1,44 | 124 | 1,30 | 1,28 | 0 |
+| R11 | 4 | 47 | 5,66 | 11,7 | 1,42 | 111 | 1,33 | 1,03 | 0 |
+| R2 | 4 | 11 | 2,53 | 2,7 | 0,63 | 76 | 0,53 | 0,63 | 0 |
+| R3 | 4 | 15 | 4,21 | 3,8 | 1,05 | 92 | 0,76 | 1,14 | 0 |
+| R4 | 4 | 12 | 3,50 | 3,1 | 0,88 | 86 | 0,83 | 1,17 | 0 |
+| R5 | 4 | 12 | 2,95 | 3,1 | 0,74 | 70 | 0,87 | 0,98 | 1 |
+| R6 | 4 | 18 | 3,88 | 4,6 | 0,97 | 97 | 1,16 | 0,97 | 0 |
+| R7 | 4 | 20 | 4,16 | 5,1 | 1,04 | 108 | 1,13 | 1,04 | 1 |
+| R8 | 4 | 22 | 5,08 | 5,5 | 1,27 | 117 | 0,92 | 1,02 | 0 |
+| R9 | 4 | 29 | 6,10 | 7,1 | 1,53 | 139 | 1,43 | 1,53 | 0 |
+
+– = mốc chưa chạy. Phút = giờ thật của worker trong `run.log` (ước tính chỉ tính worker); USD gồm worker + supervisor. `+ ~x`: chưa có `runs/*.json` của supervisor (nó đang chạy), cộng tạm chi phí supervisor trung bình; chạy lại `--write` sau khi mốc xong để có số thật. Mốc trước R4 chạy chế độ A (không có `runs/*.json`) nên hiện –.
+<!-- metrics:end -->
