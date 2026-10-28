@@ -85,7 +85,7 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     const ledger = getLedger();
     const noRevenue = (): void => {
       note(`Chưa có kỳ thu năm ${year}. Hãy nhập kỳ thu để xem hạn khai và bảng số liệu.`);
-      disclaimer();
+      // Chưa có số nào để miễn trừ; câu miễn trừ của sổ ở cuối đã đủ.
     };
     if (ledger.receipts.length === 0) return noRevenue();
 

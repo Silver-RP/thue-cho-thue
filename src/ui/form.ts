@@ -245,7 +245,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
     for (const [name, value, tag] of rows) {
       const tr = el("tr");
       tr.append(el("th", { scope: "row" }, name));
-      const td = el("td", {}, value);
+      const td = el("td", /\d\s*đ$/u.test(value) ? { class: "tnum" } : {}, value);
       if (tag) td.append(" ", el("span", { class: "badge", ...(tag === "đã qua" ? { "data-past": "" } : {}) }, `(${tag})`));
       tr.append(td);
       tbody.append(tr);

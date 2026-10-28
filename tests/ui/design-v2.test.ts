@@ -39,3 +39,23 @@ describe("sổ trống không có tiêu đề trống", () => {
     expect(heads).not.toContain("Thuế theo hợp đồng");
   });
 });
+
+describe("v3: sổ trống chỉ một câu miễn trừ", () => {
+  it("phần hạn khai khi chưa có kỳ thu không lặp câu miễn trừ của sổ", () => {
+    const n = Array.from(document.querySelectorAll("#ledger p")).filter((p) => p.textContent?.includes("không thay thế tư vấn thuế")).length;
+    expect(n).toBe(1);
+  });
+});
+
+describe("v3: bảng kết quả tính nhanh giữ số tiền một dòng", () => {
+  it("ô số tiền có lớp tnum, ô trạng thái chữ thì không", () => {
+    $<HTMLInputElement>("#app [name=rent]").value = "25.000.000";
+    $("#app form").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    const cells = Array.from(document.querySelectorAll<HTMLTableCellElement>("#app .result-table td"));
+    const money = cells.filter((c) => /\d\s*đ/.test(c.textContent ?? ""));
+    expect(money.length).toBeGreaterThan(0);
+    for (const c of money) expect(c.classList.contains("tnum")).toBe(true);
+    const status = cells.find((c) => c.textContent?.includes("Chỉ thông báo"))!;
+    expect(status.classList.contains("tnum")).toBe(false);
+  });
+});
