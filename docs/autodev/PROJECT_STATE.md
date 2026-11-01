@@ -1,6 +1,6 @@
 # Trạng thái dự án (đọc trước plan mốc)
 
-Cập nhật: 2026-10-28 · Nguồn: audit R10–R11 (`docs/audits/2026-10-28.md`), duyệt R11 (#50), duyệt R10 (#44), audit R8–R9 (`docs/audits/2026-10-27-3.md`), duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
+Cập nhật: 2026-11-01 · **Dự án tạm dừng** · Nguồn: audit R10–R11 (`docs/audits/2026-10-28.md`), duyệt R11 (#50), duyệt R10 (#44), audit R8–R9 (`docs/audits/2026-10-27-3.md`), duyệt R9 (#38), duyệt R8 (#35), đóng H-38 (`2026-10-27-2`), audit R7 (`docs/audits/2026-10-27.md`), duyệt R7 (#29), audit R6 (`docs/audits/2026-10-26-4.md`), audit R4–R5 (`docs/audits/2026-10-26-2.md`), audit R1–R3 (`docs/audits/2026-10-26.md`), duyệt R4 (#15), duyệt R5 (#18), đóng H-08 (`2026-10-26-3`), duyệt R6 (#24)
 
 ## Mốc
 | Mốc | Trạng thái | Ghi chú |
@@ -25,7 +25,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | T1 | `yarn -s test tests/tax` | 0 failed, ≥ 15 passed | 25 passed |
 | T2 | `yarn -s test tests/rules` | 0 failed, ≥ 4 passed | 7 passed |
 | T3 | `yarn -s lint` | exit 0 | exit 0 |
-| T4 | `yarn -s test` | 0 failed | 474 passed |
+| T4 | `yarn -s test` | 0 failed | 505 passed |
 | T5 | `yarn -s test tests/ui` | 0 failed, ≥ 6 passed | 188 passed |
 | T6 | `yarn -s test tests/ledger` | 0 failed, ≥ 8 passed | 61 passed |
 | T7 | `yarn -s test tests/export` | 0 failed, ≥ 6 passed | 34 passed |
@@ -126,6 +126,7 @@ Goal `thue-cho-thue-v1` (`docs/goals/thue-cho-thue-v1/goal.json`): web app tĩnh
 | H-71..76 | low | a11y/khung (main, focus sau lưu, aria-live); khoá ma `carried`; câu "không đổi tổng" lệch đồng; kỳ thu 0 từ file; pageview lặp lúc 00:00; nhập đè không `preserveRaw`: xem audit 2026-10-28 |
 
 ## Quyết định gần đây
+- 2026-11-01: Leader tạm dừng dự án: eTax là app chính thống và đã đủ dùng, khó có người dùng app ngoài. Trang giữ online kèm dòng ngừng cập nhật (#69). Trước đó: v4 theo ảnh mẫu (#61–#63, 19/20), đổi sang mẫu 01/BĐS Thông tư 50 (#65–#67), giải đáp dưới ngưỡng và hộ kinh doanh (#68). T4 505, T10 51 kể cả ảnh. Chưa có kế toán xác nhận, chưa hỏi chủ nhà.
 - 2026-10-28: Vòng làm đẹp leader-tự-làm (0 USD), chấm `docs/design/RUBRIC.md`: v0 11 → v1 16 (#53) → v2 17 (#57) → v3 19/20 (#58); sửa chữ 200% font Linux qua #54–#56. Đóng H-61 (e2e `layout.spec.ts` "H-61": hạn và "còn N ngày" trong 800 px đầu ở 390 px) và H-67 (e2e "H-67": mọi nút/summary/nhãn tệp ≥ 44 px; ui_check 19 ≥ 16). T4 474, T10 41 passed. Còn: ô ngày gốc trình duyệt (mm/dd/yyyy trong Chromium nền).
 - 2026-10-28: Audit R10–R11 (`docs/audits/2026-10-28.md`): thêm H-61..H-76 (10 vừa, 6 thấp), không đóng H-xx, không lỗ cao, số khớp tính tay S1–S17. % ~67%. Đề xuất R12 điện thoại/đúng ngày, R13 e2e đo thật, R14 cơ sở tính + giả định, R15 không mất sổ; H-32 còn 38 ngày, luật 2027 còn 96 ngày.
 - 2026-10-28: Supervisor duyệt và merge R11 (#50, 6d56929): verify/smoke sạch, T10 37 passed (lặp 3 lần 111), 0 `test.fail`, đủ 11 mã S; T4 459, T5 188, T6 61, T7 34, `tests/build` 73, gzip ~26 KB; H-58: 9 ca đỏ trên `src/start.ts`+`main.ts` trước R11 (supervisor tự chạy); 4/4 task PASS vòng 1. Không quyết định (c). Đóng H-58; thu hẹp H-21, H-29, H-35; thêm H-60.
