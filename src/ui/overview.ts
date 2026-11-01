@@ -163,6 +163,19 @@ export function renderOverview(root: HTMLElement, outcome: YearSummaryOutcome | 
   }
   root.append(hero);
 
+  // Các căn: chỉ doanh thu. Ngưỡng trừ một lần trên tổng nên không chia thuế theo căn.
+  const earning = s.revenueByProperty.filter((p) => p.revenue > 0);
+  const homes = el("section", { class: "card homes", "aria-labelledby": "homes-title" });
+  homes.append(el("h2", { id: "homes-title" }, "Các căn"));
+  const homeList = el("ul", { class: "home-list" });
+  for (const p of earning) {
+    const li = el("li");
+    li.append(el("span", {}, p.name), money(p.revenue));
+    homeList.append(li);
+  }
+  homes.append(homeList, el("a", { href: "#ledger", class: "homes-more" }, "Mở sổ doanh thu"));
+  root.append(homes);
+
   // Biên lai "Cách tính"
   const props = s.revenueByProperty.filter((p) => p.revenue > 0).length;
   const box = el("section", { class: "card", "aria-labelledby": "receipt-title" });

@@ -1,4 +1,4 @@
-import { availableYears, type TaxRules } from "../rules";
+import { availableYears, getRules, type TaxRules } from "../rules";
 import { APP_ID, exportLedger, importLedger } from "../ledger/backup";
 import { emptyLedger, isLedgerError, type Contract, type Ledger, type LedgerResult, type Receipt } from "../ledger/model";
 import * as ops from "../ledger/ops";
@@ -9,6 +9,11 @@ import { dateField, dmyToIso, isoToDmy } from "./date-input";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
 import { formatVnd, groupOnBlur, parseVnd } from "./money";
+
+/** Căn đang mở trong Sổ; null = danh sách căn. */
+export interface LedgerView {
+  property: string | null;
+}
 
 export interface LedgerMountOptions {
   year: number;
@@ -39,6 +44,10 @@ export interface LedgerMountOptions {
   seen?: { known: boolean; raw: string | null | undefined };
   /** Báo khi cờ stale đổi (true khi tab khác ghi, false khi người dùng tải lại sổ). */
   onStale?: (stale: boolean) => void;
+  /** Căn đang mở; truyền cùng đối tượng để giữ qua các lần gắn lại. */
+  view?: LedgerView;
+  /** Nơi đặt phần tờ khai (màn hình Hạn, tờ khai); vắng thì nằm trong sổ. */
+  exportRoot?: HTMLElement;
   /** Xin trình duyệt giữ dữ liệu (mặc định navigator.storage.persist); chỉ để test. */
   persist?: () => Promise<boolean>;
 }
@@ -56,6 +65,9 @@ function daysBetween(from: string, to: string): number {
 }
 
 const BACKUP_REMIND_DAYS = 30;
+
+const EMPTY_ART =
+  '<svg viewBox="0 0 160 110" aria-hidden="true"><path d="M30 52 70 22l40 30" /><path d="M38 47v45h64V47" /><path d="M62 92V66h16v26" class="accent" /><path d="M84 62h12v12H84z" /><path d="M100 96c8-6 18-6 26-2 8-4 18-4 26 2V58c-8-6-18-6-26-2-8-4-18-4-26 2z" /><path d="M126 56v38" class="accent" /></svg>';
 
 type Props = Partial<Record<string, string>>;
 
@@ -250,6 +262,7 @@ const RECEIPT_ROUTES: [string, string][] = [
 export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () => void {
   const { year, storage, rules, today } = options;
   const newId = options.newId ?? defaultNewId;
+  const view: LedgerView = options.view ?? { property: null };
   const confirmFn = options.confirm ?? ((m: string) => (typeof window !== "undefined" && typeof window.confirm === "function" ? window.confirm(m) : false));
 
   const loaded = loadLedger(storage);
@@ -394,6 +407,13 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
 
   const propertyBlock = (p: Ledger["properties"][number]): HTMLElement => {
     const box = el("section", { class: "lg-property", "data-property": p.id });
+    box.hidden = view.property !== p.id;
+    const back = el("button", { type: "button", class: "lg-back" }, "← Các căn");
+    back.addEventListener("click", () => {
+      view.property = null;
+      render();
+    });
+    box.append(back);
     const f = buildForm("lg-property-form", [
       { name: "name", label: "Tên căn", value: p.name },
       { name: "address", label: "Địa chỉ", value: p.address ?? "" },
@@ -832,9 +852,54 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       f.clearErrors();
       const address = val(f, "address");
       const err = apply(ops.addProperty(ledger, { name: val(f, "name"), ...(address ? { address } : {}) }, newId));
-      if (err) routeError(f, err, [["Tên căn", "name"], ["Địa chỉ", "address"]]);
+      if (err) {
+        routeError(f, err, [["Tên căn", "name"], ["Địa chỉ", "address"]]);
+        return;
+      }
+      // Căn vừa thêm mở luôn để nhập hợp đồng.
+      view.property = ledger.properties[ledger.properties.length - 1]?.id ?? null;
+      render();
     });
     return f.form;
+  };
+
+  /** Danh sách căn: mỗi căn một dòng bấm được, số lấy từ tổng năm. */
+  const listBlock = (): HTMLElement => {
+    const box = el("section", { class: "lg-list", "aria-label": "Danh sách căn" });
+    const out = summarizeYearSafe(ledger, year, rules);
+    const revenue = new Map("summary" in out ? out.summary.revenueByProperty.map((p) => [p.propertyId, p.revenue]) : []);
+    for (const p of ledger.properties) {
+      const contracts = ledger.contracts.filter((c) => c.propertyId === p.id);
+      const ids = new Set(contracts.map((c) => c.id));
+      const periods = ledger.receipts.filter((r) => ids.has(r.contractId) && r.receivedOn.startsWith(`${year}-`)).length;
+      const row = el("button", { type: "button", class: "lg-row", "data-open-property": p.id });
+      const left = el("span", { class: "lg-row-main" });
+      left.append(el("span", { class: "lg-row-name" }, p.name), el("span", { class: "sub" }, `${contracts.length} hợp đồng · ${periods} kỳ thu`));
+      row.append(left);
+      const amount = revenue.get(p.id);
+      if (amount !== undefined) row.append(el("span", { class: "lg-row-amt tnum" }, formatVnd(amount)));
+      row.addEventListener("click", () => {
+        view.property = p.id;
+        render();
+      });
+      box.append(row);
+    }
+    return box;
+  };
+
+  /** Sổ trống: một việc cần làm, kèm ngưỡng của năm nếu năm đó có luật. */
+  const emptyBlock = (): HTMLElement => {
+    const box = el("section", { class: "card lg-empty" });
+    const art = el("div", { class: "lg-empty-art" });
+    art.innerHTML = EMPTY_ART;
+    box.append(art, el("h3", {}, "Chưa có căn nào"), el("p", { class: "sub" }, "Thêm căn đầu tiên để ghi doanh thu và tính thuế. Dữ liệu chỉ lưu trên máy bạn."), addPropertyForm());
+    try {
+      const limit = (rules ?? getRules(year)).threshold;
+      box.append(el("p", { class: "lg-empty-tip" }, `Ngưỡng doanh thu chịu thuế năm ${year}: ${formatVnd(limit)}/năm`));
+    } catch {
+      // Năm chưa có luật: không nêu ngưỡng.
+    }
+    return box;
   };
 
   const lockBlock = (): HTMLElement => {
@@ -883,13 +948,29 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
       root.append(box);
     }
     if (locked && lockedRaw !== undefined) root.append(lockBlock());
-    root.append(el("h3", { class: "lg-section" }, "Các căn cho thuê"));
-    for (const p of ledger.properties) root.append(propertyBlock(p));
-    const addP = addPropertyForm();
-    root.append(ledger.properties.length ? fold("lg-add", "+ Thêm căn khác", addP) : addP);
-    if (ledger.contracts.length > 0) root.append(choiceBlock());
-    const exportRoot = el("div", { class: "lg-export-root" });
-    root.append(summaryBlock(), exportRoot, backupBlock(), el("p", { class: "disclaimer" }, DISCLAIMER));
+    const open = ledger.properties.some((p) => p.id === view.property);
+    if (!open) view.property = null;
+    const hasProperties = ledger.properties.length > 0;
+    if (hasProperties) {
+      const section = el("h3", { class: "lg-section" }, "Các căn cho thuê");
+      const list = listBlock();
+      const addP = fold("lg-add", "+ Thêm căn khác", addPropertyForm());
+      section.hidden = list.hidden = addP.hidden = open;
+      root.append(section, list);
+      for (const p of ledger.properties) root.append(propertyBlock(p));
+      root.append(addP);
+    } else root.append(emptyBlock());
+    const tail: HTMLElement[] = [];
+    if (ledger.contracts.length > 0) tail.push(choiceBlock());
+    const exportRoot = options.exportRoot ?? el("div", { class: "lg-export-root" });
+    const summary = summaryBlock();
+    tail.push(summary);
+    if (!options.exportRoot) tail.push(exportRoot);
+    tail.push(backupBlock(), el("p", { class: "disclaimer" }, DISCLAIMER));
+    for (const n of tail) n.hidden = open;
+    // Sổ trống: bảng toàn số 0 không giúp gì, khối tổng vẫn dựng để báo số cho tổng quan.
+    if (!hasProperties) summary.hidden = true;
+    root.append(...tail);
     mountExport(exportRoot, {
       year,
       today,
@@ -920,5 +1001,6 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     disposed = true;
     events?.removeEventListener("storage", onStorage);
     root.replaceChildren();
+    options.exportRoot?.replaceChildren();
   };
 }

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { LEDGER_KEY, ledger, open } from "./helpers";
+import { LEDGER_KEY, ledger, open, go } from "./helpers";
 
 // Ca thao tác qua giao diện (R11 dev-02). Số so là hằng tính tay từ docs/autodev/CRITICS.md (S9, S25).
 // Mỗi ca đọc trong vùng có id/class riêng (#overview, .lg-summary, #app .results), không đọc cả trang.
@@ -10,6 +10,7 @@ const storedReceipts = (page: Page) =>
 test("luồng sổ: thêm căn, hợp đồng, kỳ thu bằng giao diện, tải lại vẫn còn", async ({ page }) => {
   // Không addInitScript sổ: sổ trống, mọi thứ nhập bằng fill/click.
   await open(page, "2027-01-10");
+  await go(page, "ledger");
   const ledgerBox = page.locator("#ledger");
   await ledgerBox.locator("form.lg-property-add [name=name]").fill("Căn A");
   await ledgerBox.getByRole("button", { name: "Thêm căn" }).click();
@@ -46,6 +47,7 @@ test("S9: đổi hợp đồng được trừ ngưỡng từ B sang A, tổng TN
     { property: "Căn B", receipts: [["2026-06-01", 500_000_000]] },
   ]);
   await open(page, "2027-01-10", book);
+  await go(page, "ledger");
   const select = page.locator("#lg-choice-select");
   const pit = (id: string) => page.locator(`.lg-summary .lg-by-contract tbody tr[data-contract="${id}"] td[data-col="pit"]`);
 
@@ -90,6 +92,7 @@ const STRINGS = [
 type Outcome = { ok: boolean; error: string; shown: string };
 
 async function typeInCalculator(page: Page, text: string): Promise<Outcome> {
+  await go(page, "app");
   const card = page.locator("#app");
   await card.locator('input[name="rent"]').fill(text);
   await card.locator('input[name="periods"]').fill("1");
@@ -100,6 +103,8 @@ async function typeInCalculator(page: Page, text: string): Promise<Outcome> {
 }
 
 async function typeInLedger(page: Page, text: string): Promise<Outcome> {
+  await go(page, "ledger");
+  await page.locator("#ledger [data-open-property]").click();
   await page.locator("#ledger .lg-open-sheet").click();
   const form = page.locator("#ledger form.lg-receipt-add");
   await form.locator("[name=receivedOn]").fill("05/03/2026");

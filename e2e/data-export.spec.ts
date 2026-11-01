@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { LEDGER_KEY, ledger, monthly, open } from "./helpers";
+import { LEDGER_KEY, ledger, monthly, open, go } from "./helpers";
 
 // Ca dữ liệu và xuất (R11 dev-04): S23, S24, S27. Số so là hằng tính tay từ docs/autodev/CRITICS.md.
 
@@ -50,6 +50,7 @@ test("S24: localStorage ném lỗi: máy tính nhanh vẫn tính; sổ nói khô
     Storage.prototype.setItem = boom;
   });
   await open(page, "2026-11-10");
+  await go(page, "app");
   const results = page.locator("#app .results");
   await page.locator('#app input[name="rent"]').fill("25000000");
   await page.locator('#app input[name="periods"]').fill("12");
@@ -71,6 +72,7 @@ const S2 = ledger([
 
 test("S27: tải CSV thật: BOM, UTF-8, ô số chỉ chữ số, có 1200000000 và 70000000", async ({ page }) => {
   await open(page, "2027-01-10", S2);
+  await go(page, "deadlines");
   const [download] = await Promise.all([page.waitForEvent("download"), page.locator(".lg-export button[name=download-csv]").click()]);
   const bytes = readFileSync((await download.path())!);
   expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
@@ -88,6 +90,7 @@ test("S27: tải CSV thật: BOM, UTF-8, ô số chỉ chữ số, có 120000000
 test("S27: nút Chép dòng tổng thuế: clipboard chỉ chữ số, bằng 70000000, không báo lỗi", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await open(page, "2027-01-10", S2);
+  await go(page, "deadlines");
   const exp = page.locator(".lg-export");
   const row = exp.locator("table.export-main tr").filter({ has: page.locator("td button.copy[data-copy='70000000']") });
   await expect(row).toHaveCount(1);
