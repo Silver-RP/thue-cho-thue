@@ -69,4 +69,28 @@ Ví dụ dùng chung: một người cho thuê 3 căn, tổng tiền thuê năm 
 - Phạt chậm nộp hồ sơ theo văn bản nào, mức bao nhiêu?
 - App có nên tự tính các khoản này không?
 
+## Phát sinh từ bình luận công khai của chủ nhà trên Facebook (2026-11-01)
+
+Nên hỏi trước các câu 17, 18, 7 và 2: đây là chỗ chủ nhà nhỏ đang lúng túng nhất, và câu 17, 18 có thể đổi kết luận trên trang.
+
+**17. Doanh thu 700 triệu/năm mà tờ khai trên thuế điện tử tính TNCN 5% của 700 triệu thì đúng hay sai?**
+- Có chủ nhà gặp đúng trường hợp này; 5% × 700 triệu là 35 triệu.
+- App đang ghi dưới ngưỡng, không phải nộp thuế.
+- Do chọn sai mẫu hoặc sai loại khai, do hệ thống, hay app đang hiểu sai? Người dùng phải làm gì khi app và eTax ra hai số khác nhau?
+
+**18. Cho thuê vài triệu đồng/tháng có bắt buộc đăng ký hộ kinh doanh không?**
+- App chưa nói gì về việc này.
+- Có khác nhau theo địa phương, số căn hoặc loại nhà (nhà trọ so với nhà nguyên căn) không?
+
+**19. Có còn mức "8 triệu/tháng" nào cho người cho thuê nhà không?**
+- Có thể đây là cách quy đổi từ ngưỡng 100 triệu/năm cũ (chưa xác nhận).
+- Dưới mức đó có phải thông báo doanh thu không?
+
+**20. Người không dùng được điện thoại thì khai ở đâu?**
+- Có được nộp giấy, nhờ người khác khai hoặc uỷ quyền không?
+- UBND phường có nhận hồ sơ không, hay phải đến cơ quan thuế?
+
+**21. Đã nộp thuế cho tiền trả trước ở năm trước, nay tổng doanh thu dưới 1 tỷ thì có được hoàn không?**
+- Nếu có thì làm thủ tục ở đâu, trong thời hạn nào?
+
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.
