@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28",
+  "updated": "2026-11-01",
   "goals": [
     {
       "id": "thue-cho-thue-v1",
@@ -563,6 +563,10 @@
     {
       "date": "2026-10-28",
       "text": "Vòng làm đẹp leader-tự-làm (0 USD), chấm docs/design/RUBRIC.md: v0 11 → v1 16 (#53) → v2 17 (#57) → v3 19/20 (#58); sửa chữ 200% font Linux qua #54–#56. Đóng H-61 (e2e layout.spec.ts \"H-61\": hạn và \"còn N ngày\" trong 800 px đầu ở 390 px) và H-67 (e2e \"H-67\": mọi nút/summary/nhãn tệp ≥ 44 px; ui_check 19 ≥ 16). T4 474, T10 41 passed. Còn: ô ngày gốc trình duyệt (mm/dd/yyyy trong Chromium nền)."
+    },
+    {
+      "date": "2026-11-01",
+      "text": "Leader tạm dừng dự án: eTax là app chính thống và đã đủ dùng, khó có người dùng app ngoài. Trang giữ online kèm dòng ngừng cập nhật (#69). Trước đó: v4 theo ảnh mẫu (#61–#63, 19/20), đổi sang mẫu 01/BĐS Thông tư 50 (#65–#67), giải đáp dưới ngưỡng và hộ kinh doanh (#68). T4 505, T10 51 kể cả ảnh. Chưa có kế toán xác nhận, chưa hỏi chủ nhà."
     }
   ]
 }
