@@ -438,6 +438,15 @@ button.primary {
   margin-bottom: 0.5rem;
 }
 
+.discontinued {
+  margin: 0;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
 .site-intro,
 .site-info {
   max-width: 40rem;
