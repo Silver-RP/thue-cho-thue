@@ -45,7 +45,7 @@ function mount(ledger: Ledger, year = 2026, rules?: TaxRules): void {
 const row = (scope: ParentNode, label: string) =>
   Array.from(scope.querySelectorAll("tr")).find((r) => r.querySelector("th")?.textContent?.startsWith(label));
 const totalRow = (scope: ParentNode) => row(scope, "Tổng thuế")!;
-const declRow = (scope: ParentNode) => row(scope, "[18] Tổng số thuế còn phải nộp")!;
+const declRow = (scope: ParentNode) => row(scope, "[19] Tổng số thuế còn phải nộp")!;
 const csvTotalLabel = (csv: string) =>
   csv.split(/\r?\n/).map((l) => l.split(",")[1] ?? "").find((c) => c.startsWith("Tổng số thuế còn phải nộp"));
 
