@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { declarationToCsv, csvFilename, toCsv } from "../../src/export/csv";
 import { buildDeclaration } from "../../src/export/declaration";
-import { form01TTS, type FormConfig } from "../../src/export/forms";
+import { form01BDS, type FormConfig } from "../../src/export/forms";
 import type { Ledger } from "../../src/ledger/model";
 import { parseLedger } from "../../src/ledger/schema";
 import { summarizeYear } from "../../src/ledger/summary";
@@ -54,16 +54,16 @@ const fixture = (): Ledger => {
   return r.ledger;
 };
 
-const build = (l: Ledger, f: FormConfig = form01TTS) => buildDeclaration(l, summarizeYear(l, 2026, rules2026), f);
+const build = (l: Ledger, f: FormConfig = form01BDS) => buildDeclaration(l, summarizeYear(l, 2026, rules2026), f);
 
 describe("forms + declaration", () => {
   it("1: mẫu chưa xác nhận, code chuỗi không rỗng hoặc null; thêm trường vào cấu hình giả thì bảng có thêm", () => {
-    expect(form01TTS.confirmed).toBe(false);
-    for (const f of [...form01TTS.fields, ...form01TTS.annexColumns]) {
+    expect(form01BDS.confirmed).toBe(false);
+    for (const f of [...form01BDS.fields, ...form01BDS.annexColumns]) {
       expect(f.code === null || (typeof f.code === "string" && f.code.length > 0)).toBe(true);
     }
     const l = ledger2();
-    const extra: FormConfig = { ...form01TTS, fields: [...form01TTS.fields, { code: "X1", label: "Trường thêm", value: () => 7 }] };
+    const extra: FormConfig = { ...form01BDS, fields: [...form01BDS.fields, { code: "X1", label: "Trường thêm", value: () => 7 }] };
     const d = build(l, extra);
     expect(d.main.length).toBe(build(l).main.length + 1);
     expect(d.main[d.main.length - 1]).toEqual(["X1", "Trường thêm", 7]);
@@ -89,7 +89,7 @@ describe("forms + declaration", () => {
   it("6: đối chiếu summarizeYear với sổ mục 5 và fixture v1", () => {
     for (const l of [ledger2(), fixture()]) {
       const s = summarizeYear(l, 2026, rules2026);
-      const d = buildDeclaration(l, s, form01TTS);
+      const d = buildDeclaration(l, s, form01BDS);
       expect(d.main.map((r) => r[2])).toEqual(["Năm 2026", s.totalRevenue, s.totalDeduction, s.totalVat, s.totalPit, s.totalTax]);
       expect(d.annex.reduce((t, r) => t + (r[7] as number), 0)).toBe(s.totalPit);
       expect(d.annex.length).toBe(s.contracts.length);
@@ -107,7 +107,7 @@ describe("forms + declaration", () => {
     expect(csv).toContain("ước tính");
     expect(csv).toContain("chưa xác nhận mẫu");
     expect(declarationToCsv(build(l))).toBe(csv);
-    expect(csvFilename(2026)).toBe("thue-cho-thue-01TTS-2026.csv");
+    expect(csvFilename(2026)).toBe("thue-cho-thue-01BDS-2026.csv");
   });
 
   it("7: sổ trống vẫn dựng được, không có phụ lục", () => {
@@ -160,7 +160,7 @@ describe("csv", () => {
     const tncn = rows.find((r) => r[1] === "Thuế TNCN")!;
     expect(tncn[2]).toBe("20000000");
     const a = rows.find((r) => r[0] === "Nguyễn, Văn \"A\"")!;
-    expect(a.length).toBe(form01TTS.annexColumns.length);
+    expect(a.length).toBe(form01BDS.annexColumns.length);
     expect(rows.find((r) => r[0] === "'=cmd")).toBeTruthy();
   });
 });

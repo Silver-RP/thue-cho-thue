@@ -22,5 +22,5 @@ export function declarationToCsv(d: Declaration): string {
 }
 
 export function csvFilename(year: number): string {
-  return `thue-cho-thue-01TTS-${year}.csv`;
+  return `thue-cho-thue-01BDS-${year}.csv`;
 }
