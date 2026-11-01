@@ -160,10 +160,10 @@ describe("phần xuất đầu-cuối qua DOM", () => {
     const rows = parseCsv(d.content);
     const s = summarizeYear(loadLedger(storage).ledger, 2026);
     const cases: [string, string, number, string][] = [
-      ["Tổng doanh thu phát sinh trong kỳ", "[09] Tổng doanh thu phát sinh trong kỳ", 1_150_000_000, "totalRevenue"],
-      ["Doanh thu tính thuế TNCN được trừ", "[10] Doanh thu tính thuế TNCN được trừ", 1_000_000_000, "totalDeduction"],
-      ["Tổng số thuế TNCN phát sinh trong kỳ", "[12] Tổng số thuế TNCN phát sinh trong kỳ", 7_500_000, "totalPit"],
-      ["Tổng số thuế GTGT phải nộp", "[11] Tổng số thuế GTGT phải nộp", 57_500_000, "totalVat"],
+      ["Tổng doanh thu phát sinh trong kỳ", "[10] Tổng doanh thu phát sinh trong kỳ", 1_150_000_000, "totalRevenue"],
+      ["Doanh thu tính thuế TNCN được trừ", "[11] Doanh thu tính thuế TNCN được trừ", 1_000_000_000, "totalDeduction"],
+      ["Tổng số thuế TNCN phát sinh trong kỳ", "[13] Tổng số thuế TNCN phát sinh trong kỳ", 7_500_000, "totalPit"],
+      ["Tổng số thuế GTGT phải nộp", "[12] Tổng số thuế GTGT phải nộp", 57_500_000, "totalVat"],
     ];
     for (const [csvLabel, shownLabel, hand, field] of cases) {
       const v = mainCsv(rows, csvLabel);
@@ -209,8 +209,8 @@ describe("phần xuất đầu-cuối qua DOM", () => {
     expect(mainCsv(parseCsv(lastDownload().content), "Tổng số thuế TNCN phát sinh trong kỳ")).toBe("7500000");
     editReceipt("T3", 0, "350.000.000");
     // 5% x (1.250tr - 1.000tr) = 12.500.000; GTGT 5% x 1.250tr = 62.500.000
-    expect(mainShown("[12] Tổng số thuế TNCN phát sinh trong kỳ")).toBe(formatVnd(12_500_000));
-    expect(mainShown("[11] Tổng số thuế GTGT phải nộp")).toBe(formatVnd(62_500_000));
+    expect(mainShown("[13] Tổng số thuế TNCN phát sinh trong kỳ")).toBe(formatVnd(12_500_000));
+    expect(mainShown("[12] Tổng số thuế GTGT phải nộp")).toBe(formatVnd(62_500_000));
     btn("download-csv").click();
     const rows = parseCsv(lastDownload().content);
     expect(mainCsv(rows, "Tổng số thuế TNCN phát sinh trong kỳ")).toBe("12500000");

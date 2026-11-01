@@ -64,6 +64,7 @@ describe("dưới ngưỡng", () => {
     const text = exportText(700_000_000);
     expect(text).toContain("01/BĐS");
     expect(text).toContain("eTax vẫn tính thuế");
+    expect(text).toContain("ô [11]");
     expect(text).toContain("cơ quan thuế");
   });
 
@@ -81,7 +82,7 @@ describe("cột theo mẫu 01/BĐS và 01/BK-BĐS", () => {
   };
 
   it("tờ khai: đúng mã chỉ tiêu trên mẫu", () => {
-    expect(decl().main.map((r) => r[0])).toEqual(["[01c]", "[09]", "[10]", "[11]", "[12]", "[18]"]);
+    expect(decl().main.map((r) => r[0])).toEqual(["[01c]", "[10]", "[11]", "[12]", "[13]", "[19]"]);
   });
 
   it("bảng kê: có mã cột; bên thuê ghi rõ không có trên mẫu", () => {
@@ -92,6 +93,6 @@ describe("cột theo mẫu 01/BĐS và 01/BK-BĐS", () => {
 
   it("nêu rõ phần app chưa có: tách 6 tháng, tiền phạt, tổng giá trị hợp đồng", () => {
     const notes = decl().notes.join(" ");
-    for (const s of ["[01a]", "[01b]", "tiền phạt", "tổng giá trị hợp đồng", "Thông tư 18/2026", "500 triệu"]) expect(notes).toContain(s);
+    for (const s of ["[01a]", "[01b]", "tiền phạt", "tổng giá trị hợp đồng", "Thông tư 50/2026", "Thông tư 18/2026", "lưu trú", "[06]"]) expect(notes).toContain(s);
   });
 });

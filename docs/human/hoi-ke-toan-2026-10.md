@@ -107,12 +107,24 @@ Nguồn: một câu trả lời của AI và các trang tổng hợp; chưa đ�
 
 ## Đối chiếu với mẫu thật (01/11/2026)
 
-File: `docs/human/mau-thue/`, bản kèm Thông tư 18/2026, còn ghi ngưỡng 500 triệu; chưa có bản sửa theo Thông tư 50/2026 ghi 1 tỷ.
+Mục này đối chiếu bản kèm Thông tư 18/2026 (ghi ngưỡng 500 triệu); mã ô dưới đây là của bản đó. Bản kèm Thông tư 50/2026 ở mục sau.
 
 - **Câu 1:** mẫu ghi GTGT [11] = [09] × 5%, tức 5% trên toàn bộ doanh thu trong kỳ, khớp cách tính của app. App vẫn ghi "ước tính" cho tới khi kế toán xác nhận trên bản mới.
 - **Câu 4:** mẫu có kỳ [01a] 6 tháng đầu, [01b] 6 tháng cuối, [01c] cả năm. Có dòng "còn được tiếp tục trừ vào kỳ tiếp theo", nên nghĩa vụ từng kỳ cần kế toán giải thích. App chưa tách.
 - **Câu 13:** mẫu có ô tiền phạt, bồi thường bên cho thuê nhận được, tính thêm 5% TNCN, không thấy tính GTGT. Chưa rõ cọc bị giữ có thuộc ô này không. App chưa có ô nhập.
 - **Câu 17:** nếu eTax còn dùng bản ghi ngưỡng 500 triệu thì có thể giải thích trường hợp 700 triệu, nhưng đây mới là giả thuyết.
-- **Câu 22 (mới):** bản theo Thông tư 50 có đổi cột hay công thức nào so với bản Thông tư 18 không? Khi nào phải dùng 02/BK-KTBĐS?
+- **Câu 22 (mới):** 01/BK-BĐS có bản kèm Thông tư 50 không, hay vẫn dùng bản Thông tư 18?
+
+## Đối chiếu bản Thông tư 50/2026 (01/11/2026)
+
+File trong `docs/human/mau-thue/` (`01-bds-tt50.docx`, `02-bk-ktbds-tt50.docx`, `01-cnkd-tt50.docx`, `01-tkn-cnkd-tt50.docx`). Chưa kiểm được eTax đang hiện bản nào.
+
+- **Mã ô 01/BĐS đổi:** doanh thu [10], được trừ [11], GTGT [12], TNCN [13], tiền phạt [14], tổng còn phải nộp [19]. App đã đổi theo.
+- **Câu 1:** công thức giữ nguyên, [12] = [10] × 5% trên toàn bộ doanh thu. App vẫn ghi "ước tính" cho tới khi kế toán xác nhận.
+- **Câu 2:** mẫu ghi "từ 01 tỷ đồng trở xuống" và "trên 01 tỷ đồng".
+- **Câu 7:** cá nhân cho thuê (trừ lưu trú) dùng 01/BĐS để thông báo doanh thu; 01/TKN-CNKD dành cho hộ, cá nhân kinh doanh từ 01 tỷ trở xuống. Cần hỏi nhà trọ dùng mẫu nào.
+- **Câu 17:** giả thuyết mới: TNCN [13] = ([10] − [11]) × 5%, nên bỏ trống ô [11] sẽ ra đúng 5% × 700 triệu = 35 triệu. Chưa kiểm trên eTax thật.
+- **02/BK-KTBĐS:** kèm tờ khai 01/TCKT, dành cho tổ chức khai thay; chủ nhà tự khai không dùng.
+- **Mới:** ô tài khoản ngân hàng hoặc ví điện tử [06]; ô cho phép điều chỉnh tờ khai đã khai theo mẫu cũ.
 
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.

@@ -24,4 +24,4 @@ Nguồn: Nghị định 68/2026/NĐ-CP ngày 05/3/2026 (bản ký, [PDF](https:/
 
 **Đang thay đổi:** Bộ Tài chính đề xuất nâng ngưỡng phương pháp đơn giản từ 3 lên 10 tỷ (kỳ họp Quốc hội tháng 10/2026; Công văn 6360). Không đổi công thức L3 nhưng cho thấy luật còn động → ngưỡng, thuế suất, hạn phải là **cấu hình theo năm**, có ghi căn cứ.
 
-**Chưa xác nhận:** cơ sở tính GTGT ở L5; mẫu tờ khai hiện hành. Đối chiếu 01/11/2026 qua trang tổng hợp, chưa đọc văn bản gốc: mẫu là 01/BĐS và 01/BK-BĐS (Thông tư 18/2026/TT-BTC, sửa bởi Thông tư 50/2026/TT-BTC), thay 01/TTS; cần xét thêm Thông tư 89/2026/TT-BTC và Nghị định 252/2026/NĐ-CP (hiệu lực 01/07/2026).
+**Chưa xác nhận:** cơ sở tính GTGT ở L5; mẫu tờ khai hiện hành. Đối chiếu 01/11/2026 với file mẫu trong `docs/human/mau-thue/`: 01/BĐS kèm Thông tư 50/2026/TT-BTC và 01/BK-BĐS kèm Thông tư 18/2026/TT-BTC, thay 01/TTS; chưa có kế toán xác nhận; cần xét thêm Thông tư 89/2026/TT-BTC và Nghị định 252/2026/NĐ-CP (hiệu lực 01/07/2026).

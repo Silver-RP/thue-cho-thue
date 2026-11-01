@@ -45,19 +45,20 @@ const period = (s: YearSummary) => `Năm ${s.year}`;
 export const form01BDS: FormConfig = {
   id: "01/BĐS",
   name: "Thông báo doanh thu/Tờ khai thuế đối với hoạt động cho thuê bất động sản (mẫu 01/BĐS)",
-  source: "Đối chiếu mẫu 01/BĐS và 01/BK-BĐS kèm Thông tư 18/2026/TT-BTC (bản này còn ghi 500 triệu); bản sửa theo Thông tư 50/2026/TT-BTC chưa đối chiếu",
+  source: "Đối chiếu mẫu 01/BĐS kèm Thông tư 50/2026/TT-BTC và bảng kê 01/BK-BĐS kèm Thông tư 18/2026/TT-BTC; chưa có kế toán xác nhận",
   confirmed: false,
   notes: [
+    "Mẫu này không dùng cho kinh doanh lưu trú. Mẫu có ô số tài khoản hoặc ví điện tử [06], khai khi chưa thông báo với cơ quan thuế.",
     "Đây là số cả năm. Khai 2 lần thì tờ khai tách 6 tháng đầu [01a] và 6 tháng cuối [01b]; app chưa tách.",
     "App chưa có tiền phạt, bồi thường bên cho thuê nhận được (mẫu tính thêm TNCN), tổng giá trị hợp đồng [07] và số thuế TNCN được miễn; có các khoản này thì tự điền thêm.",
   ],
   fields: [
     { code: "[01c]", label: "Kỳ tính thuế", value: period },
-    { code: "[09]", label: "Tổng doanh thu phát sinh trong kỳ", value: (s) => s.totalRevenue },
-    { code: "[10]", label: "Doanh thu tính thuế TNCN được trừ", value: (s) => s.totalDeduction },
-    { code: "[11]", label: "Tổng số thuế GTGT phải nộp", vat: true, value: (s) => s.totalVat },
-    { code: "[12]", label: "Tổng số thuế TNCN phát sinh trong kỳ", value: (s) => s.totalPit },
-    { code: "[18]", label: "Tổng số thuế còn phải nộp", vat: true, value: (s) => s.totalTax },
+    { code: "[10]", label: "Tổng doanh thu phát sinh trong kỳ", value: (s) => s.totalRevenue },
+    { code: "[11]", label: "Doanh thu tính thuế TNCN được trừ", value: (s) => s.totalDeduction },
+    { code: "[12]", label: "Tổng số thuế GTGT phải nộp", vat: true, value: (s) => s.totalVat },
+    { code: "[13]", label: "Tổng số thuế TNCN phát sinh trong kỳ", value: (s) => s.totalPit },
+    { code: "[19]", label: "Tổng số thuế còn phải nộp", vat: true, value: (s) => s.totalTax },
   ],
   annexName: "Bảng kê 01/BK-BĐS (mỗi hợp đồng một dòng)",
   annexColumns: [

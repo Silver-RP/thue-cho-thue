@@ -155,7 +155,7 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     }
 
     if (!taxable) {
-      note(`Doanh thu năm ${year} chưa vượt ngưỡng chịu thuế, nên không phải nộp thuế và không có tờ khai thuế. Chỉ cần thông báo doanh thu trước hạn trên, dùng mẫu 01/BĐS (chưa xác nhận mẫu, đối chiếu trên eTax). Nếu eTax vẫn tính thuế dù chưa vượt ngưỡng, đừng nộp ngay: xem lại lựa chọn trên tờ khai rồi hỏi cơ quan thuế.`, "export-note export-notax");
+      note(`Doanh thu năm ${year} chưa vượt ngưỡng chịu thuế, nên không phải nộp thuế và không có tờ khai thuế. Chỉ cần thông báo doanh thu trước hạn trên, dùng mẫu 01/BĐS (chưa xác nhận mẫu, đối chiếu trên eTax). Nếu eTax vẫn tính thuế dù chưa vượt ngưỡng, đừng nộp ngay: xem lại ô "doanh thu năm từ 01 tỷ đồng trở xuống" và ô [11] trên tờ khai, rồi hỏi cơ quan thuế.`, "export-note export-notax");
       box.append(actionError);
       disclaimer();
       return;
