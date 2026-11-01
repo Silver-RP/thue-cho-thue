@@ -1,4 +1,5 @@
 import { declarationToCsv, csvFilename } from "../export/csv";
+import { isoToDmy } from "./date-input";
 import { buildDeclaration, type Cell } from "../export/declaration";
 import { form01TTS } from "../export/forms";
 import { deadlinesToIcs, icsFilename } from "../export/ics";
@@ -72,7 +73,7 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     root.replaceChildren();
     const box = el("section", { class: "lg-export" });
     root.append(box);
-    box.append(el("h2", {}, `Hạn khai và tờ khai năm ${year}`));
+    box.append(el("h2", {}, `Tờ khai năm ${year}`));
     const note = (text: string, cls = "export-note", role = "status"): HTMLElement => {
       const p = el("p", { class: cls, role }, text);
       box.append(p);
@@ -181,7 +182,7 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
       });
       return b;
     };
-    const show = (c: Cell): string => (typeof c === "number" ? formatVnd(c) : c);
+    const show = (c: Cell): string => (typeof c === "number" ? formatVnd(c) : isoToDmy(c));
 
     const mainTable = el("table", { class: "result-table export-main" });
     const mb = el("tbody");

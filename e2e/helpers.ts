@@ -48,6 +48,14 @@ export async function openRunning(page: Page, at: string, book?: object) {
   await page.goto("");
 }
 
+/** Sang một màn hình như bấm menu. */
+export async function go(page: Page, view: "overview" | "ledger" | "deadlines" | "app") {
+  await page.evaluate((h) => {
+    location.hash = h;
+  }, view);
+  await page.locator(`body[data-view=${view}]`).waitFor({ state: "attached" });
+}
+
 /** "70.000.000 đ" → 70000000; lấy mọi số tiền trong một đoạn chữ. */
 export function amounts(text: string): number[] {
   return [...text.matchAll(/(\d{1,3}(?:\.\d{3})+|\d+)\s*đ/g)].map((m) => Number(m[1].replace(/\./g, "")));

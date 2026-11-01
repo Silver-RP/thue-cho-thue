@@ -2,7 +2,7 @@ import { analyticsFromEnv } from "./analytics";
 import type { StorageLike } from "./ledger/storage";
 import { availableYears, getRules, type TaxRules } from "./rules";
 import { mountCalculator } from "./ui/form";
-import { mountLedger } from "./ui/ledger";
+import { mountLedger, type LedgerView } from "./ui/ledger";
 import { renderDue } from "./ui/due";
 import { renderOverview } from "./ui/overview";
 
@@ -162,6 +162,7 @@ interface Previous {
   year: () => { chosen: number; dflt: number };
   /** Chuỗi khoá chính lần cuối sổ đọc hoặc ghi. */
   seen: SeenRaw;
+  view: LedgerView;
 }
 
 /** Chuỗi khoá chính lần cuối tab này đọc hoặc ghi; sống qua các lần gắn lại do đổi ngày. */
@@ -185,6 +186,8 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   let stale = false;
   let keptYear: number | null = null;
   let seen: SeenRaw = { known: false, raw: undefined };
+  /** Căn đang mở trong Sổ: sống qua đổi năm và đổi ngày. */
+  let ledgerView: LedgerView = { property: null };
   if (
     previous &&
     previous.roots[0] === doc.querySelector<HTMLElement>("#app") &&
@@ -193,6 +196,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     previous.capture(carried);
     if (fromClock) {
       seen = previous.seen;
+      ledgerView = previous.view;
       stale = previous.stale();
       const y = previous.year();
       if (y.chosen !== y.dflt) keptYear = y.chosen;
@@ -210,6 +214,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   const ledgerRoot = doc.querySelector<HTMLElement>("#ledger");
   const overviewRoot = doc.querySelector<HTMLElement>("#overview");
   const dueRoot = doc.querySelector<HTMLElement>("#deadlines");
+  const exportRoot = doc.querySelector<HTMLElement>("#export-slot");
 
   doc.querySelectorAll('[data-year-picker]').forEach((n) => n.remove());
   const picker = doc.createElement("div");
@@ -294,6 +299,8 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
           ...common,
           stale,
           seen,
+          view: ledgerView,
+          ...(exportRoot ? { exportRoot } : {}),
           onStale: (v: boolean) => {
             stale = v;
           },
@@ -363,6 +370,8 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
   const markCurrent = (target: string): void => {
     const known = navLinks.some((a) => a.getAttribute("href") === target);
     const want = known ? target : "#overview";
+    // Mỗi mục là một màn hình riêng; chưa có JS thì không có thuộc tính này và trang hiện đủ mọi khối.
+    doc.body.setAttribute("data-view", want.slice(1));
     for (const a of navLinks) {
       if (a.getAttribute("href") === want) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
@@ -396,6 +405,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     overviewRoot?.replaceChildren();
     dueRoot?.replaceChildren();
     picker.remove();
+    doc.body.removeAttribute("data-view");
   };
   previous = {
     teardown,
@@ -404,6 +414,7 @@ function run(doc: Document, options: StartOptions, fromClock: boolean): void {
     stale: () => stale,
     year: () => ({ chosen: Number(select.value), dflt: current }),
     seen,
+    view: ledgerView,
   };
 
   try {

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { amounts, ledger, monthly, open, vnd } from "./helpers";
+import { amounts, ledger, monthly, open, vnd, go } from "./helpers";
 
 // Kịch bản và số tính tay: docs/autodev/CRITICS.md. Mỗi ca so mọi chỗ hiện số (tổng quan, biên lai, tổng năm, thẻ căn).
 
@@ -9,11 +9,16 @@ const S2 = ledger([
   { property: "Căn C", receipts: monthly(30_000_000) },
 ]);
 
+async function read(page: import("@playwright/test").Page, view: Parameters<typeof go>[1], sel: string) {
+  await go(page, view);
+  return page.locator(sel).innerText();
+}
+
 async function texts(page: import("@playwright/test").Page) {
   return {
-    overview: await page.locator("#overview").innerText(),
-    summary: await page.locator(".lg-summary").innerText(),
-    due: await page.locator("#deadlines").innerText(),
+    overview: await read(page, "overview", "#overview"),
+    summary: await read(page, "ledger", ".lg-summary"),
+    due: await read(page, "deadlines", "#deadlines"),
   };
 }
 

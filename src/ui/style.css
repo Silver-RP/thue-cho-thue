@@ -1421,7 +1421,11 @@ h2,
 }
 
 .mini::after {
-  content: "";
+  content: "✓";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
   position: absolute;
   top: 12px;
   right: 12px;
@@ -1595,4 +1599,372 @@ select:focus-visible {
 
 .sheet .lg-actions button.primary {
   width: 100%;
+}
+
+/* v4: mỗi mục một màn hình. Chưa có JS thì không có data-view, trang hiện đủ. */
+body[data-view] .shell {
+  display: block;
+  max-width: 1120px;
+}
+
+body[data-view] .main,
+body[data-view] .side {
+  display: contents;
+}
+
+body[data-view="overview"] :is(#ledger, #deadlines, #export-slot, #app),
+body[data-view="ledger"] :is(.site-intro, #overview, #deadlines, #export-slot, #app, .site-info),
+body[data-view="deadlines"] :is(.site-intro, #overview, #ledger, #app, .site-info),
+body[data-view="app"] :is(.site-intro, #overview, #ledger, #deadlines, #export-slot, .site-info) {
+  display: none;
+}
+
+#export-slot:not(:empty) {
+  margin-top: var(--gap);
+}
+
+.site-intro {
+  max-width: none;
+  margin-bottom: var(--gap);
+}
+
+.site-intro .privacy {
+  display: none;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  margin: 0;
+  padding: 8px 12px;
+}
+
+.privacy strong {
+  margin: 0;
+}
+
+@media (min-width: 761px) {
+  .site-intro .privacy {
+    display: inline-flex;
+  }
+}
+
+/* Thanh trên chứa menu ở máy tính */
+.nav {
+  flex: 0 1 auto;
+  flex-direction: row;
+  margin-left: 24px;
+}
+
+.nav a {
+  min-height: 44px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nav a svg {
+  display: none;
+}
+
+.nav a[aria-current="page"] {
+  background: transparent;
+  border-bottom-color: var(--primary);
+}
+
+@media (max-width: 1000px) and (min-width: 761px) {
+  .nav a {
+    padding: 0 8px;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Tổng quan */
+@media (min-width: 1000px) {
+  .overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    gap: var(--gap) 24px;
+  }
+
+  .overview > .card:has(> .receipt) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .overview > .hero:only-child {
+    grid-column: 1 / -1;
+  }
+
+  body[data-view="deadlines"] .side {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    max-width: none;
+  }
+
+  body[data-view="deadlines"] #export-slot {
+    margin-top: 0;
+  }
+
+  .calc-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 0 32px;
+  }
+
+  .calc-card > h2 {
+    grid-column: 1 / -1;
+  }
+
+  .calc-card .mini {
+    margin-top: 0;
+  }
+}
+
+.home-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.home-list .tnum {
+  font-weight: 700;
+  color: var(--primary);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.homes-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Sổ: danh sách căn rồi chi tiết */
+.ledger [hidden] {
+  display: none !important;
+}
+
+.lg-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 761px) {
+  .lg-list {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+.lg-row {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  width: 100%;
+  min-height: 72px;
+  padding: 12px 16px;
+  text-align: left;
+  border-color: var(--line-strong);
+  border-radius: var(--radius);
+}
+
+.lg-row-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lg-row-name {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.lg-row .sub {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.lg-row-amt {
+  color: var(--primary);
+  font-weight: 700;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.lg-back {
+  margin-bottom: 8px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+}
+
+.lg-property > .lg-head h3 {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+}
+
+/* Bảng theo căn đã có ở danh sách căn */
+.lg-by-property,
+.lg-summary > h3:has(+ .table-scroll > .lg-by-property) {
+  display: none;
+}
+
+.lg-empty {
+  max-width: 34rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.lg-empty-art svg {
+  width: 180px;
+  height: auto;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lg-empty-art .accent {
+  stroke: var(--due);
+}
+
+.lg-empty h3 {
+  margin: 8px 0 4px;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+}
+
+.lg-empty .sub {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.lg-empty form {
+  text-align: left;
+}
+
+.lg-empty-tip {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--due-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.mini.due::after {
+  content: "!";
+}
+
+/* Tờ khai: màn hình Hạn đã có danh sách hạn và nút lịch */
+#export-slot .export-deadlines,
+#export-slot [name="download-ics"] {
+  display: none;
+}
+
+.lg-export {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.lg-export h2 {
+  margin-top: 0;
+}
+
+.lg-export h3 {
+  font-family: var(--font-serif);
+  margin: 20px 0 6px;
+}
+
+.lg-export legend {
+  font-weight: 600;
+  padding: 0;
+}
+
+.lg-export .export-mode-option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.lg-export .export-warning {
+  margin: 6px 0;
+  padding: 10px 12px;
+  border-left: 4px solid var(--warn);
+  background: var(--warn-soft);
+  font-size: 0.9375rem;
+}
+
+.lg-export .export-unconfirmed {
+  font-weight: 600;
+}
+
+.export-main {
+  border: 1px solid var(--line-strong);
+}
+
+.export-main th {
+  font-weight: 500;
+}
+
+.export-main tr:last-child th,
+.export-main tr:last-child td {
+  font-weight: 700;
+  background: var(--surface-2);
+}
+
+.export-main td {
+  white-space: nowrap;
+}
+
+.export-annex {
+  width: max-content;
+  min-width: 100%;
+}
+
+.export-annex td {
+  text-align: left;
+}
+
+.export-annex td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.lg-export ol {
+  padding-left: 1.25rem;
+}
+
+@media (min-width: 761px) {
+  .export-annex {
+    width: 100%;
+  }
+
+  .export-annex td:last-child {
+    white-space: normal;
+  }
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--primary);
 }

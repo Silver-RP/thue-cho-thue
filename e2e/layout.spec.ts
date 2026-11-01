@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { ledger, monthly, open } from "./helpers";
+import { go, ledger, monthly, open } from "./helpers";
 
 const S2 = ledger([
   { property: "Căn hộ tầng 12 chung cư Sông Hồng", receipts: monthly(25_000_000) },
@@ -11,14 +11,27 @@ const S2 = ledger([
 const overflow = (page: import("@playwright/test").Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
+/** Mỗi mục là một màn hình riêng: quét đủ cả bốn, không chỉ màn hình đầu. */
+async function everyView(page: import("@playwright/test").Page) {
+  for (const view of ["overview", "ledger", "deadlines", "app"] as const) {
+    await go(page, view);
+    expect(await overflow(page), view).toBeLessThanOrEqual(0);
+  }
+}
+
 for (const width of [360, 390, 820, 1280]) {
   test(`không cuộn ngang ở ${width}px, sổ trống và sổ S2`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await open(page, "2027-01-10");
-    expect(await overflow(page)).toBeLessThanOrEqual(0);
+    await everyView(page);
     const p2 = await page.context().newPage();
     await p2.setViewportSize({ width, height: 900 });
     await open(p2, "2027-01-10", S2);
+    await everyView(p2);
+    await go(p2, "ledger");
+    await p2.locator("[data-open-property]").first().click();
+    expect(await overflow(p2)).toBeLessThanOrEqual(0);
+    await p2.locator(".lg-property:not([hidden]) .lg-open-sheet").first().click();
     expect(await overflow(p2)).toBeLessThanOrEqual(0);
   });
 }
@@ -36,6 +49,8 @@ test("S28: 360px, chữ 200% vẫn không cuộn ngang", async ({ page }) => {
       .map((e) => `${e.tagName.toLowerCase()}.${e.getAttribute("class") ?? ""} "${(e.textContent ?? "").trim().slice(0, 30)}"`),
   );
   expect(await overflow(page), wide.join(" | ")).toBeLessThanOrEqual(0);
+  await everyView(page);
+  await go(page, "overview");
   const sel = page.locator("#tax-year");
   await expect(sel).toBeVisible();
   const box = await sel.boundingBox();
@@ -49,12 +64,16 @@ test("S28: 360px, chữ 200% vẫn không cuộn ngang", async ({ page }) => {
 
 for (const width of [390, 1280]) {
   test(`S28: không lỗi tiếp cận mức nghiêm trọng ở ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width, height: 900 });
     await open(page, "2027-01-10", S2);
     await expect(page.getByRole("combobox", { name: "Năm tính thuế" })).toHaveCount(1);
-    const { violations } = await new AxeBuilder({ page }).analyze();
-    const bad = violations.filter((v) => v.impact === "critical" || v.impact === "serious");
-    expect(bad.map((v) => `${v.id}: ${v.nodes.length} chỗ`)).toEqual([]);
+    for (const view of ["overview", "ledger", "deadlines", "app"] as const) {
+      await go(page, view);
+      const { violations } = await new AxeBuilder({ page }).analyze();
+      const bad = violations.filter((v) => v.impact === "critical" || v.impact === "serious");
+      expect(bad.map((v) => `${view} ${v.id}: ${v.nodes.length} chỗ`)).toEqual([]);
+    }
   });
 }
 

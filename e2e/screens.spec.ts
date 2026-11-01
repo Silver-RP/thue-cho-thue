@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { ledger, monthly, open } from "./helpers";
+import { ledger, monthly, open, go } from "./helpers";
 
 // ui_check (docs/design/RUBRIC.md): chụp 5 trạng thái × 2 khổ vào $SCREENS_DIR. Không đặt biến thì bỏ qua,
 // để `yarn -s e2e` thường không ghi file.
@@ -20,6 +20,7 @@ const states: { name: string; today: string; book?: object; act?: (p: import("@p
     name: "04-tinh-nhanh",
     today: "2027-01-10",
     act: async (p) => {
+      await go(p, "app");
       await p.locator("#tc1-rent").fill("25000000");
       await p.locator("#tc1-periods").fill("12");
       await p.getByRole("button", { name: "Tính thuế" }).click();
@@ -42,7 +43,8 @@ test.describe("ảnh ui_check", () => {
         const shot = { type: "jpeg" as const, quality: 70 };
         const base = `${dir}/${s.name}-${width}`;
         await page.screenshot({ ...shot, path: `${base}-0-dau.jpg` });
-        for (const [part, sel] of [["1-tong-quan", "#overview"], ["2-so", "#ledger"], ["3-han", "#deadlines"], ["4-tinh", ".calc-card"]]) {
+        for (const [part, sel, view] of [["1-tong-quan", "#overview", "overview"], ["2-so", "#ledger", "ledger"], ["3-han", "#deadlines", "deadlines"], ["3b-to-khai", "#export-slot", "deadlines"], ["4-tinh", ".calc-card", "app"]] as const) {
+          await go(page, view);
           const el = page.locator(sel).first();
           if (!(await el.count()) || !(await el.isVisible())) continue;
           // Toạ độ theo trang (boundingBox theo khung nhìn sai khi trang đã cuộn).
@@ -53,6 +55,14 @@ test.describe("ảnh ui_check", () => {
           // Khối dài (sổ 36 kỳ thu) chỉ lấy 2.400 px đầu: đủ thấy kiểu trình bày, chiều dài thật đã ở do-dai.tsv.
           const clip = { x: box.x, y: box.y, width: box.width, height: Math.min(box.height, 2400) };
           await page.screenshot({ ...shot, path: `${base}-${part}.jpg`, clip, fullPage: true });
+        }
+        if (s.book) {
+          await go(page, "ledger");
+          await page.locator("[data-open-property]").first().click();
+          await page.screenshot({ ...shot, path: `${base}-5-chi-tiet.jpg` });
+          await page.locator(".lg-property:not([hidden]) .lg-open-sheet").first().click();
+          await page.screenshot({ ...shot, path: `${base}-6-them-ky-thu.jpg` });
+          await page.keyboard.press("Escape");
         }
         const height = await page.evaluate(() => document.documentElement.scrollHeight);
         await test.info().attach("height", { body: String(height) });
