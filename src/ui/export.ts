@@ -1,7 +1,7 @@
 import { declarationToCsv, csvFilename } from "../export/csv";
 import { isoToDmy } from "./date-input";
 import { buildDeclaration, type Cell } from "../export/declaration";
-import { form01TTS } from "../export/forms";
+import { form01BDS } from "../export/forms";
 import { deadlinesToIcs, icsFilename } from "../export/ics";
 import type { Ledger } from "../ledger/model";
 import { summarizeYearSafe } from "./year-summary";
@@ -57,9 +57,9 @@ async function defaultCopy(text: string): Promise<void> {
 
 const ETAX_STEPS = [
   "Mở ứng dụng eTax Mobile và đăng nhập bằng tài khoản thuế điện tử của bạn.",
-  "Chọn mục khai thuế, rồi chọn tờ khai thuế đối với cá nhân cho thuê tài sản (mẫu 01/TTS).",
+  "Chọn mục khai thuế, rồi chọn tờ khai thuế đối với hoạt động cho thuê bất động sản (mẫu 01/BĐS).",
   "Chọn kỳ tính thuế là năm cần khai và nhập các số trong bảng ở trên vào đúng ô tương ứng.",
-  "Nếu có nhiều hợp đồng thuê, nhập thêm từng dòng của phụ lục 01-1/BK-TTS.",
+  "Nếu có nhiều hợp đồng thuê, nhập thêm từng dòng của bảng kê 01/BK-BĐS.",
   "Đối chiếu lại từng số với bảng, kiểm tra thông tin rồi nộp tờ khai và nộp thuế trước hạn.",
 ];
 
@@ -155,14 +155,14 @@ export function mountExport(root: HTMLElement, options: ExportMountOptions): voi
     }
 
     if (!taxable) {
-      note(`Doanh thu năm ${year} chưa vượt ngưỡng chịu thuế, nên không phải nộp thuế và không có tờ khai thuế. Chỉ cần thông báo doanh thu trước hạn trên.`, "export-note export-notax");
+      note(`Doanh thu năm ${year} chưa vượt ngưỡng chịu thuế, nên không phải nộp thuế và không có tờ khai thuế. Chỉ cần thông báo doanh thu trước hạn trên, dùng mẫu 01/BĐS (chưa xác nhận mẫu, đối chiếu trên eTax). Nếu eTax vẫn tính thuế dù chưa vượt ngưỡng, đừng nộp ngay: xem lại lựa chọn trên tờ khai rồi hỏi cơ quan thuế.`, "export-note export-notax");
       box.append(actionError);
       disclaimer();
       return;
     }
 
     // Bảng tờ khai
-    const decl = buildDeclaration(ledger, summary, form01TTS);
+    const decl = buildDeclaration(ledger, summary, form01BDS);
     box.append(el("h3", {}, decl.title));
     for (const n of decl.notes) box.append(el("p", { class: "export-warning", role: "note" }, n));
     if (!decl.confirmed) box.append(el("p", { class: "badge export-unconfirmed" }, "chưa xác nhận mẫu"));

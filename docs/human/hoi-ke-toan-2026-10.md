@@ -93,4 +93,16 @@ Nên hỏi trước các câu 17, 18, 7 và 2: đây là chỗ chủ nhà nhỏ 
 **21. Đã nộp thuế cho tiền trả trước ở năm trước, nay tổng doanh thu dưới 1 tỷ thì có được hoàn không?**
 - Nếu có thì làm thủ tục ở đâu, trong thời hạn nào?
 
+## Kết quả đối chiếu 01/11/2026 (chưa phải lời xác nhận của kế toán)
+
+Nguồn: một câu trả lời của AI và các trang tổng hợp; chưa đọc được văn bản gốc. Các câu dưới đây vẫn cần người có chuyên môn xác nhận.
+
+- **Câu 2:** khớp ghi chép NĐ 141, ngưỡng 1 tỷ. App giữ nguyên.
+- **Câu 5:** app đã đổi sang 01/BĐS và 01/BK-BĐS, vẫn ghi "chưa xác nhận mẫu". Cột của bảng kê chưa đối chiếu; mẫu có thể còn bảng 02/BK-KTBĐS. Cần hỏi thêm Thông tư 89/2026 và NĐ 252/2026 có đổi gì không.
+- **Câu 7:** dưới ngưỡng vẫn phải thông báo. Một nguồn nói hộ kinh doanh dùng 01/TKN-CNKD, nên cần xác nhận khi nào dùng mẫu nào.
+- **Câu 8:** câu trả lời AI nói chỉ được phân bổ, trái NĐ 68 Điều 5.2.đ ("phân bổ hoặc tính một lần"). App giữ hai lựa chọn.
+- **Câu 17:** AI nói eTax tính như vậy là sai và nêu ba nguyên nhân, chưa có bằng chứng. App chỉ nhắc dừng lại và hỏi cơ quan thuế.
+- **Câu 18:** các nguồn mâu thuẫn về nhà trọ; chưa xác nhận được Điều 82 NĐ 168/2025. App chưa nói về việc này.
+- **Câu 21:** căn cứ hoàn thuế AI nêu chưa kiểm chứng.
+
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.

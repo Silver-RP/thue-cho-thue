@@ -102,7 +102,7 @@ describe("ui/export", () => {
       content: deadlinesToIcs(s.deadlines, { year: 2026, stamp: "20261026T000000Z" }),
     });
     click(btn("download-csv"));
-    expect(downloads[1]?.filename).toBe("thue-cho-thue-01TTS-2026.csv");
+    expect(downloads[1]?.filename).toBe("thue-cho-thue-01BDS-2026.csv");
     expect(downloads[1]?.mime).toBe("text/csv");
     expect(downloads[1]?.content.startsWith("﻿")).toBe(true);
     // gọi lặp lại không rò trạng thái

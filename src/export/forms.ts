@@ -40,10 +40,10 @@ export interface FormConfig {
 
 const period = (s: YearSummary) => `Năm ${s.year}`;
 
-export const form01TTS: FormConfig = {
-  id: "01/TTS",
-  name: "Tờ khai thuế đối với cá nhân cho thuê tài sản (mẫu 01/TTS)",
-  source: "Mẫu 01/TTS và phụ lục 01-1/BK-TTS theo thông tư hướng dẫn quản lý thuế (chưa đối chiếu bản chính thức)",
+export const form01BDS: FormConfig = {
+  id: "01/BĐS",
+  name: "Tờ khai thuế đối với hoạt động cho thuê bất động sản (mẫu 01/BĐS)",
+  source: "Mẫu 01/BĐS và bảng kê 01/BK-BĐS theo Thông tư 18/2026/TT-BTC, sửa bởi Thông tư 50/2026/TT-BTC (chưa đối chiếu bản chính thức)",
   confirmed: false,
   fields: [
     { code: null, label: "Kỳ tính thuế", value: period },
@@ -53,7 +53,7 @@ export const form01TTS: FormConfig = {
     { code: null, label: "Thuế TNCN", value: (s) => s.totalPit },
     { code: null, label: "Tổng số thuế phải nộp", vat: true, value: (s) => s.totalTax },
   ],
-  annexName: "Phụ lục 01-1/BK-TTS (mỗi hợp đồng một dòng)",
+  annexName: "Bảng kê 01/BK-BĐS (mỗi hợp đồng một dòng)",
   annexColumns: [
     { code: null, label: "Bên thuê", value: (_c, x) => x.contract?.tenant ?? "" },
     { code: null, label: "Căn/địa chỉ", value: (_c, x) => [x.property?.name, x.property?.address].filter(Boolean).join(" - ") },

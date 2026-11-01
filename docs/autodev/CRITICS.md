@@ -17,7 +17,7 @@ Leader cũng chạy được bằng tay: mở `claude` ở thư mục dự án, 
 | V1 | Chủ một căn, khoảng 60 tuổi, cho sinh viên thuê 8 triệu/tháng | Điện thoại Android rẻ, cỡ chữ lớn, không biết "TNCN", "GTGT" | Một câu: có phải nộp không, phải làm gì, trước ngày nào | Chữ nhỏ, thuật ngữ, form dài, phải cuộn ngang |
 | V2 | Chủ ba căn, tổng khoảng 1,2 tỷ/năm, vượt ngưỡng giữa năm | iPhone Safari, mở trang vài lần mỗi quý | Biết khi nào vượt ngưỡng, nộp bao nhiêu, khai 1 hay 2 lần lợi hơn | Số ở hai chỗ khác nhau; không biết số nào để điền tờ khai |
 | V3 | Cho công ty thuê văn phòng, trả trước 3 năm | Máy tính bàn | Biết chọn phân bổ hay tính một lần, công ty có khai thay không (L8) | App bắt khai cả phần công ty đã khai thay; không giải thích lựa chọn |
-| V4 | Kế toán dịch vụ làm hộ 5 chủ nhà | Máy tính, nhiều tab, Excel | Xuất số đúng mẫu 01/TTS, tách sổ từng khách, nhập lại được | Phải gõ lại từ đầu; CSV lệch tờ khai; lẫn sổ hai khách |
+| V4 | Kế toán dịch vụ làm hộ 5 chủ nhà | Máy tính, nhiều tab, Excel | Xuất số đúng mẫu 01/BĐS, tách sổ từng khách, nhập lại được | Phải gõ lại từ đầu; CSV lệch tờ khai; lẫn sổ hai khách |
 | V5 | Con cái giúp bố mẹ khai | Máy tính ở nhà mình, điện thoại của bố mẹ | Chuyển sổ giữa hai máy, sao lưu, không mất dữ liệu | Mất sổ khi đổi máy hoặc Safari xoá dữ liệu |
 | V6 | Người lạ vào từ Google tháng 01/2027 | Điện thoại, vội, nghi ngờ | Tin được: có căn cứ luật, có ngày cập nhật, không đòi tài khoản | Trang báo "chưa có quy định 2027"; con số không có căn cứ |
 
@@ -202,7 +202,7 @@ Chỗ ghi "(chờ Kn)" nghĩa là kết quả phụ thuộc câu hỏi kế toá
 1. V1 mở trang trên 390 px: trong màn hình đầu có biết "có phải nộp không, bao giờ" không? Có chữ nào phải phóng to mới đọc được không?
 2. Có nút nào bấm mà không ra gì, hoặc báo lỗi ở chỗ bị ẩn hay ngoài màn hình không?
 3. Có đường nào làm mất sổ mà không cảnh báo (đổi năm, hai tab, sổ mới, nhập file, Safari xoá)?
-4. Thuật ngữ (TNCN, GTGT, ngưỡng, phân bổ, 01/TTS) có giải thích ngay tại chỗ không?
+4. Thuật ngữ (TNCN, GTGT, ngưỡng, phân bổ, 01/BĐS) có giải thích ngay tại chỗ không?
 5. Sau khi biết số, người dùng có biết bước tiếp (vào eTax, điền ô nào, nộp tiền ở đâu) không?
 
 ### Cải thiện (bảng riêng, không đánh số H-xx)
