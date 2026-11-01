@@ -65,6 +65,7 @@ describe("dưới ngưỡng", () => {
     expect(text).toContain("01/BĐS");
     expect(text).toContain("eTax vẫn tính thuế");
     expect(text).toContain("ô [11]");
+    expect(text).toContain("năm tính thuế");
     expect(text).toContain("cơ quan thuế");
   });
 
@@ -72,6 +73,15 @@ describe("dưới ngưỡng", () => {
     const info = document.querySelector("#info")!.textContent!;
     expect(info).toContain("Không phải nộp thuế thì có cần làm gì không?");
     expect(info).toContain("01/BĐS");
+    expect(info).toContain("năm tính thuế, ô");
+    expect(info).toContain("thông báo 2 lần");
+  });
+
+  it("giải đáp về hộ kinh doanh không khẳng định chắc và nhắc nghĩa vụ thuế", () => {
+    const item = Array.from(document.querySelectorAll("#info details")).find((d) => d.textContent!.includes("đăng ký hộ kinh doanh"))!;
+    expect(item.textContent).toContain("thường không bắt buộc");
+    expect(item.textContent).toContain("đăng ký thuế");
+    expect(item.textContent).toContain("chưa được kế toán xác nhận");
   });
 });
 
