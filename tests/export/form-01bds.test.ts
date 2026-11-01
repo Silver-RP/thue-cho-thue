@@ -4,6 +4,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { csvFilename } from "../../src/export/csv";
+import { buildDeclaration } from "../../src/export/declaration";
+import { form01BDS } from "../../src/export/forms";
+import { summarizeYear } from "../../src/ledger/summary";
+import { rules2026 } from "../../src/rules/2026";
 import { emptyLedger, type Ledger } from "../../src/ledger/model";
 import { saveLedger, type StorageLike } from "../../src/ledger/storage";
 import { startApp } from "../../src/start";
@@ -67,5 +71,27 @@ describe("dưới ngưỡng", () => {
     const info = document.querySelector("#info")!.textContent!;
     expect(info).toContain("Không phải nộp thuế thì có cần làm gì không?");
     expect(info).toContain("01/BĐS");
+  });
+});
+
+describe("cột theo mẫu 01/BĐS và 01/BK-BĐS", () => {
+  const decl = () => {
+    const l = book(1_200_000_000);
+    return buildDeclaration(l, summarizeYear(l, 2026, rules2026), form01BDS);
+  };
+
+  it("tờ khai: đúng mã chỉ tiêu trên mẫu", () => {
+    expect(decl().main.map((r) => r[0])).toEqual(["[01c]", "[09]", "[10]", "[11]", "[12]", "[18]"]);
+  });
+
+  it("bảng kê: có mã cột; bên thuê ghi rõ không có trên mẫu", () => {
+    const h = decl().annexHeader;
+    for (const code of ["[04]", "[08]", "[09]", "[10]", "[12]", "[13]"]) expect(h.join("|")).toContain(code);
+    expect(h[0]).toContain("không có trên mẫu");
+  });
+
+  it("nêu rõ phần app chưa có: tách 6 tháng, tiền phạt, tổng giá trị hợp đồng", () => {
+    const notes = decl().notes.join(" ");
+    for (const s of ["[01a]", "[01b]", "tiền phạt", "tổng giá trị hợp đồng", "Thông tư 18/2026", "500 triệu"]) expect(notes).toContain(s);
   });
 });

@@ -35,6 +35,7 @@ export function buildDeclaration(ledger: Ledger, summary: YearSummary, form: For
   if (!form.confirmed) {
     notes.push(`Lưu ý: chưa xác nhận mẫu ${form.id}, đối chiếu trên eTax trước khi nộp. Nguồn: ${form.source}.`);
   }
+  notes.push(...form.notes);
   if (summary.vatEstimated) {
     notes.push("Thuế GTGT là số ước tính vì quy định chưa được xác nhận.");
   }
@@ -44,7 +45,7 @@ export function buildDeclaration(ledger: Ledger, summary: YearSummary, form: For
     notes,
     main,
     annexTitle: form.annexName,
-    annexHeader: form.annexColumns.map((c) => c.label + est(c.vat)),
+    annexHeader: form.annexColumns.map((c) => (c.code ? `${c.code} ` : "") + c.label + est(c.vat)),
     annex,
   };
 }

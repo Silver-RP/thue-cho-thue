@@ -114,12 +114,12 @@ describe("ui/export", () => {
     const pit = summarizeYear(twelveMonths(), 2026).totalPit;
     const got: string[] = [];
     await mountExportOnly(twelveMonths(), (t) => void got.push(t));
-    click(root.querySelector('button[aria-label="Chép Thuế TNCN"]'));
+    click(root.querySelector('button[aria-label="Chép Tổng số thuế TNCN phát sinh trong kỳ"]'));
     await Promise.resolve();
     expect(got).toEqual([String(pit)]);
 
     await mountExportOnly(twelveMonths(), () => Promise.reject(new Error("denied")));
-    click(root.querySelector('button[aria-label="Chép Thuế TNCN"]'));
+    click(root.querySelector('button[aria-label="Chép Tổng số thuế TNCN phát sinh trong kỳ"]'));
     await new Promise((r) => setTimeout(r, 0));
     const err = root.querySelector(".export-error") as HTMLElement;
     expect(err.hidden).toBe(false);
@@ -130,7 +130,7 @@ describe("ui/export", () => {
     await mountExportOnly(twelveMonths(), () => {
       throw new Error("sync");
     });
-    click(root.querySelector('button[aria-label="Chép Thuế TNCN"]'));
+    click(root.querySelector('button[aria-label="Chép Tổng số thuế TNCN phát sinh trong kỳ"]'));
     await new Promise((r) => setTimeout(r, 0));
     expect((root.querySelector(".export-error") as HTMLElement).hidden).toBe(false);
   });
