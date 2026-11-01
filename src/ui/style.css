@@ -1369,9 +1369,6 @@ h2,
 }
 
 .hero .hero-due {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 6px;
   margin: 14px 0 0;
   padding: 8px 12px;
   border-radius: 6px;
