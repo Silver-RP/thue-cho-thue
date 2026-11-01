@@ -5,6 +5,7 @@ import * as ops from "../ledger/ops";
 import { LEDGER_KEY, loadLedger, preserveRaw, readLastBackup, saveLedger, writeLastBackup, type StorageLike } from "../ledger/storage";
 import type { YearSummary } from "../ledger/summary";
 import { summarizeYearSafe, type YearSummaryOutcome } from "./year-summary";
+import { dateField, dmyToIso, isoToDmy } from "./date-input";
 import { mountExport } from "./export";
 import { DISCLAIMER } from "./form";
 import { formatVnd, groupOnBlur, parseVnd } from "./money";
@@ -150,8 +151,8 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
       control = el("input", { type: "checkbox", name: s.name });
       (control as HTMLInputElement).checked = s.value === "1";
     } else if (s.kind === "date") {
-      control = el("input", { type: "date", name: s.name, autocomplete: "off" });
-      (control as HTMLInputElement).value = s.value ?? "";
+      control = el("input", { type: "text", name: s.name, autocomplete: "off", "data-date": "" });
+      (control as HTMLInputElement).value = isoToDmy(s.value ?? "");
     } else {
       control = el("input", {
         type: "text",
@@ -172,7 +173,7 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
     const wrap = el("div", { class: s.kind === "check" ? "field field-check" : "field" });
     const label = el("label", { for: id }, s.label);
     if (s.kind === "check") wrap.append(control, label);
-    else wrap.append(label, control);
+    else wrap.append(label, s.kind === "date" ? dateField(control as HTMLInputElement) : control);
     const err = el("p", { class: "field-error", id: `${id}-error`, role: "alert" });
     err.hidden = true;
     wrap.append(err);
@@ -216,6 +217,7 @@ function buildForm(cls: string, specs: FieldSpec[], submitLabel: string): FormAp
 const val = (f: FormApi, name: string): string => {
   const c = f.controls[name];
   if (!c) return "";
+  if (c.hasAttribute("data-date")) return dmyToIso(c.value);
   return c instanceof HTMLInputElement && c.type === "checkbox" ? (c.checked ? "1" : "") : c.value.trim();
 };
 
@@ -486,8 +488,23 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     box.append(caption);
     const list = el("div", { class: "lg-receipts" });
     for (const r of mine) list.append(receiptForm(c.id, r));
-    box.append(list, receiptForm(c.id));
+    box.append(list, receiptSheet(c));
     return box;
+  };
+
+  /** Nút thêm kỳ thu và hộp nổi chứa biểu mẫu: điện thoại trượt từ đáy, máy tính nằm giữa màn hình. */
+  const receiptSheet = (c: Contract): DocumentFragment => {
+    const sheet = el("dialog", { class: "sheet", "aria-label": `Thêm kỳ thu: ${c.tenant}` });
+    const head = el("div", { class: "sheet-head" });
+    const close = el("button", { type: "button", class: "sheet-close", "aria-label": "Đóng" }, "×");
+    close.addEventListener("click", () => sheet.close());
+    head.append(el("h3", {}, "Thêm kỳ thu"), close);
+    sheet.append(head, el("p", { class: "sub" }, `Hợp đồng: ${c.tenant}`), receiptForm(c.id));
+    const open = el("button", { type: "button", class: "lg-open-sheet" }, "+ Thêm kỳ thu");
+    open.addEventListener("click", () => sheet.showModal());
+    const frag = document.createDocumentFragment();
+    frag.append(open, sheet);
+    return frag;
   };
 
   /** Biểu mẫu kỳ thu: có `r` là sửa, không có là thêm. */

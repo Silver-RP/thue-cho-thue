@@ -138,7 +138,7 @@ describe("tổng quan: đổi theo sổ (A1.1)", () => {
     const s = summarizeYear(after, 2026);
     expect(answer()).toContain(`Phải nộp khoảng ${formatVnd(s.totalTax)}`);
     const added = Array.from(ledgerRoot().querySelectorAll(".lg-receipt")).find(
-      (n) => (n.querySelector('[name="receivedOn"]') as HTMLInputElement).value === "2026-06-01",
+      (n) => (n.querySelector('[name="receivedOn"]') as HTMLInputElement).value === "01/06/2026",
     )!;
     const del = Array.from(added.querySelectorAll("button")).find((b) => b.textContent === "Xoá kỳ thu")!;
     del.click();

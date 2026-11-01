@@ -1,5 +1,6 @@
 import { availableYears, getRules, type TaxRules } from "../rules";
 import { calculate, type CalcForm, type PrepaidForm } from "./calculator";
+import { dateField, dmyToIso, isoToDmy } from "./date-input";
 import { formatVnd, groupOnBlur, parseVnd } from "./money";
 
 export interface MountOptions {
@@ -117,7 +118,9 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
   const modeSel = el("select", { name: "prepaidMode" });
   modeSel.append(el("option", { value: "allocate" }, "Phân bổ theo số năm"), el("option", { value: "lump" }, "Tính một lần khi nhận"));
   const pMode = field(prepaidBox, prefix, "Cách tính doanh thu trả trước", modeSel);
-  const pDate = field(prepaidBox, prefix, "Ngày nhận tiền", el("input", { type: "date", name: "prepaidDate", value: `${options.year}-01-01` }));
+  const pDateInput = el("input", { type: "text", name: "prepaidDate", autocomplete: "off", value: isoToDmy(`${options.year}-01-01`) });
+  const pDate = field(prepaidBox, prefix, "Ngày nhận tiền", pDateInput);
+  pDate.wrap.insertBefore(dateField(pDateInput), pDate.error);
   form.append(prepaidBox);
   toggle.addEventListener("change", () => {
     prepaidBox.hidden = !toggle.checked;
@@ -181,7 +184,7 @@ export function mountCalculator(root: HTMLElement, options: MountOptions): () =>
     if (toggle.checked) {
       const amountV = readMoney(pAmount);
       const yearsV = readInt(pYears, 1, 100, "Số năm trả trước");
-      const date = (pDate.el as HTMLInputElement).value;
+      const date = dmyToIso((pDate.el as HTMLInputElement).value);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         setError(pDate, "Hãy chọn ngày nhận tiền.");
         bad = true;

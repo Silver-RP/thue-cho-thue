@@ -45,15 +45,15 @@ function checkProperty(p: Omit<Property, "id">): string | null {
 function checkContract(l: Ledger, c: Omit<Contract, "id">): string | null {
   if (!l.properties.some((p) => p.id === c.propertyId)) return "Không tìm thấy căn của hợp đồng.";
   if (!nonEmpty(c.tenant)) return "Tên người thuê không được để trống.";
-  if (!isRealDate(c.signedOn)) return "Ngày ký không phải ngày có thật (dạng AAAA-MM-DD).";
-  if (!isRealDate(c.startOn)) return "Ngày bắt đầu không phải ngày có thật (dạng AAAA-MM-DD).";
-  if (c.endOn !== undefined && !isRealDate(c.endOn)) return "Ngày kết thúc không phải ngày có thật (dạng AAAA-MM-DD).";
+  if (!isRealDate(c.signedOn)) return "Ngày ký không phải ngày có thật (dạng ngày/tháng/năm).";
+  if (!isRealDate(c.startOn)) return "Ngày bắt đầu không phải ngày có thật (dạng ngày/tháng/năm).";
+  if (c.endOn !== undefined && !isRealDate(c.endOn)) return "Ngày kết thúc không phải ngày có thật (dạng ngày/tháng/năm).";
   return null;
 }
 
 function checkReceipt(l: Ledger, r: Omit<Receipt, "id">): string | null {
   if (!l.contracts.some((c) => c.id === r.contractId)) return "Không tìm thấy hợp đồng của kỳ thu.";
-  if (!isRealDate(r.receivedOn)) return "Ngày nhận không phải ngày có thật (dạng AAAA-MM-DD).";
+  if (!isRealDate(r.receivedOn)) return "Ngày nhận không phải ngày có thật (dạng ngày/tháng/năm).";
   if (!isMoney(r.amount)) return "Số tiền phải là số nguyên đồng không âm.";
   if (r.prepaid !== undefined) {
     const pp = r.prepaid;
