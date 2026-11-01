@@ -66,7 +66,8 @@ describe("tổng năm: năm không doanh thu không hiện hạn (H-27)", () => 
     expect(totalText()).not.toContain("Hạn thông báo doanh thu");
     expect(totalText()).not.toContain("Hạn khai và nộp thuế");
     expect(root.textContent).not.toContain("31/01/2027");
-    expect(summaryText()).toContain("Chưa có kỳ thu năm 2026");
+    expect(summaryText()).not.toContain("Chưa có kỳ thu năm 2026");
+    expect(exportText()).toContain("Chưa có kỳ thu năm 2026");
   });
 
   it("sổ chỉ có kỳ thu 2025-03-01: cùng kết quả, khối xuất cũng nói chưa có kỳ thu", () => {
@@ -76,7 +77,6 @@ describe("tổng năm: năm không doanh thu không hiện hạn (H-27)", () => 
     expect(totalText()).not.toContain("Hạn thông báo doanh thu");
     expect(totalText()).not.toContain("Hạn khai và nộp thuế");
     expect(root.textContent).not.toContain("31/01/2027");
-    expect(summaryText()).toContain("Chưa có kỳ thu năm 2026");
     expect(exportText()).toContain("Chưa có kỳ thu năm 2026");
   });
 

@@ -41,10 +41,10 @@ beforeAll(async () => {
 afterAll(() => rmSync(outDir, { recursive: true, force: true }));
 
 describe("token (dev-01 mục 1)", () => {
-  it("cùng tên và cùng giá trị với mockup, đủ 17", () => {
+  it("cùng tên và cùng giá trị với mockup, đủ 21 (v4)", () => {
     const mine = tokens(CSS);
     const theirs = tokens(MOCKUP);
-    expect(Object.keys(theirs).length).toBe(17);
+    expect(Object.keys(theirs).length).toBe(21);
     expect(mine).toEqual(theirs);
   });
 });
