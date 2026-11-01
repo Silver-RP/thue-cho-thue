@@ -72,9 +72,9 @@ describe("forms + declaration", () => {
   it("5 (L4, L6): 2 căn, B trừ ngưỡng, kỳ thu 2025 không tính", () => {
     const d = build(ledger2());
     const v = (label: string) => d.main.find((r) => r[1] === label)![2];
-    expect(v("Tổng doanh thu")).toBe(1400 * M);
-    expect(v("Mức doanh thu được trừ ngưỡng")).toBe(1000 * M);
-    expect(v("Thuế TNCN")).toBe(20 * M);
+    expect(v("Tổng doanh thu phát sinh trong kỳ")).toBe(1400 * M);
+    expect(v("Doanh thu tính thuế TNCN được trừ")).toBe(1000 * M);
+    expect(v("Tổng số thuế TNCN phát sinh trong kỳ")).toBe(20 * M);
     const rowOf = (tenant: string) => d.annex.find((r) => r[0] === tenant)!;
     const a = rowOf("Nguyễn, Văn \"A\"");
     const b = rowOf("=cmd");
@@ -100,7 +100,7 @@ describe("forms + declaration", () => {
     const l = ledger2();
     const d = build(l);
     expect(rules2026.vat.unconfirmed).toBe(true);
-    expect(d.main.find((r) => String(r[1]).startsWith("Thuế GTGT"))![1]).toContain("ước tính");
+    expect(d.main.find((r) => String(r[1]).startsWith("Tổng số thuế GTGT"))![1]).toContain("ước tính");
     expect(d.annexHeader.join("|")).toContain("ước tính");
     expect(d.notes.join(" ")).toContain("chưa xác nhận mẫu");
     const csv = declarationToCsv(d);
@@ -157,7 +157,7 @@ describe("csv", () => {
 
   it("3/5: CSV khai báo từ sổ 2 căn đọc ngược ra đúng ô", () => {
     const rows = readCsv(declarationToCsv(build(ledger2())));
-    const tncn = rows.find((r) => r[1] === "Thuế TNCN")!;
+    const tncn = rows.find((r) => r[1] === "Tổng số thuế TNCN phát sinh trong kỳ")!;
     expect(tncn[2]).toBe("20000000");
     const a = rows.find((r) => r[0] === "Nguyễn, Văn \"A\"")!;
     expect(a.length).toBe(form01BDS.annexColumns.length);

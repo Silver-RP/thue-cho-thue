@@ -33,6 +33,8 @@ export interface FormConfig {
   name: string;
   source: string;
   confirmed: boolean;
+  /** Phần mẫu có mà app chưa tính, luôn hiện cùng bảng */
+  notes: string[];
   fields: FormField[];
   annexName: string;
   annexColumns: AnnexColumn[];
@@ -42,26 +44,30 @@ const period = (s: YearSummary) => `Năm ${s.year}`;
 
 export const form01BDS: FormConfig = {
   id: "01/BĐS",
-  name: "Tờ khai thuế đối với hoạt động cho thuê bất động sản (mẫu 01/BĐS)",
-  source: "Mẫu 01/BĐS và bảng kê 01/BK-BĐS theo Thông tư 18/2026/TT-BTC, sửa bởi Thông tư 50/2026/TT-BTC (chưa đối chiếu bản chính thức)",
+  name: "Thông báo doanh thu/Tờ khai thuế đối với hoạt động cho thuê bất động sản (mẫu 01/BĐS)",
+  source: "Đối chiếu mẫu 01/BĐS và 01/BK-BĐS kèm Thông tư 18/2026/TT-BTC (bản này còn ghi 500 triệu); bản sửa theo Thông tư 50/2026/TT-BTC chưa đối chiếu",
   confirmed: false,
+  notes: [
+    "Đây là số cả năm. Khai 2 lần thì tờ khai tách 6 tháng đầu [01a] và 6 tháng cuối [01b]; app chưa tách.",
+    "App chưa có tiền phạt, bồi thường bên cho thuê nhận được (mẫu tính thêm TNCN), tổng giá trị hợp đồng [07] và số thuế TNCN được miễn; có các khoản này thì tự điền thêm.",
+  ],
   fields: [
-    { code: null, label: "Kỳ tính thuế", value: period },
-    { code: null, label: "Tổng doanh thu", value: (s) => s.totalRevenue },
-    { code: null, label: "Mức doanh thu được trừ ngưỡng", value: (s) => s.totalDeduction },
-    { code: null, label: "Thuế GTGT", vat: true, value: (s) => s.totalVat },
-    { code: null, label: "Thuế TNCN", value: (s) => s.totalPit },
-    { code: null, label: "Tổng số thuế phải nộp", vat: true, value: (s) => s.totalTax },
+    { code: "[01c]", label: "Kỳ tính thuế", value: period },
+    { code: "[09]", label: "Tổng doanh thu phát sinh trong kỳ", value: (s) => s.totalRevenue },
+    { code: "[10]", label: "Doanh thu tính thuế TNCN được trừ", value: (s) => s.totalDeduction },
+    { code: "[11]", label: "Tổng số thuế GTGT phải nộp", vat: true, value: (s) => s.totalVat },
+    { code: "[12]", label: "Tổng số thuế TNCN phát sinh trong kỳ", value: (s) => s.totalPit },
+    { code: "[18]", label: "Tổng số thuế còn phải nộp", vat: true, value: (s) => s.totalTax },
   ],
   annexName: "Bảng kê 01/BK-BĐS (mỗi hợp đồng một dòng)",
   annexColumns: [
-    { code: null, label: "Bên thuê", value: (_c, x) => x.contract?.tenant ?? "" },
-    { code: null, label: "Căn/địa chỉ", value: (_c, x) => [x.property?.name, x.property?.address].filter(Boolean).join(" - ") },
-    { code: null, label: "Ngày bắt đầu", value: (_c, x) => x.contract?.startOn ?? "" },
-    { code: null, label: "Ngày kết thúc", value: (_c, x) => x.contract?.endOn ?? "" },
-    { code: null, label: "Doanh thu năm", value: (c) => c.revenue },
-    { code: null, label: "Mức trừ ngưỡng", value: (c) => c.deduction },
-    { code: null, label: "Thuế GTGT", vat: true, value: (c) => c.vat },
-    { code: null, label: "Thuế TNCN", value: (c) => c.pit },
+    { code: null, label: "Bên thuê (để đối chiếu, không có trên mẫu)", value: (_c, x) => x.contract?.tenant ?? "" },
+    { code: "[04]", label: "Địa chỉ (xã/phường [05], tỉnh/TP [06] điền riêng)", value: (_c, x) => [x.property?.name, x.property?.address].filter(Boolean).join(" - ") },
+    { code: "[08]", label: "Thuê từ ngày", value: (_c, x) => x.contract?.startOn ?? "" },
+    { code: "[08]", label: "Thuê đến ngày", value: (_c, x) => x.contract?.endOn ?? "" },
+    { code: "[09]", label: "Tổng doanh thu phát sinh trong kỳ", value: (c) => c.revenue },
+    { code: "[10]", label: "Doanh thu được trừ", value: (c) => c.deduction },
+    { code: "[12]", label: "Số thuế GTGT phải nộp", vat: true, value: (c) => c.vat },
+    { code: "[13]", label: "Số thuế TNCN phải nộp", value: (c) => c.pit },
   ],
 };

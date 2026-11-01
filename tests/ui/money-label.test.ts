@@ -45,9 +45,9 @@ function mount(ledger: Ledger, year = 2026, rules?: TaxRules): void {
 const row = (scope: ParentNode, label: string) =>
   Array.from(scope.querySelectorAll("tr")).find((r) => r.querySelector("th")?.textContent?.startsWith(label));
 const totalRow = (scope: ParentNode) => row(scope, "Tổng thuế")!;
-const declRow = (scope: ParentNode) => row(scope, "Tổng số thuế phải nộp")!;
+const declRow = (scope: ParentNode) => row(scope, "[18] Tổng số thuế còn phải nộp")!;
 const csvTotalLabel = (csv: string) =>
-  csv.split(/\r?\n/).map((l) => l.split(",")[1] ?? "").find((c) => c.startsWith("Tổng số thuế phải nộp"));
+  csv.split(/\r?\n/).map((l) => l.split(",")[1] ?? "").find((c) => c.startsWith("Tổng số thuế còn phải nộp"));
 
 beforeEach(() => {
   document.body.innerHTML = '<main id="app"></main>';
@@ -93,7 +93,7 @@ describe("nhãn ước tính ở dòng tổng (H-14)", () => {
     mount(oneContract([1_200_000_000]), 2026, confirmedRules);
     expect(declRow(root.querySelector(".lg-export")!).textContent).not.toContain("ước tính");
     (root.querySelector('button[name="download-csv"]') as HTMLElement).click();
-    expect(csvTotalLabel(downloads[0]!.content)).toBe("Tổng số thuế phải nộp");
+    expect(csvTotalLabel(downloads[0]!.content)).toBe("Tổng số thuế còn phải nộp");
   });
 });
 

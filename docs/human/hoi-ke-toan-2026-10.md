@@ -105,4 +105,14 @@ Nguồn: một câu trả lời của AI và các trang tổng hợp; chưa đ�
 - **Câu 18:** các nguồn mâu thuẫn về nhà trọ; chưa xác nhận được Điều 82 NĐ 168/2025. App chưa nói về việc này.
 - **Câu 21:** căn cứ hoàn thuế AI nêu chưa kiểm chứng.
 
+## Đối chiếu với mẫu thật (01/11/2026)
+
+File: `docs/human/mau-thue/`, bản kèm Thông tư 18/2026, còn ghi ngưỡng 500 triệu; chưa có bản sửa theo Thông tư 50/2026 ghi 1 tỷ.
+
+- **Câu 1:** mẫu ghi GTGT [11] = [09] × 5%, tức 5% trên toàn bộ doanh thu trong kỳ, khớp cách tính của app. App vẫn ghi "ước tính" cho tới khi kế toán xác nhận trên bản mới.
+- **Câu 4:** mẫu có kỳ [01a] 6 tháng đầu, [01b] 6 tháng cuối, [01c] cả năm. Có dòng "còn được tiếp tục trừ vào kỳ tiếp theo", nên nghĩa vụ từng kỳ cần kế toán giải thích. App chưa tách.
+- **Câu 13:** mẫu có ô tiền phạt, bồi thường bên cho thuê nhận được, tính thêm 5% TNCN, không thấy tính GTGT. Chưa rõ cọc bị giữ có thuộc ô này không. App chưa có ô nhập.
+- **Câu 17:** nếu eTax còn dùng bản ghi ngưỡng 500 triệu thì có thể giải thích trường hợp 700 triệu, nhưng đây mới là giả thuyết.
+- **Câu 22 (mới):** bản theo Thông tư 50 có đổi cột hay công thức nào so với bản Thông tư 18 không? Khi nào phải dùng 02/BK-KTBĐS?
+
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.
