@@ -628,10 +628,6 @@ export function mountLedger(root: HTMLElement, options: LedgerMountOptions): () 
     const wrap = el("div", { class: "table-scroll" });
     wrap.append(table);
     box.append(wrap);
-    if (s.totalRevenue === 0) {
-      box.append(el("p", { class: "export-note", role: "status" }, `Chưa có kỳ thu năm ${year}. Hạn khai sẽ hiện khi có doanh thu.`));
-    }
-
     // Kỳ thu trước năm đầu có quy định không được cộng vào năm nào: nói rõ để người dùng không tưởng bị bỏ sót.
     const first = availableYears()[0];
     if (first !== undefined && ledger.receipts.some((r) => Number(r.receivedOn.slice(0, 4)) < first)) {

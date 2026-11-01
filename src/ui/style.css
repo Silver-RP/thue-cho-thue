@@ -1,20 +1,24 @@
 :root {
-  --bg: #f4f6fa;
-  --surface: #ffffff;
-  --line: #e3e8f0;
-  --text: #0f1b2d;
-  --muted: #52607a;
-  --primary: #1a56db;
-  --primary-soft: #eaf0fd;
-  --ok: #0e6b3b;
-  --ok-soft: #e8f5ee;
-  --due: #a3360b;
-  --due-soft: #fff3ec;
-  --warn: #8a5300;
-  --warn-soft: #fff6e0;
-  --radius: 12px;
+  --bg: #f6f1e7;
+  --surface: #fdfaf3;
+  --surface-2: #faf5ea;
+  --line: #e2d9c6;
+  --line-strong: #b9ad93;
+  --text: #1e2a25;
+  --muted: #565f58;
+  --primary: #1b4d3e;
+  --primary-soft: #e4ebe0;
+  --ok: #1f5c43;
+  --ok-soft: #dfe9dd;
+  --due: #a4441f;
+  --due-soft: #f8e7dc;
+  --warn: #7d5200;
+  --warn-soft: #f7ecd0;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(30 42 37 / 0.06);
   --gap: 16px;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Noto Serif", "Times New Roman", serif;
   --num: 1.0625rem;
 }
 
@@ -491,7 +495,7 @@ button.primary {
   }
 
   .topbar {
-    padding: 10px 16px;
+    padding: 8px 16px;
     flex-wrap: wrap;
     row-gap: 8px;
   }
@@ -1301,4 +1305,195 @@ button.danger:hover {
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--muted);
+}
+
+/* Vòng làm đẹp v4: giấy kem, xanh rêu, đất nung (ảnh mẫu docs/design/refs) */
+h1,
+h2,
+.brand span,
+.hero .answer,
+.mini b,
+.due .due-date,
+.total {
+  font-family: var(--font-serif);
+}
+
+.card,
+.lg-property,
+.lg-property-add,
+.lg-choice,
+.lg-summary,
+.lg-backup {
+  box-shadow: var(--shadow);
+}
+
+.topbar {
+  border-bottom: 3px double var(--line-strong);
+}
+
+.brand {
+  color: var(--primary);
+}
+
+.brand span {
+  color: var(--primary);
+}
+
+/* Thẻ chính: viền đôi như trang sổ, nền theo trạng thái */
+.hero {
+  position: relative;
+  border: 1px solid var(--line-strong);
+  outline: 1px solid var(--line-strong);
+  outline-offset: -6px;
+  padding: 26px 24px;
+}
+
+.hero.owe {
+  outline-color: var(--due);
+}
+
+.hero.safe {
+  outline-color: var(--ok);
+}
+
+.hero .answer {
+  font-weight: 700;
+}
+
+.hero.owe .answer {
+  color: var(--due);
+}
+
+.hero.safe .answer {
+  color: var(--ok);
+}
+
+.hero .hero-due {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  margin: 14px 0 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--surface);
+  border-left: 4px solid var(--due);
+}
+
+.hero-due .soon {
+  color: var(--due);
+}
+
+.meter-bar {
+  height: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+}
+
+/* Biên lai Cách tính: mép răng cưa, dòng tổng gạch đôi */
+.card:has(> .receipt) {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background:
+    radial-gradient(circle at 8px 0, var(--bg) 6px, transparent 6.5px) 0 0 / 16px 8px repeat-x,
+    radial-gradient(circle at 8px 8px, var(--bg) 6px, transparent 6.5px) 0 100% / 16px 8px repeat-x,
+    var(--surface);
+  padding-block: 24px;
+}
+
+.card:has(> .receipt) > h2 {
+  justify-content: center;
+}
+
+.receipt li {
+  border-bottom: 1px dashed var(--line-strong);
+}
+
+.total {
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 3px double var(--text);
+  padding: 12px 0 8px;
+}
+
+/* Tính nhanh */
+.mini {
+  position: relative;
+  border: 1px solid currentcolor;
+  padding-right: 56px;
+}
+
+.mini::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border: 2px solid currentcolor;
+  border-radius: 50%;
+  opacity: 0.55;
+  transform: rotate(-12deg);
+}
+
+.seg {
+  background: var(--primary-soft);
+}
+
+.calc-card .result-table th {
+  font-weight: 500;
+  color: var(--muted);
+  min-width: 8.5rem;
+}
+
+.calc-card .result-table td {
+  white-space: normal;
+}
+
+/* Nút và ô nhập theo giấy */
+input[type="text"],
+input[type="date"],
+select,
+.input {
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.input:focus-within {
+  outline: 2px solid var(--primary);
+}
+
+.input input[type="text"]:focus-visible {
+  outline: 0;
+}
+
+.result-table th,
+.result-table td,
+.due .timeline li,
+.site-info details {
+  border-bottom-color: var(--line);
+}
+
+.chip.ok {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.lg-contract {
+  background: var(--surface-2);
+}
+
+.privacy {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.tabbar {
+  border-top: 3px double var(--line-strong);
 }
