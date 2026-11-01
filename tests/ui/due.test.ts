@@ -212,8 +212,8 @@ describe("thẻ căn và bảng hợp đồng (A1.1, A1.3)", () => {
   });
 });
 
-describe("ô ngày type=date (H-13)", () => {
-  it("bốn ô ngày có type=date, không inputmode; nhập 2026-03-01 lưu đúng", () => {
+describe("ô ngày dd/mm/yyyy (H-13, v4)", () => {
+  it("bốn ô ngày là ô chữ dd/mm/yyyy có nút lịch; nhập 01/03/2026 lưu đúng", () => {
     start("2026-10-26", book([100_000_000]));
     const l = ledgerRoot();
     const contractForm = l.querySelector(".lg-contract-add") ?? l.querySelector("form");
@@ -221,11 +221,11 @@ describe("ô ngày type=date (H-13)", () => {
     const rf = l.querySelector("section.lg-contract .lg-receipt-add")!;
     for (const [scope, name] of [[contractForm!, "signedOn"], [contractForm!, "startOn"], [contractForm!, "endOn"], [rf, "receivedOn"]] as const) {
       const input = scope.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
-      expect(input.type).toBe("date");
-      expect(input.hasAttribute("inputmode")).toBe(false);
+      expect(input.placeholder).toBe("dd/mm/yyyy");
+      expect(input.closest(".date-field")!.querySelector(".date-pick")).not.toBeNull();
       expect(input.labels?.[0]?.textContent).not.toContain("AAAA");
     }
-    fill(rf, "receivedOn", "2026-03-01");
+    fill(rf, "receivedOn", "01/03/2026");
     fill(rf, "amount", "5.000.000");
     submit(rf);
     const saved = JSON.parse(storage.data.get(LEDGER_KEY)!) as Ledger;

@@ -23,9 +23,12 @@ test("luồng sổ: thêm căn, hợp đồng, kỳ thu bằng giao diện, tả
 
   const contract = ledgerBox.locator("section.lg-contract");
   await expect(contract).toHaveCount(1);
-  await contract.locator("form.lg-receipt-add [name=receivedOn]").fill("2026-03-05");
+  await contract.locator(".lg-open-sheet").click();
+  await contract.locator("form.lg-receipt-add [name=receivedOn]").fill("05/03/2026");
+  await contract.locator("form.lg-receipt-add [name=receivedOn]").press("Tab");
   await contract.locator("form.lg-receipt-add [name=amount]").fill("8000000");
-  await contract.getByRole("button", { name: "Thêm kỳ thu" }).click();
+  await contract.locator("form.lg-receipt-add").getByRole("button", { name: "Thêm kỳ thu" }).click();
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
 
   const summary = page.locator(".lg-summary");
   await expect(summary).toContainText("8.000.000 đ");
@@ -97,8 +100,9 @@ async function typeInCalculator(page: Page, text: string): Promise<Outcome> {
 }
 
 async function typeInLedger(page: Page, text: string): Promise<Outcome> {
+  await page.locator("#ledger .lg-open-sheet").click();
   const form = page.locator("#ledger form.lg-receipt-add");
-  await form.locator("[name=receivedOn]").fill("2026-03-05");
+  await form.locator("[name=receivedOn]").fill("05/03/2026");
   await form.locator("[name=amount]").fill(text);
   await form.getByRole("button", { name: "Thêm kỳ thu" }).click();
   const err = form.locator(".field", { has: page.locator("[name=amount]") }).locator(".field-error");
