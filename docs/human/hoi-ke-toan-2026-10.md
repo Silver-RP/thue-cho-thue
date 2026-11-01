@@ -127,4 +127,16 @@ File trong `docs/human/mau-thue/` (`01-bds-tt50.docx`, `02-bk-ktbds-tt50.docx`, 
 - **02/BK-KTBĐS:** kèm tờ khai 01/TCKT, dành cho tổ chức khai thay; chủ nhà tự khai không dùng.
 - **Mới:** ô tài khoản ngân hàng hoặc ví điện tử [06]; ô cho phép điều chỉnh tờ khai đã khai theo mẫu cũ.
 
+## Câu trả lời nhận ngày 01/11/2026 (chưa coi là lời xác nhận của kế toán)
+
+Bản trả lời có vẻ ghép từ nhiều nguồn: bài quảng cáo môi giới, nội dung kiểu AI và bài tư vấn pháp lý. Một số đoạn đã lỗi thời (nhắc 01/TTS, "500 triệu hoặc 1 tỷ", "lũy tiến"), nên chỉ dùng phần khớp với mẫu và nguồn khác.
+
+- **Câu 1, 2:** ví dụ 90 triệu/tháng ra GTGT 54 triệu, TNCN 4 triệu, khớp công thức app.
+- **Câu 17:** gợi ý mới dùng được: chọn nhầm kỳ 2025 trở về trước thì 5% trên toàn bộ doanh thu là đúng quy định cũ. Bản trả lời không nói gì về ô [11], nên vẫn cần hỏi.
+- **Câu 7:** dưới ngưỡng vẫn phải thông báo, có thể một lần (31/01 năm sau) hoặc hai lần (31/07 và 31/01). Phần trả lời nói về hộ kinh doanh, chưa nói riêng cá nhân cho thuê.
+- **Câu 18:** cho thuê nhà ở quy mô nhỏ thường không bắt buộc đăng ký hộ kinh doanh, vẫn phải đăng ký thuế và kê khai. Bản trả lời tự mâu thuẫn ở kết luận cuối; mức "10 lần, 300 tỷ" và phạm vi Nghị quyết 66.17/2026 chưa kiểm chứng được.
+- **Nhà trọ:** có hợp đồng thuê để ở, học tập, làm việc có thể không thuộc "lưu trú", nhưng chưa xác nhận.
+- **Câu 22:** một nguồn nói vẫn dùng 01/BK-BĐS khi có từ 2 bất động sản trở lên.
+- **Câu 23 (mới):** cá nhân mới cho thuê từ 6 tháng đầu năm có phải thông báo trước 31/07 không, hay được chọn một lần trước 31/01?
+
 Trả lời xong thì ghi vào cuối file này (hoặc nhắn cho tôi), tôi sẽ cập nhật cấu hình luật và bỏ nhãn "ước tính" ở những chỗ đã chắc.
